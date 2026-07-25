@@ -1,0 +1,268 @@
+{
+  "questions": [
+    {
+      "id": "Q1",
+      "kind": "single",
+      "seg": 1,
+      "prompt": "A genie gives you one wish. You cannot change your mind later. Which one?",
+      "options": [
+        "Replay any 10 minutes of your day, once a day",
+        "Learn any skill by holding the book for a minute",
+        "Travel anywhere in the world in one second",
+        "Always know the right thing to say"
+      ]
+    },
+    {
+      "id": "Q2",
+      "kind": "single",
+      "seg": 1,
+      "prompt": "You have a free day. Nobody needs anything from you. What do you do?",
+      "options": [
+        "Go somewhere alone, with no plan and no phone",
+        "A six-hour lunch with your favourite people",
+        "Finally build the thing you keep thinking about",
+        "On the sofa all day. Snacks. Nobody."
+      ]
+    },
+    {
+      "id": "Q5",
+      "kind": "single",
+      "seg": 2,
+      "prompt": "Your closest friend did something unfair to someone you both know. You:",
+      "options": [
+        "Defend them in public, tell them off in private",
+        "Tell them to their face that they were wrong",
+        "Stay out of it. Not my problem.",
+        "Quietly go and make it right for the person who got hurt"
+      ]
+    },
+    {
+      "id": "W2",
+      "kind": "single",
+      "seg": 2,
+      "prompt": "Your manager makes a decision you think is wrong. You:",
+      "options": [
+        "Do it their way. It is their call.",
+        "Say your piece once, then do it",
+        "Push back until somebody changes their mind",
+        "Do it your way and show the result"
+      ]
+    },
+    {
+      "id": "Q7",
+      "kind": "single",
+      "seg": 2,
+      "prompt": "You and a good friend want the same thing. Only one of you can have it.",
+      "options": [
+        "We compete. I have already started preparing.",
+        "One of us steps back. I will not lose a friend.",
+        "We work together and go after something bigger",
+        "They can have it. I care more about us."
+      ]
+    },
+    {
+      "id": "Q9",
+      "kind": "pick2",
+      "seg": 2,
+      "prompt": "You have 100 points for the next year. Which TWO get the most?",
+      "options": [
+        "New experiences",
+        "The people I love",
+        "Doing something that matters",
+        "Peace and calm",
+        "Getting better at things",
+        "A cause bigger than me"
+      ]
+    },
+    {
+      "id": "Q12",
+      "kind": "single",
+      "seg": 2,
+      "prompt": "Which of these feels most meaningful to you?",
+      "options": [
+        "A loud night with everyone you love in one room",
+        "A silent morning routine that belongs to nobody but you",
+        "A tradition you would cross the country not to miss",
+        "Throwing out the old way and writing your own"
+      ]
+    },
+    {
+      "id": "Q14",
+      "kind": "single",
+      "seg": 2,
+      "prompt": "On a group trip, you are the one who:",
+      "options": [
+        "Booked nothing but your own tickets, and promised we will figure it out",
+        "Has a colour-coded spreadsheet, and a backup for the backup",
+        "Wants a pool, a plate of food, and zero decisions",
+        "Found the one strange activity nobody will forget"
+      ]
+    },
+    {
+      "id": "Q15",
+      "kind": "single",
+      "seg": 3,
+      "prompt": "Which behaviour annoys you the most?",
+      "options": [
+        "Sweet to your face, then a group chat about you after",
+        "Says 'I forgot my wallet' for the fourth time",
+        "Being rude to a waiter",
+        "Having real talent and proudly wasting it"
+      ]
+    },
+    {
+      "id": "W24",
+      "kind": "single",
+      "seg": 3,
+      "prompt": "Which of these bothers you most about the world?",
+      "options": [
+        "People who cheat and get away with it",
+        "How much depends on where you were born",
+        "How fast people forget what they owe",
+        "How little respect is left for anything"
+      ]
+    },
+    {
+      "id": "W20",
+      "kind": "single",
+      "seg": 3,
+      "prompt": "Your parents' advice about your life is:",
+      "options": [
+        "Usually right, even when I resist",
+        "Worth hearing, then I decide",
+        "From a world that no longer exists",
+        "Something I stopped asking for"
+      ]
+    },
+    {
+      "id": "Q16",
+      "kind": "single",
+      "seg": 3,
+      "prompt": "What makes you lose respect for someone fastest?",
+      "options": [
+        "Talking about a friend the second they leave the room",
+        "Laughing at what other people hold sacred",
+        "Taking, taking, and never once paying for the bill",
+        "Believing in nothing, so they never have to risk anything"
+      ]
+    },
+    {
+      "id": "W31",
+      "kind": "single",
+      "seg": 3,
+      "prompt": "Which of these feels wrong to you, even if nobody is harmed?",
+      "options": [
+        "Selling a gift somebody made for you",
+        "Working through a funeral you should attend",
+        "Selling something you know is worthless",
+        "None of these. No harm, no wrong."
+      ]
+    },
+    {
+      "id": "Q20",
+      "kind": "single",
+      "seg": 3,
+      "prompt": "Which of these would you never do to a friend?",
+      "options": [
+        "Cancel at the last minute because something better came up",
+        "Forget the thing they told you mattered",
+        "Not be there the one time they needed someone in the room",
+        "I have done all three. I am working on it."
+      ]
+    },
+    {
+      "id": "W32",
+      "kind": "single",
+      "seg": 3,
+      "prompt": "Which of these would you not do, at any price?",
+      "options": [
+        "Sell something a relative left you",
+        "Say in public what you do not believe",
+        "Work for people you think do harm",
+        "Any of them. Money is money."
+      ]
+    },
+    {
+      "id": "Q23",
+      "kind": "single",
+      "seg": 4,
+      "prompt": "How do you let a new person get close to you?",
+      "options": [
+        "Fast. I tell them too much on day one.",
+        "Slowly. Trust takes a long time to build.",
+        "By doing things together, not by big talks",
+        "One to one, late at night, with real questions"
+      ]
+    },
+    {
+      "id": "W25",
+      "kind": "single",
+      "seg": 4,
+      "prompt": "A stranger's opinion of you:",
+      "options": [
+        "Matters more than I like to admit",
+        "Does not matter at all",
+        "Depends entirely who they are",
+        "I would rather be respected than liked"
+      ]
+    },
+    {
+      "id": "Q26",
+      "kind": "single",
+      "seg": 4,
+      "prompt": "What do close friends know about you that strangers do not?",
+      "options": [
+        "I cry at videos of dogs",
+        "I keep a silent score against everyone my age",
+        "At 2am I am sure everyone is quietly disappointed in me",
+        "Nothing. What you see is what you get."
+      ]
+    },
+    {
+      "id": "Q29",
+      "kind": "pick2",
+      "seg": 5,
+      "prompt": "Where do you feel most at home? Pick two.",
+      "options": [
+        "Outside, moving, with weather on my face",
+        "Deep in books, ideas, and open tabs",
+        "Making music or art with my hands",
+        "Where the people, the food and the cities are"
+      ]
+    },
+    {
+      "id": "Q30",
+      "kind": "single",
+      "seg": 5,
+      "prompt": "What best describes your life right now?",
+      "options": [
+        "Building something, at full speed",
+        "Finding my people and planting roots",
+        "Still happily figuring it out",
+        "Catching my breath after a big change"
+      ]
+    }
+  ],
+  "question_set": [
+    "Q1",
+    "Q2",
+    "Q5",
+    "W2",
+    "Q7",
+    "Q9",
+    "Q12",
+    "Q14",
+    "Q15",
+    "W24",
+    "W20",
+    "Q16",
+    "W31",
+    "Q20",
+    "W32",
+    "Q23",
+    "W25",
+    "Q26",
+    "Q29",
+    "Q30"
+  ]
+}

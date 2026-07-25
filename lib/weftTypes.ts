@@ -29,16 +29,17 @@ export type ResponderResponse = {
 /** Discriminated on `role` — the presence of invite_token decides which. */
 export type AnswersResponse = OriginatorResponse | ResponderResponse;
 
-export type BankOption = { id: string; label: string };
-
+/**
+ * Exactly what `public_bank()` sends: options are plain strings in a fixed
+ * order, and that order is the wire identity of an answer. `seg` is the
+ * segment the question loads onto -- carried through untouched.
+ */
 export type BankQuestion = {
   id: string;
   prompt: string;
-  kind: "single" | "multi";
-  helper?: string;
-  select?: number;
-  segment?: number;
-  options: BankOption[];
+  kind: "single" | "pick2";
+  seg: number;
+  options: string[];
 };
 
 export type BankResponse = {
