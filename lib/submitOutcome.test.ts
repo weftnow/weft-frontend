@@ -32,3 +32,27 @@ test("a body whose error is an empty string falls back to the generic error", ()
   const outcome = decideSubmitOutcome(false, { error: "" }, FALLBACK);
   expect(outcome).toEqual({ phase: "details", error: FALLBACK });
 });
+
+test("a responder's pair id sends them to the result, not the share screen", () => {
+  const outcome = decideSubmitOutcome(
+    true,
+    { pair_id: "p1", share_token: "tok-2" },
+    FALLBACK,
+  );
+  expect(outcome).toEqual({ phase: "pair", pairId: "p1", shareToken: "tok-2" });
+});
+
+test("a pair id without a share token still reaches the result", () => {
+  // The result is what they came for; sharing onward is the consolation.
+  const outcome = decideSubmitOutcome(true, { pair_id: "p1" }, FALLBACK);
+  expect(outcome).toEqual({ phase: "pair", pairId: "p1", shareToken: "" });
+});
+
+test("a failed responder submission stays on the details form", () => {
+  const outcome = decideSubmitOutcome(
+    false,
+    { pair_id: "p1", error: "this invite has expired" },
+    FALLBACK,
+  );
+  expect(outcome).toEqual({ phase: "details", error: "this invite has expired" });
+});
