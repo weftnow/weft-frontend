@@ -5,11 +5,19 @@ declare module "bun:test" {
     toBe(expected: unknown): void;
     toBeGreaterThan(expected: number): void;
     toBeNull(): void;
+    toBeTruthy(): void;
+    toBeUndefined(): void;
     toContain(expected: string): void;
     toEqual(expected: unknown): void;
     toHaveLength(expected: number): void;
+    toMatch(expected: RegExp | string): void;
+    toThrow(expected?: RegExp | string): void;
+    /** Every matcher above, inverted. Nesting `not.not` is not a thing. */
+    not: Omit<Matchers, "not">;
   };
 
+  export function afterEach(body: TestBody): void;
+  export function beforeEach(body: TestBody): void;
   export function describe(name: string, body: TestBody): void;
   export function expect(actual: unknown): Matchers;
   export function test(name: string, body: TestBody): void;
