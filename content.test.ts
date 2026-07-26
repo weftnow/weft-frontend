@@ -176,4 +176,40 @@ describe("compatibility test content", () => {
       "pace",
     ]);
   });
+
+  test("the matches screen matches the approved copy exactly", () => {
+    expect(content.compatibilityTest.matches).toEqual({
+      eyebrow: "Your threads",
+      headline: "Everyone who's answered you.",
+      // {count} is filled in by the page; the singular form avoids "1 matches".
+      countOne: "One person has answered your link.",
+      countMany: "{count} people have answered your link.",
+      open: "See the full result",
+      waiting: {
+        eyebrow: "Nothing yet",
+        headline: "Nobody's answered your link yet.",
+        body: "Compatibility takes two. Send your link to one more person — the result appears the moment they finish.",
+        cta: "Get a fresh link",
+        failed: "We couldn't make a new link just now. Please try again.",
+      },
+      none: {
+        eyebrow: "Nothing here yet",
+        headline: "You haven't taken this yet.",
+        body: "Answer twenty questions, send the link you get, and this is where your results will be.",
+        cta: "Take the test",
+      },
+      lost: {
+        eyebrow: "Thread not found",
+        headline: "We've lost track of your thread.",
+        body: "This browser remembers taking the test, but we can no longer find it. Starting again takes about four minutes.",
+        cta: "Start again",
+      },
+      unavailable: {
+        eyebrow: "Not right now",
+        headline: "We couldn't reach the service.",
+        body: "Something on our side is having a moment. Your thread is safe — try again shortly.",
+        cta: "Try again",
+      },
+    });
+  });
 });
