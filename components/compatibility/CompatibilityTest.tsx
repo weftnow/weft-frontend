@@ -164,11 +164,13 @@ export function CompatibilityTest({
 
       const outcome = decideSubmitOutcome(response.ok, body, data.details.failed);
       if (outcome.phase === "pair") {
-        leaving = true;
         // A full navigation: the pair page is force-dynamic SSR, so this
         // fetches the rendered result rather than transitioning into a page
         // that would have to fetch anyway. The loader stays up until it lands.
         window.location.assign(pairHref(outcome.pairId, outcome.shareToken));
+        // Set only after the navigation is under way: if it could not start,
+        // `finally` must still release the guard or the form wedges for good.
+        leaving = true;
         return;
       }
       if (outcome.phase === "share") {

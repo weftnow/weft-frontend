@@ -12,6 +12,10 @@ const BANK: BankQuestion[] = [
 
 const QUESTIONS = toQuizQuestions(BANK);
 
+// renderToStaticMarkup escapes apostrophes in text nodes, so copy with a
+// literal ' never appears verbatim in the markup.
+const escaped = (copy: string) => copy.replaceAll("'", "&#x27;");
+
 test("compatibility test renders the intro phase by default", () => {
   const html = renderToStaticMarkup(<CompatibilityTest questions={QUESTIONS} />);
   expect(html).toContain(content.compatibilityTest.intro.cta);
@@ -38,12 +42,12 @@ test("an invited friend is greeted by the sender's name", () => {
   const html = renderToStaticMarkup(
     <CompatibilityTest questions={QUESTIONS} invite={INVITE} />,
   );
-  // renderToStaticMarkup escapes the apostrophe in "You've been invited" too.
-  expect(html).toContain("You&#x27;ve been invited");
+  expect(html).toContain(escaped(content.compatibilityTest.invite.eyebrow));
   // withName trims the name and fills every {name} slot.
   expect(html).toContain("Ana wants to know how you two connect.");
   expect(html).toContain('aria-label="Answer Ana&#x27;s questions"');
   expect(html).not.toContain("{name}");
+  expect(html).toContain("The same twenty questions they answered");
 });
 
 test("the invited intro replaces the originator's, rather than joining it", () => {
@@ -56,5 +60,5 @@ test("the invited intro replaces the originator's, rather than joining it", () =
 test("without an invite the originator intro is unchanged", () => {
   const html = renderToStaticMarkup(<CompatibilityTest questions={QUESTIONS} />);
   expect(html).toContain(content.compatibilityTest.intro.headline[0]);
-  expect(html).not.toContain(content.compatibilityTest.invite.eyebrow);
+  expect(html).not.toContain(escaped(content.compatibilityTest.invite.eyebrow));
 });
