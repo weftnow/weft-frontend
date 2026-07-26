@@ -1,3 +1,4 @@
+import { respondToSubmission } from "@/lib/server/answersResponse";
 import { setSessionCookie } from "@/lib/server/session";
 import { submitAnswers } from "@/lib/server/submitAnswers";
 
@@ -10,11 +11,5 @@ import { submitAnswers } from "@/lib/server/submitAnswers";
 export async function POST(request: Request) {
   const raw = await request.json().catch(() => null);
   const outcome = await submitAnswers(raw);
-
-  if (!outcome.ok) {
-    return Response.json(outcome.body, { status: outcome.status });
-  }
-
-  await setSessionCookie(outcome.sessionId);
-  return Response.json(outcome.body);
+  return respondToSubmission(outcome, setSessionCookie);
 }

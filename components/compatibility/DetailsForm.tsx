@@ -11,8 +11,6 @@ import {
   type DetailsErrors,
 } from "@/lib/details";
 
-const EMPTY: Details = { name: "", email: "", phone: "" };
-
 /**
  * The quiz asks for these only once the answers are in: the form arrives after
  * the effort, and it gates the thing the person came for.
@@ -24,14 +22,14 @@ export function DetailsForm({
   onBack,
   onSubmit,
 }: {
-  initialDetails?: Details;
+  initialDetails: Details;
   submitError: string | null;
   busy: boolean;
   onBack: () => void;
   onSubmit: (details: Details) => void;
 }) {
   const copy = content.compatibilityTest.details;
-  const [details, setDetails] = useState<Details>(initialDetails ?? EMPTY);
+  const [details, setDetails] = useState<Details>(initialDetails);
   const [errors, setErrors] = useState<DetailsErrors>({});
 
   function change(field: keyof Details, value: string) {

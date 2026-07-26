@@ -8,9 +8,10 @@ import { WeaveLoader } from "@/components/ui/WeaveLoader";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 import { DetailsForm } from "@/components/compatibility/DetailsForm";
 import { ShareScreen } from "@/components/compatibility/ShareScreen";
-import { firstUnansweredIndex, toBackendAnswers, unansweredQuestions } from "@/lib/answers";
+import { firstUnansweredIndex, toBackendAnswers } from "@/lib/answers";
 import type { QuizQuestion } from "@/lib/compatibilityQuestions";
-import type { Details } from "@/lib/details";
+import { EMPTY_DETAILS, type Details } from "@/lib/details";
+import { decideSubmitOutcome } from "@/lib/submitOutcome";
 import {
   ANALYZING_MS,
   backFromDetails,
@@ -25,7 +26,6 @@ import {
 } from "@/lib/compatibility";
 
 const AUTO_ADVANCE_MS = 460;
-const EMPTY_DETAILS: Details = { name: "", email: "", phone: "" };
 
 export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) {
   const reduce = Boolean(useReducedMotion());
@@ -107,10 +107,9 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
     // answered by the time the visitor reaches the details form. If it
     // somehow doesn't, send them back to the first gap instead of letting
     // the backend's 400 -- which names no question -- strand them here.
-    const gaps = unansweredQuestions(answers, questions);
-    if (gaps.length > 0) {
-      const firstGapIndex = firstUnansweredIndex(answers, questions);
-      setActiveIndex(firstGapIndex === -1 ? 0 : firstGapIndex);
+    const firstGapIndex = firstUnansweredIndex(answers, questions);
+    if (firstGapIndex !== -1) {
+      setActiveIndex(firstGapIndex);
       setPhase("quiz");
       setSubmitError(data.details.incomplete);
       submitInFlight.current = false;
@@ -129,14 +128,14 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
         | { share_token?: string; error?: string }
         | null;
 
-      if (!response.ok || !body?.share_token) {
-        setSubmitError(body?.error ?? data.details.failed);
+      const outcome = decideSubmitOutcome(response.ok, body, data.details.failed);
+      if (outcome.phase === "share") {
+        setShareToken(outcome.token);
+        setPhase("share");
+      } else {
+        setSubmitError(outcome.error);
         setPhase("details");
-        return;
       }
-
-      setShareToken(body.share_token);
-      setPhase("share");
     } catch {
       // Offline or the request never landed -- nothing was created, so the
       // form comes back with the answers still in state.
@@ -245,6 +244,11 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
                 );
               })}
             </div>
+            {submitError && (
+              <p className="ctest-error" role="alert">
+                {submitError}
+              </p>
+            )}
             <div className="mt-8 flex items-center gap-5">
               <button
                 type="button"

@@ -67,17 +67,30 @@ describe("compatibility test content", () => {
     expect(content.compatibilityTest.intro.sub).not.toContain("Three");
   });
 
-  test("details step names every field the backend requires", () => {
-    const d = content.compatibilityTest.details;
-    expect(Object.keys(d.fields).sort()).toEqual(["email", "name", "phone"]);
-    expect(d.cta).toBeTruthy();
+  test("details step matches the approved copy exactly", () => {
+    expect(content.compatibilityTest.details).toEqual({
+      eyebrow: "Last thing",
+      headline: "Where should we send your thread?",
+      sub: "We need this to match you with whoever answers your link.",
+      fields: { name: "Your name", email: "Email", phone: "Phone" },
+      cta: "Get my link",
+      back: "Back",
+      failed: "We couldn't save that. Please try again.",
+      incomplete: "Please answer every question before we can weave your thread.",
+    });
   });
 
-  test("share screen explains why one person is not a result", () => {
-    const s = content.compatibilityTest.share;
-    expect(s.copy).toBeTruthy();
-    expect(s.copied).toBeTruthy();
-    expect(s.note).toBeTruthy();
+  test("share screen matches the approved copy exactly", () => {
+    expect(content.compatibilityTest.share).toEqual({
+      eyebrow: "Your link is ready",
+      headline: "Now send it to one person.",
+      sub: "Compatibility takes two. Your result appears the moment someone answers your link — and you'll both see it.",
+      copy: "Copy link",
+      copied: "Copied ✓",
+      note: "Keep this link. It's also how you come back to see your match.",
+      restart: "Start over",
+      announce: "Link copied to clipboard",
+    });
   });
 
   test("no solo archetype result survives in the copy", () => {

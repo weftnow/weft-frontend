@@ -76,4 +76,35 @@ describe("loadBank", () => {
     await loadBank({ fetchImpl: failing, now: () => 1 });
     expect(calls).toBe(2);
   });
+
+  test("concurrent callers during a slow fetch share one upstream call", async () => {
+    let calls = 0;
+    let resolveFetch: (value: Response) => void = () => {};
+    const fetchImpl = async () => {
+      calls += 1;
+      return new Promise<Response>((resolve) => {
+        resolveFetch = resolve;
+      });
+    };
+
+    const p1 = loadBank({ fetchImpl });
+    const p2 = loadBank({ fetchImpl });
+    resolveFetch(ok(LIVE));
+    const [res1, res2] = await Promise.all([p1, p2]);
+
+    expect(calls).toBe(1);
+    expect(res1).toEqual(res2);
+    expect(res1.source).toBe("live");
+  });
+
+  test("a later call refetches once a failed in-flight fetch has settled", async () => {
+    let calls = 0;
+    const failing = async () => {
+      calls += 1;
+      throw new Error("down");
+    };
+    await loadBank({ fetchImpl: failing });
+    await loadBank({ fetchImpl: failing });
+    expect(calls).toBe(2);
+  });
 });

@@ -10,9 +10,17 @@ const TTL_MS = 60 * 60 * 1000;
 
 let memo: { at: number; bank: BankResponse } | null = null;
 
+/**
+ * The in-flight upstream call, shared so a burst of requests arriving while
+ * the memo is cold or expired triggers exactly one fetch instead of one per
+ * request.
+ */
+let inFlight: Promise<LoadedBank> | null = null;
+
 /** Test seam: module state would otherwise leak between test cases. */
 export function resetBankCache(): void {
   memo = null;
+  inFlight = null;
 }
 
 /**
@@ -31,11 +39,18 @@ export async function loadBank(deps?: {
   const at = now();
   if (memo && at - memo.at < TTL_MS) return { bank: memo.bank, source: "live" };
 
-  const result = await weftFetch<unknown>(
-    "/api/bank",
-    { method: "GET" },
-    deps?.fetchImpl,
-  );
+  if (!inFlight) {
+    inFlight = fetchBank(at, deps?.fetchImpl).finally(() => {
+      // Clear on both success and failure -- a failed fetch must not leave a
+      // poisoned promise cached for the next caller.
+      inFlight = null;
+    });
+  }
+  return inFlight;
+}
+
+async function fetchBank(at: number, fetchImpl?: typeof fetch): Promise<LoadedBank> {
+  const result = await weftFetch<unknown>("/api/bank", { method: "GET" }, fetchImpl);
 
   if (!result.ok || !isBankResponse(result.data)) {
     if (result.ok) console.error("weft_core returned an unrenderable bank");

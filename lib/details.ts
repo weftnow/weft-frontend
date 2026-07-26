@@ -7,6 +7,9 @@ export type Details = { name: string; email: string; phone: string };
 
 export type DetailsErrors = Partial<Record<keyof Details, string>>;
 
+/** The un-seeded value, shared so the quiz and the form agree on what "empty" means. */
+export const EMPTY_DETAILS: Details = { name: "", email: "", phone: "" };
+
 /** Deliberately loose: enough shape to catch a typo, not a spec of RFC 5322. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
