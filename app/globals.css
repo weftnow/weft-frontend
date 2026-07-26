@@ -1034,6 +1034,55 @@ a {
 .ctest-share:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white); outline-offset: 3px; }
 .ctest-copied { font-family: var(--font-mono); font-size: 0.72rem; color: color-mix(in srgb, var(--color-signal) 80%, var(--color-ink)); }
 
+.ctest-pair {
+  display: grid;
+  width: min(46rem, 100%);
+  gap: clamp(1.5rem, 4vh, 2.5rem);
+  margin-top: clamp(1rem, 3vh, 2rem);
+}
+
+.ctest-section-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-ink) 48%, transparent);
+}
+
+.ctest-people { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 720px) { .ctest-people { grid-template-columns: 1fr 1fr; } }
+
+.ctest-person-name {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+  /* A name is whatever someone typed; it must not push the card wider. */
+  overflow-wrap: anywhere;
+}
+
+.ctest-values { display: grid; gap: 0.85rem; margin: 0; padding: 0; list-style: none; }
+.ctest-value-name { font-weight: 600; color: var(--color-ink); }
+.ctest-value-tagline { color: color-mix(in srgb, var(--color-ink) 62%, transparent); }
+.ctest-value-blurb {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--color-ink) 66%, transparent);
+}
+
+.ctest-traits { display: grid; gap: 0.6rem; margin: 0; }
+.ctest-trait { display: grid; gap: 0.1rem; }
+.ctest-trait-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-ink) 44%, transparent);
+}
+.ctest-trait-value { margin: 0; font-size: 0.95rem; color: var(--color-ink); }
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

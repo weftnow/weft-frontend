@@ -420,6 +420,56 @@ export const content = {
       restart: "Start over",
       announce: "Link copied to clipboard",
     },
+    invite: {
+      eyebrow: "You've been invited",
+      // {name} is filled by withName() -- trimmed and length-capped there.
+      headline: "{name} wants to know how you two connect.",
+      sub: "The same twenty questions they answered, about four minutes. Answer them and you'll both see the result.",
+      cta: "Answer {name}'s questions",
+    },
+    inviteError: {
+      expired: {
+        eyebrow: "Link expired",
+        headline: "This invitation has run out.",
+        body: "Invitations last thirty days. Ask whoever sent it for a fresh link — or start a thread of your own.",
+      },
+      unknown: {
+        eyebrow: "Link not found",
+        headline: "We can't find that invitation.",
+        body: "The link may have been mistyped or cut short somewhere along the way. Ask for it again, or start a thread of your own.",
+      },
+      unavailable: {
+        eyebrow: "Not right now",
+        headline: "We couldn't reach the service.",
+        body: "Something on our side is having a moment. The link is still good — try it again shortly.",
+      },
+      cta: "Start your own",
+    },
+    pair: {
+      eyebrow: "Your compatibility",
+      sharedLabel: "What you both lead with",
+      noShared: "You don't share a top value — which is its own kind of interesting.",
+      differenceLabel: "Where you differ",
+      traits: {
+        humour: "Humour",
+        opensUp: "Opens up",
+        pace: "Pace",
+        lifeStage: "Life stage",
+      },
+      shareHeadline: "Now send yours to someone else.",
+      shareSub: "The same twenty questions, a different person, a different result.",
+      restart: "Take it yourself",
+      missing: {
+        eyebrow: "Not found",
+        headline: "We can't find that result.",
+        body: "The link may have been mistyped or cut short. Ask whoever shared it to send it again.",
+      },
+      unavailable: {
+        eyebrow: "Not right now",
+        headline: "We couldn't reach the service.",
+        body: "Something on our side is having a moment. Try the link again shortly.",
+      },
+    },
   },
 } as const;
 
