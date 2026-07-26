@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { content } from "@/content";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 
@@ -23,10 +23,18 @@ export function ShareScreen({
   const copy = content.compatibilityTest.share;
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Only knowable in the browser, so the server-rendered markup carries a
   // relative link and the absolute one fills in on mount.
   useEffect(() => setOrigin(window.location.origin), []);
+
+  useEffect(
+    () => () => {
+      if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    },
+    [],
+  );
 
   const path = `/compatibility-test/invite/${shareToken}`;
   const shareUrl = `${origin}${path}`;
@@ -38,7 +46,8 @@ export function ShareScreen({
       // Clipboard unavailable -- the link stays on screen to copy by hand.
     }
     setCopied(true);
-    setTimeout(() => setCopied(false), COPIED_MS);
+    if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    copiedTimer.current = setTimeout(() => setCopied(false), COPIED_MS);
   }
 
   return (
@@ -65,7 +74,7 @@ export function ShareScreen({
       </div>
 
       <p aria-live="polite" className="ctest-copied mt-4 h-4">
-        {copied ? "Link copied to clipboard" : ""}
+        {copied ? copy.announce : ""}
       </p>
       <p className="mt-2 max-w-sm font-mono text-[0.68rem] leading-relaxed text-ink/45">
         {copy.note}

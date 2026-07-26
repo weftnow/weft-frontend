@@ -417,6 +417,7 @@ export const content = {
       copied: "Copied ✓",
       note: "Keep this link. It's also how you come back to see your match.",
       restart: "Start over",
+      announce: "Link copied to clipboard",
     },
   },
 } as const;
