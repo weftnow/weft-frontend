@@ -868,15 +868,49 @@ a {
 .ctest-home:hover { color: var(--color-ink); }
 .ctest-home:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white); outline-offset: 4px; }
 
-.ctest-progress { display: flex; gap: 0.5rem; margin-bottom: clamp(1.5rem, 4vh, 2.75rem); }
-.ctest-dot {
-  width: 2.2rem;
+.ctest-progressbar {
+  width: min(20rem, 62vw);
   height: 0.32rem;
   border-radius: 999px;
   background: rgb(18 18 18 / 12%);
-  transition: background-color 320ms var(--ease-out-ui);
+  overflow: hidden;
+  margin-bottom: clamp(1.5rem, 4vh, 2.75rem);
 }
-.ctest-dot--on { background: var(--color-ember); }
+.ctest-progressbar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-ember);
+  transition: width 420ms var(--ease-out-ui);
+}
+
+.ctest-form { display: grid; gap: 1.05rem; width: min(24rem, 100%); text-align: left; }
+.ctest-label { display: grid; gap: 0.4rem; font-size: 0.875rem; font-weight: 500; color: var(--color-ink); }
+.ctest-input {
+  min-height: 3.25rem;
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgb(18 18 18 / 14%);
+  background: color-mix(in srgb, var(--color-bone) 50%, transparent);
+  padding: 0.9rem 1.15rem;
+  font-size: 1rem;
+  color: var(--color-ink);
+  outline: none;
+  transition: border-color 200ms var(--ease-out-ui), box-shadow 200ms var(--ease-out-ui);
+}
+.ctest-input:focus { border-color: var(--color-signal); background: var(--color-paper); box-shadow: 0 0 0 3px rgb(0 144 222 / 14%); }
+.ctest-input--bad { border-color: var(--color-ember); }
+.ctest-error { font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-ember); }
+.ctest-linkbox {
+  width: min(28rem, 100%);
+  border-radius: 1rem;
+  border: 1px dashed rgb(18 18 18 / 18%);
+  padding: 0.9rem 1.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+  word-break: break-all;
+}
 
 .ctest-eyebrow { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in srgb, var(--color-ink) 52%, transparent); }
 
@@ -1010,7 +1044,7 @@ a {
   .portrait-stack-icon,
   .ctest-option,
   .ctest-option-check,
-  .ctest-dot,
+  .ctest-progressbar-fill,
   .ctest-share {
     transition-duration: 0.01ms;
   }

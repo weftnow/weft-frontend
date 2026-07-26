@@ -62,24 +62,26 @@ test("every testimonial declares its content type", () => {
 });
 
 describe("compatibility test content", () => {
-  test("has exactly three questions", () => {
-    expect(content.compatibilityTest.questions).toHaveLength(3);
+  test("intro no longer promises three questions", () => {
+    // The served quiz is twenty questions long.
+    expect(content.compatibilityTest.intro.sub).not.toContain("Three");
   });
 
-  test("questions declare valid select kinds and options", () => {
-    for (const q of content.compatibilityTest.questions) {
-      expect(["single", "multi"]).toContain(q.kind);
-      expect(q.options.length).toBeGreaterThanOrEqual(2);
-      expect(q.id).toBeTruthy();
-    }
+  test("details step names every field the backend requires", () => {
+    const d = content.compatibilityTest.details;
+    expect(Object.keys(d.fields).sort()).toEqual(["email", "name", "phone"]);
+    expect(d.cta).toBeTruthy();
   });
 
-  test("result exposes shareable archetype stats", () => {
-    const r = content.compatibilityTest.result;
-    expect(r.archetype).toBeTruthy();
-    expect(r.values.length).toBeGreaterThan(0);
-    expect(r.stats.every((s) => s.value >= 0 && s.value <= 100)).toBe(true);
-    expect(r.shareUrl).toContain("weft");
+  test("share screen explains why one person is not a result", () => {
+    const s = content.compatibilityTest.share;
+    expect(s.copy).toBeTruthy();
+    expect(s.copied).toBeTruthy();
+    expect(s.note).toBeTruthy();
+  });
+
+  test("no solo archetype result survives in the copy", () => {
+    expect("result" in content.compatibilityTest).toBe(false);
   });
 
   test("loader supplies multiple phrases", () => {
