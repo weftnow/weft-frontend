@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { content } from "@/content";
 import { WeaveLoader } from "@/components/ui/WeaveLoader";
 import { PremiumButton } from "@/components/ui/PremiumButton";
+import { CtestShell } from "@/components/compatibility/CtestShell";
 import { DetailsForm } from "@/components/compatibility/DetailsForm";
 import { ShareScreen } from "@/components/compatibility/ShareScreen";
 import { firstUnansweredIndex, toBackendAnswers } from "@/lib/answers";
@@ -167,13 +167,7 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
   };
 
   return (
-    <div className="ctest-shell">
-      <span aria-hidden className="ctest-ambient ctest-ambient--ember" />
-      <span aria-hidden className="ctest-ambient ctest-ambient--signal" />
-      <Link className="ctest-home" href="/">
-        <span aria-hidden>&larr;</span> Weft
-      </Link>
-
+    <CtestShell>
       <AnimatePresence mode="wait">
         {phase === "intro" && (
           <motion.div
@@ -313,6 +307,6 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </CtestShell>
   );
 }
