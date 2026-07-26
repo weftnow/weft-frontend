@@ -72,6 +72,11 @@ export type PairPerson = {
 
 export type PairResult = {
   headline: string;
+  /**
+   * The pair's overall fit on the backend's native -1..1 scale -- not a
+   * percentage. `scorePercent()` in lib/pairView.ts turns it into one.
+   */
+  score: number;
   band: string;
   shared_values: ValueEntry[];
   difference: string;

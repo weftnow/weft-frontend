@@ -21,6 +21,7 @@ const PERSON = {
 
 const PAIR = {
   headline: "Ana and Ben both lead with Benevolence.",
+  score: 0.1544,
   band: "A real mix.",
   shared_values: [VALUE],
   difference: "Where you differ most is humour.",
@@ -93,6 +94,20 @@ describe("isPairResult", () => {
     expect(isPairResult({ ...PAIR, people: [] })).toBe(false);
     expect(isPairResult({ ...PAIR, people: [PERSON, PERSON, PERSON] })).toBe(false);
     expect(isPairResult({ ...PAIR, people: [PERSON, { name: "Ben" }] })).toBe(false);
+  });
+
+  test("accepts a score anywhere on the backend's scale, including negative", () => {
+    // Two people can genuinely score below zero. That is a result to render,
+    // not a malformed payload.
+    expect(isPairResult({ ...PAIR, score: -0.42 })).toBe(true);
+    expect(isPairResult({ ...PAIR, score: 0 })).toBe(true);
+  });
+
+  test("rejects a score that could not paint a meter", () => {
+    expect(isPairResult({ ...PAIR, score: "0.15" })).toBe(false);
+    expect(isPairResult({ ...PAIR, score: Number.NaN })).toBe(false);
+    const { score: _score, ...noScore } = PAIR;
+    expect(isPairResult(noScore)).toBe(false);
   });
 
   test("rejects a value that lost its copy", () => {

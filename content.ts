@@ -447,7 +447,13 @@ export const content = {
     },
     pair: {
       eyebrow: "Your compatibility",
+      scoreLabel: "Compatibility",
+      scoreNote:
+        "Measured across values, outlook, humour and pace — not a popularity score.",
+      scaleLow: "Different",
+      scaleHigh: "Aligned",
       sharedLabel: "What you both lead with",
+      peopleLabel: "How you each read",
       noShared: "You don't share a top value — which is its own kind of interesting.",
       differenceLabel: "Where you differ",
       traits: {

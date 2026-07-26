@@ -4,6 +4,7 @@ declare module "bun:test" {
   type Matchers = {
     toBe(expected: unknown): void;
     toBeGreaterThan(expected: number): void;
+    toBeGreaterThanOrEqual(expected: number): void;
     toBeNull(): void;
     toBeTruthy(): void;
     toBeUndefined(): void;

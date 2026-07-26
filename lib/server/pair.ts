@@ -45,6 +45,10 @@ export function isPairResult(value: unknown): value is PairResult {
   const p = value as Partial<PairResult>;
   return (
     typeof p.headline === "string" &&
+    // NaN and Infinity would both survive `typeof` and then paint a meter of
+    // no width, so the finite check is the one that matters here.
+    typeof p.score === "number" &&
+    Number.isFinite(p.score) &&
     typeof p.band === "string" &&
     Array.isArray(p.shared_values) &&
     p.shared_values.every(isValueEntry) &&
@@ -55,7 +59,11 @@ export function isPairResult(value: unknown): value is PairResult {
   );
 }
 
-/** The friend-safe compatibility result: words only, never scores or answers. */
+/**
+ * The friend-safe compatibility result: the pair's own score plus the words
+ * that explain it -- never the channel breakdown behind it, and never either
+ * person's answers.
+ */
 export async function loadPair(
   pairId: string,
   fetchImpl?: typeof fetch,

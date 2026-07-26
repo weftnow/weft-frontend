@@ -846,6 +846,10 @@ a {
   padding: clamp(4.5rem, 9vh, 7rem) 1.5rem clamp(3rem, 6vh, 5rem);
 }
 
+/* A quiz step is one screen and centres nicely. The result scrolls, and
+   centring a tall page pushes its opening off the top of the viewport. */
+.ctest-shell--top { justify-content: flex-start; }
+
 .ctest-ambient { position: absolute; border-radius: 999px; filter: blur(90px); pointer-events: none; }
 .ctest-ambient--ember { top: 6%; left: -9rem; width: 24rem; height: 24rem; background: rgb(244 81 30 / 9%); }
 .ctest-ambient--signal { bottom: 4%; right: -8rem; width: 22rem; height: 22rem; background: rgb(0 144 222 / 8%); }
@@ -983,8 +987,11 @@ a {
 }
 .ctest-option--on .ctest-option-check { opacity: 1; scale: 1; border-color: var(--color-ember); }
 
+/* Fills whatever column it is given. It used to cap at 560px, which left the
+   result's cards floating short of the 46rem grid they sit in and read as
+   accidental. The quiz screens that want a narrow card constrain it outside. */
 .ctest-card {
-  width: min(560px, 100%);
+  width: 100%;
   border: 1px solid rgb(18 18 18 / 8%);
   border-radius: 2rem;
   background: rgb(255 255 255 / 82%);
@@ -1004,6 +1011,195 @@ a {
   font-size: 0.68rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------- *
+ * the pair result
+ * ---------------------------------------------------------------- */
+
+/* The number the whole page is about. Tabular figures so a counting animation
+   does not shuffle the layout on its way from 0 to 96. */
+.ctest-score {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-top: clamp(1.25rem, 3.5vh, 2rem);
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 15vw, 8.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.07em;
+  line-height: 0.86;
+  color: var(--color-ember);
+}
+
+.ctest-score-unit {
+  margin-top: 0.24em;
+  margin-left: 0.05em;
+  font-size: 0.36em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: color-mix(in srgb, var(--color-ember) 50%, transparent);
+}
+
+/* Five segments, one per band, so the number has somewhere to stand. Without
+   the ticks "44%" is a figure floating in space; with them you can see it sits
+   in the middle band, which is what the sentence underneath also says. */
+.ctest-gauge { width: min(24rem, 100%); margin-top: clamp(1.5rem, 4vh, 2.25rem); }
+
+.ctest-gauge-track {
+  position: relative;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: rgb(18 18 18 / 8%);
+  overflow: hidden;
+}
+
+.ctest-gauge-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-ember) 55%, var(--color-signal)),
+    var(--color-ember)
+  );
+  transform-origin: left center;
+  animation: ctest-gauge-in 900ms var(--ease-out-ui) both;
+}
+
+@keyframes ctest-gauge-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Hairlines cut in the bone colour, so they read as notches in the bar
+   rather than as marks drawn on top of it. */
+.ctest-gauge-ticks {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  pointer-events: none;
+}
+.ctest-gauge-ticks span { border-right: 2px solid var(--color-bone); }
+.ctest-gauge-ticks span:last-child { border-right: 0; }
+
+.ctest-gauge-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-ink) 36%, transparent);
+}
+
+/* The band sentence. It is the verdict in words, so it carries heading weight
+   -- it used to sit in a mono chip, which read as a tag rather than a result. */
+.ctest-band {
+  max-width: 26ch;
+  margin-top: clamp(1.75rem, 4.5vh, 2.5rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 2.05rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.18;
+  text-wrap: balance;
+  color: var(--color-ink);
+}
+
+.ctest-note {
+  max-width: 48ch;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  line-height: 1.65;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--color-ink) 40%, transparent);
+}
+
+/* The ember tick that opens every section on the landing page. It is the
+   cheapest way to make a heading look placed rather than dropped. */
+.ctest-rule {
+  display: block;
+  height: 2px;
+  width: 1.5rem;
+  flex: none;
+  border-radius: 999px;
+  background: var(--color-ember);
+}
+
+.ctest-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.4rem;
+}
+
+.ctest-headline {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.32;
+  text-wrap: balance;
+  color: var(--color-ink);
+}
+
+/* A mono index per value, the same 01/02 device the Problem section uses. */
+.ctest-value { display: grid; grid-template-columns: 1.9rem 1fr; align-items: start; }
+
+/* The explained values carry a blurb each, so they need more air between them
+   than the bare name/tagline lines on a person card. */
+.ctest-value + .ctest-value { margin-top: 0.75rem; }
+
+.ctest-value-index {
+  padding-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--color-ember) 70%, transparent);
+}
+
+.ctest-person-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgb(18 18 18 / 10%);
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.3rem;
+}
+
+.ctest-body {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: color-mix(in srgb, var(--color-ink) 62%, transparent);
+}
+
+.ctest-sub-prompt {
+  max-width: 20ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  text-wrap: balance;
+  color: var(--color-ink);
+}
+
+/* Spacing between these blocks lives here, not in `mt-*` utilities.
+   `.ctest-values` and `.ctest-traits` set `margin`, and because this file is
+   unlayered while Tailwind's utilities sit in a layer, those resets win --
+   a `mt-6` on the list silently does nothing. Sibling rules are immune. */
+.ctest-headline + .ctest-values { margin-top: 1.6rem; }
+.ctest-headline + .ctest-body { margin-top: 1.25rem; }
+.ctest-values + .ctest-traits { margin-top: 1.85rem; }
+.ctest-sub-prompt + .ctest-body { margin-top: 0.9rem; }
+
+@media (min-width: 480px) {
+  .ctest-traits { grid-template-columns: 1fr 1fr; gap: 1.1rem 1.25rem; }
 }
 
 .ctest-meter { position: relative; height: 0.5rem; border-radius: 999px; background: rgb(18 18 18 / 8%); overflow: hidden; }
@@ -1039,6 +1235,22 @@ a {
   width: min(46rem, 100%);
   gap: clamp(1.5rem, 4vh, 2.5rem);
   margin-top: clamp(1rem, 3vh, 2rem);
+}
+
+/* The quiz's entrance, staggered down the result. Deliberately CSS rather than
+   motion/react: this page IS the product, and a JS entrance that never runs
+   leaves the entire result sitting at opacity 0. `both` fill means the browser
+   finishes it whether or not anything on the page hydrates. */
+.ctest-pair > * { animation: ctest-reveal 560ms var(--ease-out-ui) both; }
+.ctest-pair > *:nth-child(1) { animation-delay: 60ms; }
+.ctest-pair > *:nth-child(2) { animation-delay: 150ms; }
+.ctest-pair > *:nth-child(3) { animation-delay: 240ms; }
+.ctest-pair > *:nth-child(4) { animation-delay: 330ms; }
+.ctest-pair > *:nth-child(5) { animation-delay: 420ms; }
+
+@keyframes ctest-reveal {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
 }
 
 .ctest-section-label {
@@ -1096,6 +1308,11 @@ a {
   .ctest-progressbar-fill,
   .ctest-share {
     transition-duration: 0.01ms;
+  }
+
+  .ctest-gauge-fill,
+  .ctest-pair > * {
+    animation: none;
   }
 
   .nav-brand-mark,

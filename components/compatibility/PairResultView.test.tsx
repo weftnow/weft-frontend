@@ -13,6 +13,8 @@ const VALUE = {
 
 const RESULT: PairResult = {
   headline: "Ana and Ben both lead with Benevolence.",
+  // 0.1544 is a real "a real mix" score from weft_core, and maps to 44%.
+  score: 0.1544,
   band: "A real mix — some deep overlap, some genuine difference.",
   shared_values: [VALUE],
   difference: "Where you differ most is humour.",
@@ -82,8 +84,43 @@ test("without a token the page offers the quiz instead of a dead link", () => {
   );
 });
 
-test("the result never leaks a score", () => {
+test("the result shows the compatibility percentage and fills the gauge to match", () => {
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken="tok-9" />);
-  // The backend sends words, not numbers; nothing here should invent one.
-  expect(html).not.toContain("ctest-meter");
+  // The figure is rendered, not animated to, so it is true in the very first
+  // paint and for anyone without JavaScript.
+  expect(html).toContain(">44<");
+  expect(html).toContain("Compatibility 44 out of 100");
+  expect(html).toContain("width:44%");
+});
+
+test("the percentage never contradicts the band beside it", () => {
+  // Both come off the same score, and scorePercent puts each band boundary on
+  // a round twenty -- so "strikingly aligned" can never render at 44%.
+  const aligned = renderToStaticMarkup(
+    <PairResultView
+      result={{ ...RESULT, score: 0.9137, band: "You two are strikingly aligned." }}
+      shareToken={null}
+    />,
+  );
+  expect(aligned).toContain("Compatibility 96 out of 100");
+  expect(aligned).toContain("You two are strikingly aligned.");
+});
+
+test("a pair who scored below zero still gets a meter, not a broken one", () => {
+  // The backend's scale runs to -1. A negative width would paint nothing and
+  // read as a rendering failure rather than a real result.
+  const html = renderToStaticMarkup(
+    <PairResultView result={{ ...RESULT, score: -0.6 }} shareToken={null} />,
+  );
+  expect(html).toContain("width:9%");
+  expect(html).not.toContain("width:-");
+});
+
+test("the result still never leaks the signal behind the score", () => {
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken="tok-9" />);
+  // The pair's own number is theirs. The channel breakdown that produced it,
+  // and the raw -1..1 score itself, are not for the page.
+  for (const leak of ["breakdown", "vuln", "tempo", "schwartz", "0.1544"]) {
+    expect(html).not.toContain(leak);
+  }
 });
