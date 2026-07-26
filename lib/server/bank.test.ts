@@ -107,4 +107,34 @@ describe("loadBank", () => {
     await loadBank({ fetchImpl: failing });
     expect(calls).toBe(2);
   });
+
+  test("a reset during an in-flight fetch means a caller after the reset does not receive the pre-reset bank", async () => {
+    let resolveStale: (value: Response) => void = () => {};
+    const staleFetchImpl = async () =>
+      new Promise<Response>((resolve) => {
+        resolveStale = resolve;
+      });
+
+    // Kick off a fetch that will not settle until after the reset below.
+    const stalePromise = loadBank({ fetchImpl: staleFetchImpl });
+
+    resetBankCache();
+
+    const FRESH = {
+      questions: [
+        { id: "Q1", prompt: "fresh prompt", kind: "single", seg: 1, options: ["a", "b"] },
+      ],
+      question_set: ["Q1"],
+    };
+    const freshResult = await loadBank({ fetchImpl: async () => ok(FRESH) });
+    expect(freshResult.bank.questions[0].prompt).toBe("fresh prompt");
+
+    // Now let the pre-reset fetch land. It must not overwrite the memo that
+    // the post-reset caller already relied on.
+    resolveStale(ok(LIVE));
+    await stalePromise;
+
+    const afterStaleSettles = await loadBank({ fetchImpl: async () => ok(FRESH) });
+    expect(afterStaleSettles.bank.questions[0].prompt).toBe("fresh prompt");
+  });
 });

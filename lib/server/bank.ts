@@ -17,10 +17,19 @@ let memo: { at: number; bank: BankResponse } | null = null;
  */
 let inFlight: Promise<LoadedBank> | null = null;
 
+/**
+ * Bumped on every reset so a fetch already in flight when the reset happens
+ * cannot clobber it: the fetch checks its captured generation before writing
+ * the memo or clearing the in-flight slot, so a reset always wins over a
+ * fetch it was meant to discard.
+ */
+let generation = 0;
+
 /** Test seam: module state would otherwise leak between test cases. */
 export function resetBankCache(): void {
   memo = null;
   inFlight = null;
+  generation += 1;
 }
 
 /**
@@ -40,16 +49,21 @@ export async function loadBank(deps?: {
   if (memo && at - memo.at < TTL_MS) return { bank: memo.bank, source: "live" };
 
   if (!inFlight) {
-    inFlight = fetchBank(at, deps?.fetchImpl).finally(() => {
+    const gen = generation;
+    const pending: Promise<LoadedBank> = fetchBank(at, gen, deps?.fetchImpl).finally(() => {
       // Clear on both success and failure -- a failed fetch must not leave a
-      // poisoned promise cached for the next caller.
-      inFlight = null;
+      // poisoned promise cached for the next caller. Only clear it if it's
+      // still the slot we set: a reset that ran while this fetch was in
+      // flight already cleared (and may have since refilled) the slot, and
+      // this stale fetch must not null out a newer one.
+      if (inFlight === pending) inFlight = null;
     });
+    inFlight = pending;
   }
   return inFlight;
 }
 
-async function fetchBank(at: number, fetchImpl?: typeof fetch): Promise<LoadedBank> {
+async function fetchBank(at: number, gen: number, fetchImpl?: typeof fetch): Promise<LoadedBank> {
   const result = await weftFetch<unknown>("/api/bank", { method: "GET" }, fetchImpl);
 
   if (!result.ok || !isBankResponse(result.data)) {
@@ -58,6 +72,10 @@ async function fetchBank(at: number, fetchImpl?: typeof fetch): Promise<LoadedBa
     return { bank: FALLBACK_BANK, source: "fallback" };
   }
 
-  memo = { at, bank: result.data };
+  // A reset that happened after this fetch started must not have its result
+  // clobbered by this now-discarded fetch's stale data.
+  if (gen === generation) {
+    memo = { at, bank: result.data };
+  }
   return { bank: result.data, source: "live" };
 }

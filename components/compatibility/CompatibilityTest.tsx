@@ -66,6 +66,7 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
   }
 
   function choose(optionId: string) {
+    if (submitError) setSubmitError(null);
     // Always clear a pending auto-advance first -- otherwise deselecting the
     // already-chosen option (chosen === 0) leaves the earlier timer armed and
     // it fires later, advancing past this question with nothing recorded.

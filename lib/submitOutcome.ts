@@ -3,7 +3,7 @@
  * given what `/api/answers` answered, where does the visitor land? Pulled out
  * so it can be tested without a DOM.
  */
-export type SubmitOutcome =
+export type SubmitDecision =
   | { phase: "share"; token: string }
   | { phase: "details"; error: string };
 
@@ -11,7 +11,7 @@ export function decideSubmitOutcome(
   ok: boolean,
   body: { share_token?: string; error?: string } | null,
   fallbackError: string,
-): SubmitOutcome {
+): SubmitDecision {
   if (ok && body?.share_token) {
     return { phase: "share", token: body.share_token };
   }
