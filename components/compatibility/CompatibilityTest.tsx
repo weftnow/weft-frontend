@@ -126,13 +126,15 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
         body: JSON.stringify({ ...nextDetails, answers: toBackendAnswers(answers, questions) }),
       });
       const body = (await response.json().catch(() => null)) as
-        | { share_token?: string; error?: string }
+        | { share_token?: string; pair_id?: string; error?: string }
         | null;
 
       const outcome = decideSubmitOutcome(response.ok, body, data.details.failed);
       if (outcome.phase === "share") {
         setShareToken(outcome.token);
         setPhase("share");
+      } else if (outcome.phase === "pair") {
+        // Responder outcome -- pair page will be implemented in Task 6
       } else {
         setSubmitError(outcome.error);
         setPhase("details");
