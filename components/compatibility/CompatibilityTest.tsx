@@ -6,40 +6,39 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { content } from "@/content";
 import { WeaveLoader } from "@/components/ui/WeaveLoader";
 import { PremiumButton } from "@/components/ui/PremiumButton";
+import { DetailsForm } from "@/components/compatibility/DetailsForm";
+import { ShareScreen } from "@/components/compatibility/ShareScreen";
+import { toBackendAnswers } from "@/lib/answers";
+import type { QuizQuestion } from "@/lib/compatibilityQuestions";
+import type { Details } from "@/lib/details";
 import {
   ANALYZING_MS,
+  backFromDetails,
   canAdvance,
   isSelected,
   nextQuizState,
   prevQuizState,
-  progressDots,
+  progressFraction,
   toggleOption,
   type Answers,
   type Phase,
 } from "@/lib/compatibility";
 
 const AUTO_ADVANCE_MS = 460;
-const COPIED_MS = 2000;
 
-export function CompatibilityTest() {
+export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) {
   const reduce = Boolean(useReducedMotion());
   const data = content.compatibilityTest;
-  const questions = data.questions;
 
   const [phase, setPhase] = useState<Phase>("intro");
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
-  const [copied, setCopied] = useState(false);
+  const [shareToken, setShareToken] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const question = questions[activeIndex];
-
-  // Analyzing -> result on a mock timer.
-  useEffect(() => {
-    if (phase !== "analyzing") return;
-    const id = setTimeout(() => setPhase("result"), reduce ? 900 : ANALYZING_MS);
-    return () => clearTimeout(id);
-  }, [phase, reduce]);
+  const required = question?.select ?? 1;
 
   useEffect(
     () => () => {
@@ -50,9 +49,9 @@ export function CompatibilityTest() {
 
   function advance() {
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
-    const nextState = nextQuizState(activeIndex, questions.length);
-    setPhase(nextState.phase);
-    setActiveIndex(nextState.activeIndex);
+    const next = nextQuizState(activeIndex, questions.length);
+    setPhase(next.phase);
+    setActiveIndex(next.activeIndex);
   }
 
   function goBack() {
@@ -63,9 +62,11 @@ export function CompatibilityTest() {
   }
 
   function choose(optionId: string) {
-    const nextAnswers = toggleOption(answers, question.id, optionId, question.kind);
-    setAnswers(nextAnswers);
-    if (question.kind === "single" && (nextAnswers[question.id]?.length ?? 0) > 0) {
+    const next = toggleOption(answers, question.id, optionId, question.kind, question.select);
+    setAnswers(next);
+    // A single-choice question moves on by itself; a pick-two waits for both.
+    const chosen = next[question.id]?.length ?? 0;
+    if (question.kind === "single" && chosen > 0) {
       if (advanceTimer.current) clearTimeout(advanceTimer.current);
       advanceTimer.current = setTimeout(advance, reduce ? 120 : AUTO_ADVANCE_MS);
     }
@@ -74,18 +75,42 @@ export function CompatibilityTest() {
   function reset() {
     setAnswers({});
     setActiveIndex(0);
-    setCopied(false);
+    setShareToken("");
+    setSubmitError(null);
     setPhase("intro");
   }
 
-  async function share() {
+  /**
+   * The only write in the flow. Moving to "submitting" unmounts the form, so
+   * there is no second button to press -- that is the double-submit guard.
+   */
+  async function submit(details: Details) {
+    setSubmitError(null);
+    setPhase("submitting");
     try {
-      await navigator.clipboard.writeText(`https://${data.result.shareUrl}`);
+      const response = await fetch("/api/answers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...details, answers: toBackendAnswers(answers, questions) }),
+      });
+      const body = (await response.json().catch(() => null)) as
+        | { share_token?: string; error?: string }
+        | null;
+
+      if (!response.ok || !body?.share_token) {
+        setSubmitError(body?.error ?? data.details.failed);
+        setPhase("details");
+        return;
+      }
+
+      setShareToken(body.share_token);
+      setPhase("share");
     } catch {
-      // Clipboard unavailable — the URL text stays visible on the button.
+      // Offline or the request never landed -- nothing was created, so the
+      // form comes back with the answers still in state.
+      setSubmitError(data.details.failed);
+      setPhase("details");
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), COPIED_MS);
   }
 
   const fade = reduce
@@ -141,27 +166,26 @@ export function CompatibilityTest() {
           </motion.div>
         )}
 
-        {phase === "quiz" && (
+        {phase === "quiz" && question && (
           <motion.div
             key={`q-${activeIndex}`}
             {...fade}
             transition={transition}
             className="relative z-10 flex w-full flex-col items-center text-center"
           >
-            <div className="ctest-progress" aria-hidden>
-              {progressDots(activeIndex, questions.length).map((on, i) => (
-                <span key={i} className={`ctest-dot${on ? " ctest-dot--on" : ""}`} />
-              ))}
+            <div className="ctest-progressbar" aria-hidden>
+              <span
+                className="ctest-progressbar-fill"
+                style={{ width: `${progressFraction(activeIndex, questions.length) * 100}%` }}
+              />
             </div>
             <span className="ctest-eyebrow">
               Question {activeIndex + 1} of {questions.length}
             </span>
             <h2 className="ctest-prompt">{question.prompt}</h2>
-            {question.helper && (
-              <p className="mt-2 font-mono text-xs uppercase tracking-wider text-ink/45">
-                {question.helper}
-              </p>
-            )}
+            <p className="mt-2 font-mono text-xs uppercase tracking-wider text-ink/45">
+              {question.kind === "multi" ? data.helpers.pick2 : data.helpers.single}
+            </p>
             <div
               className="ctest-grid"
               role={question.kind === "single" ? "radiogroup" : "group"}
@@ -179,9 +203,6 @@ export function CompatibilityTest() {
                     onClick={() => choose(option.id)}
                   >
                     <span>{option.label}</span>
-                    {"hint" in option && option.hint && (
-                      <span className="ctest-option-hint">{option.hint}</span>
-                    )}
                     <span aria-hidden className="ctest-option-check">
                       &#10003;
                     </span>
@@ -201,7 +222,7 @@ export function CompatibilityTest() {
                 <PremiumButton
                   tone="ink"
                   onClick={advance}
-                  disabled={!canAdvance(answers, question.id)}
+                  disabled={!canAdvance(answers, question.id, required)}
                 >
                   Next
                 </PremiumButton>
@@ -210,9 +231,23 @@ export function CompatibilityTest() {
           </motion.div>
         )}
 
-        {phase === "analyzing" && (
+        {phase === "details" && (
+          <motion.div key="details" {...fade} transition={transition} className="relative z-10 w-full">
+            <DetailsForm
+              submitError={submitError}
+              onBack={() => {
+                const back = backFromDetails(questions.length);
+                setPhase(back.phase);
+                setActiveIndex(back.activeIndex);
+              }}
+              onSubmit={submit}
+            />
+          </motion.div>
+        )}
+
+        {phase === "submitting" && (
           <motion.div
-            key="analyzing"
+            key="submitting"
             {...fade}
             transition={transition}
             className="relative z-10 h-64 w-full max-w-md"
@@ -224,89 +259,9 @@ export function CompatibilityTest() {
           </motion.div>
         )}
 
-        {phase === "result" && (
-          <motion.div
-            key="result"
-            {...fade}
-            transition={transition}
-            className="relative z-10 flex w-full flex-col items-center"
-          >
-            <span className="ctest-eyebrow">Your networking archetype</span>
-            <div className="ctest-card mt-4">
-              <h2 className="font-display text-3xl font-semibold tracking-tight text-ink md:text-4xl">
-                {data.result.archetype}
-              </h2>
-              <p className="mt-2 text-pretty text-base leading-relaxed text-ink/62">
-                {data.result.tagline}
-              </p>
-
-              <div className="mt-6 flex flex-wrap gap-2">
-                {data.result.values.map((value) => (
-                  <span key={value} className="ctest-chip">
-                    {value}
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-6 flex flex-col gap-3">
-                {data.result.stats.map((stat, i) => (
-                  <div key={stat.label}>
-                    <div className="mb-1 flex justify-between font-mono text-[0.68rem] uppercase tracking-wider text-ink/55">
-                      <span>{stat.label}</span>
-                      <span>{stat.value}</span>
-                    </div>
-                    <div className="ctest-meter">
-                      <motion.span
-                        className="ctest-meter-fill"
-                        initial={{ width: reduce ? `${stat.value}%` : 0 }}
-                        animate={{ width: `${stat.value}%` }}
-                        transition={{
-                          duration: reduce ? 0.01 : 0.9,
-                          delay: reduce ? 0 : 0.15 + i * 0.12,
-                          ease: [0.23, 1, 0.32, 1],
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <dl className="mt-6 grid grid-cols-1 gap-3 border-t border-ink/8 pt-5 text-left sm:grid-cols-2">
-                <div>
-                  <dt className="font-mono text-[0.64rem] uppercase tracking-wider text-ink/45">
-                    Connection style
-                  </dt>
-                  <dd className="mt-1 font-display text-sm text-ink">
-                    {data.result.connectionStyle}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="font-mono text-[0.64rem] uppercase tracking-wider text-ink/45">
-                    Best matched with
-                  </dt>
-                  <dd className="mt-1 font-display text-sm text-ink">
-                    {data.result.matchedWith.join(" · ")}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-              <button type="button" className="ctest-share" onClick={share}>
-                <span aria-hidden>&#8599;</span>
-                {copied ? "Copied ✓" : `Share · ${data.result.shareUrl}`}
-              </button>
-              <button
-                type="button"
-                onClick={reset}
-                className="font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
-              >
-                Retake
-              </button>
-            </div>
-            <p aria-live="polite" className="ctest-copied mt-3 h-4">
-              {copied ? "Link copied to clipboard" : ""}
-            </p>
+        {phase === "share" && (
+          <motion.div key="share" {...fade} transition={transition} className="relative z-10 w-full">
+            <ShareScreen shareToken={shareToken} onRestart={reset} />
           </motion.div>
         )}
       </AnimatePresence>
