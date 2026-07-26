@@ -134,7 +134,11 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
         setShareToken(outcome.token);
         setPhase("share");
       } else if (outcome.phase === "pair") {
-        // Responder outcome -- pair page will be implemented in Task 6
+        // Unreachable on this path: the originator flow sends no invite_token,
+        // so the backend never returns a pair_id. Task 6 wires the responder
+        // flow here. Until then, fail visibly rather than leave the loader up.
+        setSubmitError(data.details.failed);
+        setPhase("details");
       } else {
         setSubmitError(outcome.error);
         setPhase("details");
