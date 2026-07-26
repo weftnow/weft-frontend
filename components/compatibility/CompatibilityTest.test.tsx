@@ -31,3 +31,30 @@ test("compatibility intro does not leak later phases into static markup", () => 
   expect(html).not.toContain(content.compatibilityTest.share.headline);
   expect(html).not.toContain(BANK[0].prompt);
 });
+
+const INVITE = { token: "tok-1", fromName: "  Ana  " };
+
+test("an invited friend is greeted by the sender's name", () => {
+  const html = renderToStaticMarkup(
+    <CompatibilityTest questions={QUESTIONS} invite={INVITE} />,
+  );
+  // renderToStaticMarkup escapes the apostrophe in "You've been invited" too.
+  expect(html).toContain("You&#x27;ve been invited");
+  // withName trims the name and fills every {name} slot.
+  expect(html).toContain("Ana wants to know how you two connect.");
+  expect(html).toContain('aria-label="Answer Ana&#x27;s questions"');
+  expect(html).not.toContain("{name}");
+});
+
+test("the invited intro replaces the originator's, rather than joining it", () => {
+  const html = renderToStaticMarkup(
+    <CompatibilityTest questions={QUESTIONS} invite={INVITE} />,
+  );
+  expect(html).not.toContain(content.compatibilityTest.intro.headline[0]);
+});
+
+test("without an invite the originator intro is unchanged", () => {
+  const html = renderToStaticMarkup(<CompatibilityTest questions={QUESTIONS} />);
+  expect(html).toContain(content.compatibilityTest.intro.headline[0]);
+  expect(html).not.toContain(content.compatibilityTest.invite.eyebrow);
+});

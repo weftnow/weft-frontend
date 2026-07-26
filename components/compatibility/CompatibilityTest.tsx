@@ -11,6 +11,8 @@ import { ShareScreen } from "@/components/compatibility/ShareScreen";
 import { firstUnansweredIndex, toBackendAnswers } from "@/lib/answers";
 import type { QuizQuestion } from "@/lib/compatibilityQuestions";
 import { EMPTY_DETAILS, type Details } from "@/lib/details";
+import { withName } from "@/lib/inviteText";
+import { pairHref } from "@/lib/links";
 import { decideSubmitOutcome } from "@/lib/submitOutcome";
 import {
   ANALYZING_MS,
@@ -27,7 +29,19 @@ import {
 
 const AUTO_ADVANCE_MS = 460;
 
-export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) {
+/**
+ * The whole quiz, for either person. `invite` is what makes the difference:
+ * present means this visitor arrived on someone's link, so the intro addresses
+ * the sender, the submission carries their token, and finishing produces a
+ * pair result instead of a share link.
+ */
+export function CompatibilityTest({
+  questions,
+  invite,
+}: {
+  questions: QuizQuestion[];
+  invite?: { token: string; fromName: string };
+}) {
   const reduce = Boolean(useReducedMotion());
   const data = content.compatibilityTest;
 
@@ -43,6 +57,17 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
 
   const question = questions[activeIndex];
   const required = question?.select ?? 1;
+
+  // One intro, two audiences. Computed here so the markup below stays a single
+  // block rather than two near-identical ones.
+  const intro = invite
+    ? {
+        eyebrow: data.invite.eyebrow,
+        headline: [withName(data.invite.headline, invite.fromName)] as readonly string[],
+        sub: data.invite.sub,
+        cta: withName(data.invite.cta, invite.fromName),
+      }
+    : data.intro;
 
   useEffect(
     () => () => {
@@ -119,26 +144,36 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
     }
 
     setPhase("submitting");
+    // Set on the one path that leaves this page. The in-flight guard is
+    // deliberately left engaged while the navigation commits -- releasing it
+    // would let a second click POST a second pair into existence.
+    let leaving = false;
     try {
       const response = await fetch("/api/answers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...nextDetails, answers: toBackendAnswers(answers, questions) }),
+        body: JSON.stringify({
+          ...nextDetails,
+          answers: toBackendAnswers(answers, questions),
+          ...(invite ? { invite_token: invite.token } : {}),
+        }),
       });
       const body = (await response.json().catch(() => null)) as
         | { share_token?: string; pair_id?: string; error?: string }
         | null;
 
       const outcome = decideSubmitOutcome(response.ok, body, data.details.failed);
+      if (outcome.phase === "pair") {
+        leaving = true;
+        // A full navigation: the pair page is force-dynamic SSR, so this
+        // fetches the rendered result rather than transitioning into a page
+        // that would have to fetch anyway. The loader stays up until it lands.
+        window.location.assign(pairHref(outcome.pairId, outcome.shareToken));
+        return;
+      }
       if (outcome.phase === "share") {
         setShareToken(outcome.token);
         setPhase("share");
-      } else if (outcome.phase === "pair") {
-        // Unreachable on this path: the originator flow sends no invite_token,
-        // so the backend never returns a pair_id. Task 6 wires the responder
-        // flow here. Until then, fail visibly rather than leave the loader up.
-        setSubmitError(data.details.failed);
-        setPhase("details");
       } else {
         setSubmitError(outcome.error);
         setPhase("details");
@@ -149,8 +184,10 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
       setSubmitError(data.details.failed);
       setPhase("details");
     } finally {
-      submitInFlight.current = false;
-      setBusy(false);
+      if (!leaving) {
+        submitInFlight.current = false;
+        setBusy(false);
+      }
     }
   }
 
@@ -176,16 +213,16 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
             transition={transition}
             className="relative z-10 flex flex-col items-center text-center"
           >
-            <span className="ctest-eyebrow">{data.intro.eyebrow}</span>
+            <span className="ctest-eyebrow">{intro.eyebrow}</span>
             <h1 className="ctest-prompt">
-              {data.intro.headline.map((line) => (
+              {intro.headline.map((line) => (
                 <span key={line} className="block">
                   {line}
                 </span>
               ))}
             </h1>
             <p className="mt-5 max-w-md text-pretty text-base leading-relaxed text-ink/60">
-              {data.intro.sub}
+              {intro.sub}
             </p>
             <div className="mt-8">
               <PremiumButton
@@ -195,7 +232,7 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
                   setActiveIndex(0);
                 }}
               >
-                {data.intro.cta}
+                {intro.cta}
               </PremiumButton>
             </div>
           </motion.div>
