@@ -1028,49 +1028,79 @@ In `content.ts`, inside `compatibilityTest`, insert these three blocks after the
 
 Append these tests inside the existing `describe("compatibility test content", …)` block:
 
+These use exact `toEqual`, matching how the existing `details` and `share`
+blocks are asserted in the same file. Copy is reviewed content: a blanked or
+mangled string should fail a test, and `toBeTruthy()` would let it through.
+
 ```ts
-  test("the invite intro addresses the sender by name", () => {
-    const invite = content.compatibilityTest.invite;
-    // withName() fills these slots; a missing slot would greet nobody.
-    expect(invite.headline).toContain("{name}");
-    expect(invite.cta).toContain("{name}");
-    expect(invite.eyebrow).toBeTruthy();
-    expect(invite.sub).toBeTruthy();
+  test("the invite intro matches the approved copy exactly", () => {
+    expect(content.compatibilityTest.invite).toEqual({
+      eyebrow: "You've been invited",
+      // withName() fills these slots; a lost slot would greet nobody.
+      headline: "{name} wants to know how you two connect.",
+      sub: "The same twenty questions they answered, about four minutes. Answer them and you'll both see the result.",
+      cta: "Answer {name}'s questions",
+    });
   });
 
   test("a dead invite says which way it died", () => {
-    const errors = content.compatibilityTest.inviteError;
-    // Three different facts, three different sets of words.
-    const headlines = [errors.expired, errors.unknown, errors.unavailable].map(
-      (e) => e.headline,
-    );
-    expect(new Set(headlines).size).toBe(3);
-    for (const e of [errors.expired, errors.unknown, errors.unavailable]) {
-      expect(e.eyebrow).toBeTruthy();
-      expect(e.body).toBeTruthy();
-    }
-    expect(errors.cta).toBeTruthy();
+    expect(content.compatibilityTest.inviteError).toEqual({
+      expired: {
+        eyebrow: "Link expired",
+        headline: "This invitation has run out.",
+        body: "Invitations last thirty days. Ask whoever sent it for a fresh link — or start a thread of your own.",
+      },
+      unknown: {
+        eyebrow: "Link not found",
+        headline: "We can't find that invitation.",
+        body: "The link may have been mistyped or cut short somewhere along the way. Ask for it again, or start a thread of your own.",
+      },
+      unavailable: {
+        eyebrow: "Not right now",
+        headline: "We couldn't reach the service.",
+        body: "Something on our side is having a moment. The link is still good — try it again shortly.",
+      },
+      cta: "Start your own",
+    });
   });
 
-  test("the pair screen labels every trait the backend sends", () => {
-    const pair = content.compatibilityTest.pair;
-    expect(Object.keys(pair.traits).sort()).toEqual([
+  test("the pair screen matches the approved copy exactly", () => {
+    expect(content.compatibilityTest.pair).toEqual({
+      eyebrow: "Your compatibility",
+      sharedLabel: "What you both lead with",
+      noShared: "You don't share a top value — which is its own kind of interesting.",
+      differenceLabel: "Where you differ",
+      traits: {
+        humour: "Humour",
+        opensUp: "Opens up",
+        pace: "Pace",
+        lifeStage: "Life stage",
+      },
+      shareHeadline: "Now send yours to someone else.",
+      shareSub: "The same twenty questions, a different person, a different result.",
+      restart: "Take it yourself",
+      missing: {
+        eyebrow: "Not found",
+        headline: "We can't find that result.",
+        body: "The link may have been mistyped or cut short. Ask whoever shared it to send it again.",
+      },
+      unavailable: {
+        eyebrow: "Not right now",
+        headline: "We couldn't reach the service.",
+        body: "Something on our side is having a moment. Try the link again shortly.",
+      },
+    });
+  });
+
+  test("every trait the backend sends has a label", () => {
+    // The four keys personTraits() reads. A renamed key would silently drop a
+    // line from every person card.
+    expect(Object.keys(content.compatibilityTest.pair.traits).sort()).toEqual([
       "humour",
       "lifeStage",
       "opensUp",
       "pace",
     ]);
-    expect(pair.sharedLabel).toBeTruthy();
-    expect(pair.differenceLabel).toBeTruthy();
-    // Two people with nothing in common still get a sentence.
-    expect(pair.noShared).toBeTruthy();
-  });
-
-  test("the pair screen offers the responder a link of their own", () => {
-    const pair = content.compatibilityTest.pair;
-    expect(pair.shareHeadline).toBeTruthy();
-    expect(pair.shareSub).toBeTruthy();
-    expect(pair.restart).toBeTruthy();
   });
 ```
 
@@ -2325,9 +2355,13 @@ test("a result is never indexed", () => {
 });
 
 test("the preview names nobody", () => {
-  // A share preview unfurls wherever the link is pasted.
-  expect(String(metadata.title)).not.toContain("{");
-  expect(String(metadata.description)).toBeTruthy();
+  // A share preview unfurls wherever the link is pasted, so neither field may
+  // carry a name. Asserted exactly: a later edit that interpolates one should
+  // fail here.
+  expect(metadata.title).toBe("Weft: Your compatibility");
+  expect(metadata.description).toBe(
+    "How two people connect, in words rather than a score.",
+  );
 });
 ```
 
