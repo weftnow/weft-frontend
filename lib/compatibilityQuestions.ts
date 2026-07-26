@@ -34,6 +34,24 @@ export function toQuizQuestions(
 }
 
 /**
+ * One question, checked hard enough to know it will render: a prompt to read
+ * and at least two things to choose between. `seg` is carried through
+ * untouched and never read by the UI, so it is not checked here.
+ */
+export function isBankQuestion(value: unknown): value is BankQuestion {
+  if (typeof value !== "object" || value === null) return false;
+  const q = value as Partial<BankQuestion>;
+  return (
+    typeof q.id === "string" &&
+    typeof q.prompt === "string" &&
+    (q.kind === "single" || q.kind === "pick2") &&
+    Array.isArray(q.options) &&
+    q.options.length > 1 &&
+    q.options.every((o: unknown) => typeof o === "string")
+  );
+}
+
+/**
  * Guards the upstream payload before it is trusted enough to render. A backend
  * that answers 200 with something unexpected should land on the fallback, not
  * on a blank quiz.
@@ -43,15 +61,7 @@ export function isBankResponse(value: unknown): value is BankResponse {
   const { questions, question_set: set } = value as Partial<BankResponse>;
   if (!Array.isArray(questions) || questions.length === 0) return false;
   if (!Array.isArray(set) || set.length === 0) return false;
-  return questions.every(
-    (q) =>
-      typeof q?.id === "string" &&
-      typeof q?.prompt === "string" &&
-      (q?.kind === "single" || q?.kind === "pick2") &&
-      Array.isArray(q?.options) &&
-      q.options.length > 1 &&
-      q.options.every((o: unknown) => typeof o === "string"),
-  );
+  return questions.every(isBankQuestion);
 }
 
 /**
