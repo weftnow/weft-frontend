@@ -18,16 +18,18 @@ const EMPTY: Details = { name: "", email: "", phone: "" };
  * the effort, and it gates the thing the person came for.
  */
 export function DetailsForm({
+  initialDetails,
   submitError,
   onBack,
   onSubmit,
 }: {
+  initialDetails?: Details;
   submitError: string | null;
   onBack: () => void;
   onSubmit: (details: Details) => void;
 }) {
   const copy = content.compatibilityTest.details;
-  const [details, setDetails] = useState<Details>(EMPTY);
+  const [details, setDetails] = useState<Details>(initialDetails ?? EMPTY);
   const [errors, setErrors] = useState<DetailsErrors>({});
 
   function change(field: keyof Details, value: string) {

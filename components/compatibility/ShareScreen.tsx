@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { content } from "@/content";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 
 const COPIED_MS = 2000;
+
+// The origin never changes for the life of the document, so nothing ever
+// notifies -- but subscribe must be referentially stable.
+const subscribeToNothing = () => () => {};
+const readOrigin = () => window.location.origin;
+const readOriginOnServer = () => "";
 
 /**
  * Everything an originator gets: a link, and the reason to send it. No profile
@@ -21,13 +27,11 @@ export function ShareScreen({
   onRestart: () => void;
 }) {
   const copy = content.compatibilityTest.share;
-  const [origin, setOrigin] = useState("");
+  // Only knowable in the browser, so the server-rendered markup carries a
+  // relative link and the absolute one fills in on hydration.
+  const origin = useSyncExternalStore(subscribeToNothing, readOrigin, readOriginOnServer);
   const [copied, setCopied] = useState(false);
   const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Only knowable in the browser, so the server-rendered markup carries a
-  // relative link and the absolute one fills in on mount.
-  useEffect(() => setOrigin(window.location.origin), []);
 
   useEffect(
     () => () => {

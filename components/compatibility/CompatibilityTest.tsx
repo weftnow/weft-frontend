@@ -8,7 +8,7 @@ import { WeaveLoader } from "@/components/ui/WeaveLoader";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 import { DetailsForm } from "@/components/compatibility/DetailsForm";
 import { ShareScreen } from "@/components/compatibility/ShareScreen";
-import { toBackendAnswers } from "@/lib/answers";
+import { toBackendAnswers, unansweredQuestions } from "@/lib/answers";
 import type { QuizQuestion } from "@/lib/compatibilityQuestions";
 import type { Details } from "@/lib/details";
 import {
@@ -25,6 +25,7 @@ import {
 } from "@/lib/compatibility";
 
 const AUTO_ADVANCE_MS = 460;
+const EMPTY_DETAILS: Details = { name: "", email: "", phone: "" };
 
 export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) {
   const reduce = Boolean(useReducedMotion());
@@ -33,6 +34,7 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
   const [phase, setPhase] = useState<Phase>("intro");
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
+  const [details, setDetails] = useState<Details>(EMPTY_DETAILS);
   const [shareToken, setShareToken] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -62,12 +64,15 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
   }
 
   function choose(optionId: string) {
+    // Always clear a pending auto-advance first -- otherwise deselecting the
+    // already-chosen option (chosen === 0) leaves the earlier timer armed and
+    // it fires later, advancing past this question with nothing recorded.
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
     const next = toggleOption(answers, question.id, optionId, question.kind, question.select);
     setAnswers(next);
     // A single-choice question moves on by itself; a pick-two waits for both.
     const chosen = next[question.id]?.length ?? 0;
     if (question.kind === "single" && chosen > 0) {
-      if (advanceTimer.current) clearTimeout(advanceTimer.current);
       advanceTimer.current = setTimeout(advance, reduce ? 120 : AUTO_ADVANCE_MS);
     }
   }
@@ -75,6 +80,7 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
   function reset() {
     setAnswers({});
     setActiveIndex(0);
+    setDetails(EMPTY_DETAILS);
     setShareToken("");
     setSubmitError(null);
     setPhase("intro");
@@ -84,14 +90,28 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
    * The only write in the flow. Moving to "submitting" unmounts the form, so
    * there is no second button to press -- that is the double-submit guard.
    */
-  async function submit(details: Details) {
+  async function submit(nextDetails: Details) {
+    // Backstop only: per-question gating (the auto-advance on single-choice,
+    // the disabled Next on pick-two) should already keep every question
+    // answered by the time the visitor reaches the details form. If it
+    // somehow doesn't, send them back to the first gap instead of letting
+    // the backend's 400 -- which names no question -- strand them here.
+    const gaps = unansweredQuestions(answers, questions);
+    if (gaps.length > 0) {
+      const firstGapIndex = questions.findIndex((q) => q.id === gaps[0]);
+      setActiveIndex(firstGapIndex === -1 ? 0 : firstGapIndex);
+      setPhase("quiz");
+      return;
+    }
+
+    setDetails(nextDetails);
     setSubmitError(null);
     setPhase("submitting");
     try {
       const response = await fetch("/api/answers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...details, answers: toBackendAnswers(answers, questions) }),
+        body: JSON.stringify({ ...nextDetails, answers: toBackendAnswers(answers, questions) }),
       });
       const body = (await response.json().catch(() => null)) as
         | { share_token?: string; error?: string }
@@ -234,6 +254,7 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
         {phase === "details" && (
           <motion.div key="details" {...fade} transition={transition} className="relative z-10 w-full">
             <DetailsForm
+              initialDetails={details}
               submitError={submitError}
               onBack={() => {
                 const back = backFromDetails(questions.length);

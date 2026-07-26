@@ -85,6 +85,14 @@ export async function weftFetch<T>(
     return { ok: false, status: response.status, code, message };
   }
 
-  const data = (await response.json()) as T;
-  return { ok: true, data };
+  try {
+    const data = (await response.json()) as T;
+    return { ok: true, data };
+  } catch (reason) {
+    // A 200 with a body that isn't JSON (a tunnel or captive-portal
+    // interstitial, say) is unusable regardless -- treat it the same as an
+    // unreachable backend so callers fall back rather than crash.
+    console.error("weft_core returned a non-JSON body", reason);
+    return failure(503, GENERIC_FAILURE);
+  }
 }

@@ -113,4 +113,21 @@ describe("weftFetch", () => {
     expect(res.ok).toBe(false);
     if (!res.ok) expect(res.code).toBe("unavailable");
   });
+
+  test("a 200 with a non-JSON body is treated as unavailable, not thrown", async () => {
+    const res = await weftFetch(
+      "/api/bank",
+      undefined,
+      async () =>
+        new Response("<html>captive portal</html>", {
+          status: 200,
+          headers: { "content-type": "text/html" },
+        }),
+    );
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.status).toBe(503);
+      expect(res.code).toBe("unavailable");
+    }
+  });
 });
