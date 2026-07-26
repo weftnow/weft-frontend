@@ -83,6 +83,11 @@ export type PairResult = {
   people: PairPerson[];
 };
 
+/**
+ * A pair as it appears in someone's list of matches: the same friend-safe
+ * result, plus the id needed to link to its own page. The backend spreads the
+ * one into the other (`weft/api.py:197`), so the shapes cannot drift apart.
+ */
 export type PairSummary = PairResult & { pair_id: string };
 
 export type PairsResponse = { pairs: PairSummary[] };
