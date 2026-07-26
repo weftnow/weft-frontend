@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { optionIndex, toBackendAnswers, unansweredQuestions } from "./answers";
+import { firstUnansweredIndex, optionIndex, toBackendAnswers, unansweredQuestions } from "./answers";
 import type { QuizQuestion } from "./compatibilityQuestions";
 
 const QUESTIONS: QuizQuestion[] = [
@@ -78,5 +78,65 @@ describe("unansweredQuestions", () => {
 
   test("a pick-two with one selection is still unanswered", () => {
     expect(unansweredQuestions({ Q1: ["Q1-0"], Q9: ["Q9-0"] }, QUESTIONS)).toEqual(["Q9"]);
+  });
+});
+
+describe("firstUnansweredIndex", () => {
+  const THREE: QuizQuestion[] = [
+    {
+      id: "A",
+      prompt: "First",
+      kind: "single",
+      options: [
+        { id: "A-0", label: "a" },
+        { id: "A-1", label: "b" },
+      ],
+    },
+    {
+      id: "B",
+      prompt: "Middle",
+      kind: "single",
+      options: [
+        { id: "B-0", label: "a" },
+        { id: "B-1", label: "b" },
+      ],
+    },
+    {
+      id: "C",
+      prompt: "Last, pick two",
+      kind: "multi",
+      select: 2,
+      options: [
+        { id: "C-0", label: "a" },
+        { id: "C-1", label: "b" },
+        { id: "C-2", label: "c" },
+      ],
+    },
+  ];
+
+  test("returns -1 when everything is answered", () => {
+    expect(
+      firstUnansweredIndex({ A: ["A-0"], B: ["B-0"], C: ["C-0", "C-1"] }, THREE),
+    ).toBe(-1);
+  });
+
+  test("finds a gap at the first question", () => {
+    expect(firstUnansweredIndex({ B: ["B-0"], C: ["C-0", "C-1"] }, THREE)).toBe(0);
+  });
+
+  test("finds a gap in the middle question", () => {
+    expect(firstUnansweredIndex({ A: ["A-0"], C: ["C-0", "C-1"] }, THREE)).toBe(1);
+  });
+
+  test("finds a gap at the last question", () => {
+    expect(firstUnansweredIndex({ A: ["A-0"], B: ["B-0"] }, THREE)).toBe(2);
+  });
+
+  test("with multiple gaps, returns the first one", () => {
+    expect(firstUnansweredIndex({ B: ["B-0"] }, THREE)).toBe(0);
+  });
+
+  test("a pick-two holding only one selection counts as a gap", () => {
+    expect(firstUnansweredIndex({ A: ["A-0"], B: ["B-0"], C: ["C-0"] }, THREE)).toBe(2);
   });
 });

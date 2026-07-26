@@ -7,7 +7,7 @@ const noop = () => {};
 
 test("details form asks for every field the backend requires", () => {
   const html = renderToStaticMarkup(
-    <DetailsForm submitError={null} onBack={noop} onSubmit={noop} />,
+    <DetailsForm busy={false} submitError={null} onBack={noop} onSubmit={noop} />,
   );
   expect(html).toContain(content.compatibilityTest.details.fields.name);
   expect(html).toContain(content.compatibilityTest.details.fields.email);
@@ -17,7 +17,7 @@ test("details form asks for every field the backend requires", () => {
 
 test("details form uses the right input types and autocomplete hints", () => {
   const html = renderToStaticMarkup(
-    <DetailsForm submitError={null} onBack={noop} onSubmit={noop} />,
+    <DetailsForm busy={false} submitError={null} onBack={noop} onSubmit={noop} />,
   );
   expect(html).toContain('type="email"');
   expect(html).toContain('type="tel"');
@@ -26,7 +26,7 @@ test("details form uses the right input types and autocomplete hints", () => {
 
 test("details form shows a submit failure where it can be read", () => {
   const html = renderToStaticMarkup(
-    <DetailsForm submitError="Backend said no" onBack={noop} onSubmit={noop} />,
+    <DetailsForm busy={false} submitError="Backend said no" onBack={noop} onSubmit={noop} />,
   );
   expect(html).toContain("Backend said no");
   expect(html).toContain('role="alert"');

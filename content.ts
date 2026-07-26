@@ -408,6 +408,7 @@ export const content = {
       cta: "Get my link",
       back: "Back",
       failed: "We couldn't save that. Please try again.",
+      incomplete: "Please answer every question before we can weave your thread.",
     },
     share: {
       eyebrow: "Your link is ready",

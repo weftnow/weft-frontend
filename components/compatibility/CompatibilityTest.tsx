@@ -8,7 +8,7 @@ import { WeaveLoader } from "@/components/ui/WeaveLoader";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 import { DetailsForm } from "@/components/compatibility/DetailsForm";
 import { ShareScreen } from "@/components/compatibility/ShareScreen";
-import { toBackendAnswers, unansweredQuestions } from "@/lib/answers";
+import { firstUnansweredIndex, toBackendAnswers, unansweredQuestions } from "@/lib/answers";
 import type { QuizQuestion } from "@/lib/compatibilityQuestions";
 import type { Details } from "@/lib/details";
 import {
@@ -37,7 +37,9 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
   const [details, setDetails] = useState<Details>(EMPTY_DETAILS);
   const [shareToken, setShareToken] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const submitInFlight = useRef(false);
 
   const question = questions[activeIndex];
   const required = question?.select ?? 1;
@@ -87,10 +89,19 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
   }
 
   /**
-   * The only write in the flow. Moving to "submitting" unmounts the form, so
-   * there is no second button to press -- that is the double-submit guard.
+   * The only write in the flow. AnimatePresence's "wait" mode keeps the
+   * details form mounted (and its submit button clickable) through its exit
+   * transition, so the ref below -- not the phase change -- is what stops a
+   * double-click from firing two POSTs.
    */
   async function submit(nextDetails: Details) {
+    if (submitInFlight.current) return;
+    submitInFlight.current = true;
+    setBusy(true);
+
+    setDetails(nextDetails);
+    setSubmitError(null);
+
     // Backstop only: per-question gating (the auto-advance on single-choice,
     // the disabled Next on pick-two) should already keep every question
     // answered by the time the visitor reaches the details form. If it
@@ -98,14 +109,15 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
     // the backend's 400 -- which names no question -- strand them here.
     const gaps = unansweredQuestions(answers, questions);
     if (gaps.length > 0) {
-      const firstGapIndex = questions.findIndex((q) => q.id === gaps[0]);
+      const firstGapIndex = firstUnansweredIndex(answers, questions);
       setActiveIndex(firstGapIndex === -1 ? 0 : firstGapIndex);
       setPhase("quiz");
+      setSubmitError(data.details.incomplete);
+      submitInFlight.current = false;
+      setBusy(false);
       return;
     }
 
-    setDetails(nextDetails);
-    setSubmitError(null);
     setPhase("submitting");
     try {
       const response = await fetch("/api/answers", {
@@ -130,6 +142,9 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
       // form comes back with the answers still in state.
       setSubmitError(data.details.failed);
       setPhase("details");
+    } finally {
+      submitInFlight.current = false;
+      setBusy(false);
     }
   }
 
@@ -256,6 +271,7 @@ export function CompatibilityTest({ questions }: { questions: QuizQuestion[] }) 
             <DetailsForm
               initialDetails={details}
               submitError={submitError}
+              busy={busy}
               onBack={() => {
                 const back = backFromDetails(questions.length);
                 setPhase(back.phase);

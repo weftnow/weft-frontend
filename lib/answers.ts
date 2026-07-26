@@ -56,3 +56,17 @@ export function unansweredQuestions(
     .filter((q) => (answers[q.id]?.length ?? 0) !== requiredCount(q))
     .map((q) => q.id);
 }
+
+/**
+ * Index in `questions` of the first unanswered question, or -1 if every
+ * question is answered. Defined in terms of `unansweredQuestions` so the two
+ * can never disagree about what counts as a gap.
+ */
+export function firstUnansweredIndex(
+  answers: Answers,
+  questions: readonly QuizQuestion[],
+): number {
+  const gaps = unansweredQuestions(answers, questions);
+  if (gaps.length === 0) return -1;
+  return questions.findIndex((q) => q.id === gaps[0]);
+}

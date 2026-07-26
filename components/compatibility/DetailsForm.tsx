@@ -20,11 +20,13 @@ const EMPTY: Details = { name: "", email: "", phone: "" };
 export function DetailsForm({
   initialDetails,
   submitError,
+  busy,
   onBack,
   onSubmit,
 }: {
   initialDetails?: Details;
   submitError: string | null;
+  busy: boolean;
   onBack: () => void;
   onSubmit: (details: Details) => void;
 }) {
@@ -99,7 +101,7 @@ export function DetailsForm({
           >
             &larr; {copy.back}
           </button>
-          <PremiumButton tone="ember" type="submit">
+          <PremiumButton tone="ember" type="submit" disabled={busy}>
             {copy.cta}
           </PremiumButton>
         </div>
