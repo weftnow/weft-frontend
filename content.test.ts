@@ -77,6 +77,7 @@ describe("compatibility test content", () => {
       back: "Back",
       failed: "We couldn't save that. Please try again.",
       incomplete: "Please answer every question before we can weave your thread.",
+      stranded: "Your result is ready, but we couldn't open it. Use the link below.",
     });
   });
 

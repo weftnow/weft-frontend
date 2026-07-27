@@ -13,7 +13,7 @@ import type { QuizQuestion } from "@/lib/compatibilityQuestions";
 import { EMPTY_DETAILS, type Details } from "@/lib/details";
 import { withName } from "@/lib/inviteText";
 import { pairHref } from "@/lib/links";
-import { decideSubmitOutcome } from "@/lib/submitOutcome";
+import { decideSubmitOutcome, strandedOutcome } from "@/lib/submitOutcome";
 import {
   ANALYZING_MS,
   backFromDetails,
@@ -28,6 +28,16 @@ import {
 } from "@/lib/compatibility";
 
 const AUTO_ADVANCE_MS = 460;
+
+/**
+ * The browser's own ceiling on the one request that writes. `weftFetch` gives
+ * the server 8s; without this the browser would wait indefinitely on a hung
+ * connection, with the loader spinning and no way out.
+ *
+ * Comfortably longer than the server's timeout, so a slow-but-alive backend
+ * produces the server's clean error rather than this one's blank failure.
+ */
+const SUBMIT_TIMEOUT_MS = 15000;
 
 /**
  * The whole quiz, for either person. `invite` is what makes the difference:
@@ -52,6 +62,7 @@ export function CompatibilityTest({
   const [shareToken, setShareToken] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [stranded, setStranded] = useState<{ pairId: string; shareToken: string } | null>(null);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const submitInFlight = useRef(false);
 
@@ -111,6 +122,7 @@ export function CompatibilityTest({
     setDetails(EMPTY_DETAILS);
     setShareToken("");
     setSubmitError(null);
+    setStranded(null);
     setPhase("intro");
   }
 
@@ -152,6 +164,7 @@ export function CompatibilityTest({
       const response = await fetch("/api/answers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(SUBMIT_TIMEOUT_MS),
         body: JSON.stringify({
           ...nextDetails,
           answers: toBackendAnswers(answers, questions),
@@ -167,10 +180,18 @@ export function CompatibilityTest({
         // A full navigation: the pair page is force-dynamic SSR, so this
         // fetches the rendered result rather than transitioning into a page
         // that would have to fetch anyway. The loader stays up until it lands.
-        window.location.assign(pairHref(outcome.pairId, outcome.shareToken));
-        // Set only after the navigation is under way: if it could not start,
-        // `finally` must still release the guard or the form wedges for good.
-        leaving = true;
+        try {
+          window.location.assign(pairHref(outcome.pairId, outcome.shareToken));
+          leaving = true;
+        } catch {
+          // The pair already exists upstream -- the POST succeeded. Retrying
+          // would create a second one, so this is terminal: show the result's
+          // address rather than a button that would do damage.
+          const dead = strandedOutcome(outcome);
+          setStranded({ pairId: dead.pairId, shareToken: dead.shareToken });
+          setPhase("stranded");
+          leaving = true;
+        }
         return;
       }
       if (outcome.phase === "share") {
@@ -343,6 +364,24 @@ export function CompatibilityTest({
         {phase === "share" && (
           <motion.div key="share" {...fade} transition={transition} className="relative z-10 w-full">
             <ShareScreen shareToken={shareToken} onRestart={reset} />
+          </motion.div>
+        )}
+
+        {phase === "stranded" && stranded && (
+          <motion.div key="stranded" {...fade} transition={transition} className="relative z-10 w-full">
+            <div className="flex w-full flex-col items-center text-center">
+              {/* Their result exists -- that is the fact to lead with. The
+                  share eyebrow ("Your link is ready") would be a lie here. */}
+              <span className="ctest-eyebrow">{data.pair.eyebrow}</span>
+              <p className="ctest-error" role="alert">
+                {data.details.stranded}
+              </p>
+              {/* A real anchor, not just the text: assign() failed, but an
+                  ordinary link click is a different code path and may work. */}
+              <a className="ctest-linkbox mt-7" href={pairHref(stranded.pairId, stranded.shareToken)}>
+                {pairHref(stranded.pairId, stranded.shareToken)}
+              </a>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

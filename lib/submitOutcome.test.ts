@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { decideSubmitOutcome } from "./submitOutcome";
+import { decideSubmitOutcome, strandedOutcome } from "./submitOutcome";
 
 const FALLBACK = "We couldn't save that. Please try again.";
 
@@ -55,4 +55,14 @@ test("a failed responder submission stays on the details form", () => {
     FALLBACK,
   );
   expect(outcome).toEqual({ phase: "details", error: "this invite has expired" });
+});
+
+test("a pair that cannot be navigated to is stranded, not retryable", () => {
+  // The POST already succeeded and the pair exists. Offering "try again"
+  // would mint a second session and a second pair for the same person.
+  expect(strandedOutcome({ phase: "pair", pairId: "p1", shareToken: "tok-9" })).toEqual({
+    phase: "stranded",
+    pairId: "p1",
+    shareToken: "tok-9",
+  });
 });

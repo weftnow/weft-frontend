@@ -2,7 +2,7 @@
  * The originator's journey. A solo profile is never shown, so the quiz ends at
  * a share link -- there is no "result" phase for one person.
  */
-export type Phase = "intro" | "quiz" | "details" | "submitting" | "share";
+export type Phase = "intro" | "quiz" | "details" | "submitting" | "share" | "stranded";
 export type SelectKind = "single" | "multi";
 export type Answers = Record<string, string[]>;
 
