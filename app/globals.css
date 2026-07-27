@@ -985,7 +985,6 @@ a {
   transition: transform 160ms var(--ease-out-ui), border-color 180ms ease,
     background-color 200ms ease, box-shadow 200ms ease;
 }
-.ctest-option:hover { transform: translate3d(0, -2px, 0); box-shadow: var(--shadow-media); }
 .ctest-option:active { transform: scale(0.99); }
 .ctest-option:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white); outline-offset: 3px; }
 .ctest-option--on {
@@ -994,7 +993,8 @@ a {
   box-shadow: 0 0 0 1px var(--color-ember);
 }
 
-.ctest-option span:first-child { font-family: var(--font-display); font-size: 1rem; font-weight: 500; letter-spacing: -0.02em; color: var(--color-ink); }
+/* The label span, not the aria-hidden index/check decorations either side of it. */
+.ctest-option span:not([aria-hidden]) { font-family: var(--font-display); font-size: 1rem; font-weight: 500; letter-spacing: -0.02em; color: var(--color-ink); }
 
 .ctest-option-check {
   position: absolute;
@@ -1015,6 +1015,34 @@ a {
   transition: opacity 180ms ease, scale 220ms var(--ease-out-ui), border-color 180ms ease;
 }
 .ctest-option--on .ctest-option-check { opacity: 1; scale: 1; border-color: var(--color-ember); }
+
+/* The homepage's numbered-list device, worn by the options. */
+.ctest-option { padding-left: 2.9rem; }
+.ctest-option-index {
+  position: absolute;
+  top: 1.15rem;
+  left: 1.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--color-ink) 38%, transparent);
+  transition: color 180ms ease;
+}
+.ctest-option--on .ctest-option-index { color: var(--color-ember); }
+
+/* A touch more lift than before -- the options are the page's only toys. */
+.ctest-option:hover { transform: translate3d(0, -3px, 0); box-shadow: var(--shadow-media); }
+
+/* Back and Next share a footer that keeps them apart -- the hand glyph
+   used to overlap the back link. */
+.ctest-quiz-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  margin-top: 2rem;
+  min-height: 3.35rem;
+}
 
 /* Fills whatever column it is given. It used to cap at 560px, which left the
    result's cards floating short of the 46rem grid they sit in and read as

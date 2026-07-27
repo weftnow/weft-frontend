@@ -91,3 +91,8 @@ export function progressFraction(
   if (questionCount <= 0) return 0;
   return Math.min(1, Math.max(0, (activeIndex + 1) / questionCount));
 }
+
+/** The pick-two helper line: instructions until a pick lands, then a count. */
+export function pickTwoHint(chosen: number, idle: string, template: string): string {
+  return chosen > 0 ? template.replace("{n}", String(chosen)) : idle;
+}

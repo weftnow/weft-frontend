@@ -20,6 +20,7 @@ import {
   canAdvance,
   isSelected,
   nextQuizState,
+  pickTwoHint,
   prevQuizState,
   progressFraction,
   toggleOption,
@@ -281,14 +282,20 @@ export function CompatibilityTest({
             </span>
             <h2 className="ctest-prompt">{question.prompt}</h2>
             <p className="mt-2 font-mono text-xs uppercase tracking-wider text-ink/45">
-              {question.kind === "multi" ? data.helpers.pick2 : data.helpers.single}
+              {question.kind === "multi"
+                ? pickTwoHint(
+                    answers[question.id]?.length ?? 0,
+                    data.helpers.pick2,
+                    data.helpers.pick2Count,
+                  )
+                : data.helpers.single}
             </p>
             <div
               className="ctest-grid"
               role={question.kind === "single" ? "radiogroup" : "group"}
               aria-label={question.prompt}
             >
-              {question.options.map((option) => {
+              {question.options.map((option, optionIndex) => {
                 const on = isSelected(answers, question.id, option.id);
                 return (
                   <button
@@ -299,6 +306,9 @@ export function CompatibilityTest({
                     className={`ctest-option${on ? " ctest-option--on" : ""}`}
                     onClick={() => choose(option.id)}
                   >
+                    <span aria-hidden className="ctest-option-index">
+                      {String.fromCharCode(65 + optionIndex)}
+                    </span>
                     <span>{option.label}</span>
                     <span aria-hidden className="ctest-option-check">
                       &#10003;
@@ -312,7 +322,7 @@ export function CompatibilityTest({
                 {submitError}
               </p>
             )}
-            <div className="mt-8 flex items-center gap-5">
+            <div className="ctest-quiz-footer">
               <button
                 type="button"
                 onClick={goBack}

@@ -6,6 +6,7 @@ import {
   getSelected,
   isSelected,
   nextQuizState,
+  pickTwoHint,
   prevQuizState,
   progressFraction,
   toggleOption,
@@ -106,4 +107,10 @@ describe("progressFraction", () => {
 
 test("analyzing duration is a positive constant", () => {
   expect(LOADER_CYCLE_MS).toBeGreaterThan(0);
+});
+
+test("the pick-two helper counts once picking starts", () => {
+  expect(pickTwoHint(0, "Pick exactly two", "{n} of 2 picked")).toBe("Pick exactly two");
+  expect(pickTwoHint(1, "Pick exactly two", "{n} of 2 picked")).toBe("1 of 2 picked");
+  expect(pickTwoHint(2, "Pick exactly two", "{n} of 2 picked")).toBe("2 of 2 picked");
 });

@@ -393,6 +393,7 @@ export const content = {
     helpers: {
       single: "Pick the one that fits",
       pick2: "Pick exactly two",
+      pick2Count: "{n} of 2 picked",
     },
     quiz: {
       // {n} and {total} are filled in by CompatibilityTest.
