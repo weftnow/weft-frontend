@@ -136,3 +136,23 @@ test("the matches link is there even for someone arriving on a forwarded link", 
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
   expect(html).toContain('href="/compatibility-test/matches"');
 });
+
+test("a person with nothing measurable renders no empty definition list", () => {
+  // An empty <dl> is invalid and shows as a gap the reader cannot explain.
+  const blank = {
+    ...RESULT.people[0],
+    humour: "—",
+    opens_up: "",
+    pace: "unspecified",
+    life_stage: "—",
+  };
+  const html = renderToStaticMarkup(
+    <PairResultView result={{ ...RESULT, people: [blank, RESULT.people[1]] }} shareToken={null} />,
+  );
+  // Exactly one list, and it is the other person's. Asserting no <dl> at all
+  // could never pass here -- Ben still has two measurable traits -- so this
+  // pins the real contract: the blank person's list is dropped, not emptied.
+  expect(html.match(/<dl/g)).toHaveLength(1);
+  expect(html).toContain(content.compatibilityTest.pair.traits.opensUp);
+  expect(html).not.toContain(content.compatibilityTest.pair.traits.humour);
+});

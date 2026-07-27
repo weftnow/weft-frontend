@@ -21,8 +21,10 @@ test("the share screen points back to the matches page", () => {
   );
 });
 
-test("share screen never claims a compatibility result for one person", () => {
-  const html = renderToStaticMarkup(<ShareScreen shareToken="tok-1" onRestart={() => {}} />);
-  expect(html).not.toContain("ctest-meter");
+test("the share screen shows no score, because there is nothing to score yet", () => {
+  const html = renderToStaticMarkup(<ShareScreen shareToken="tok-9" onRestart={() => {}} />);
+  // One person is not a compatibility. Nothing numeric belongs here.
+  expect(html).not.toContain("ctest-gauge");
+  expect(html).not.toMatch(/\d+%/);
   expect(html).not.toContain("archetype");
 });

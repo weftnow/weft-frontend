@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
-  ANALYZING_MS,
+  LOADER_CYCLE_MS,
   backFromDetails,
   canAdvance,
   getSelected,
@@ -105,5 +105,5 @@ describe("progressFraction", () => {
 });
 
 test("analyzing duration is a positive constant", () => {
-  expect(ANALYZING_MS).toBeGreaterThan(0);
+  expect(LOADER_CYCLE_MS).toBeGreaterThan(0);
 });

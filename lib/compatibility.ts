@@ -6,7 +6,11 @@ export type Phase = "intro" | "quiz" | "details" | "submitting" | "share" | "str
 export type SelectKind = "single" | "multi";
 export type Answers = Record<string, string[]>;
 
-export const ANALYZING_MS = 4400;
+/**
+ * How long the loader's phrases take to cycle once. Named for what it drives:
+ * there is no "analyzing" phase any more, and the old name outlived it.
+ */
+export const LOADER_CYCLE_MS = 4400;
 
 export function getSelected(answers: Answers, questionId: string): string[] {
   return answers[questionId] ?? [];

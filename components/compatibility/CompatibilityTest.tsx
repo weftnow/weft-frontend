@@ -15,7 +15,7 @@ import { withName } from "@/lib/inviteText";
 import { pairHref } from "@/lib/links";
 import { decideSubmitOutcome, strandedOutcome } from "@/lib/submitOutcome";
 import {
-  ANALYZING_MS,
+  LOADER_CYCLE_MS,
   backFromDetails,
   canAdvance,
   isSelected,
@@ -275,7 +275,9 @@ export function CompatibilityTest({
               />
             </div>
             <span className="ctest-eyebrow">
-              Question {activeIndex + 1} of {questions.length}
+              {data.quiz.progress
+                .replace("{n}", String(activeIndex + 1))
+                .replace("{total}", String(questions.length))}
             </span>
             <h2 className="ctest-prompt">{question.prompt}</h2>
             <p className="mt-2 font-mono text-xs uppercase tracking-wider text-ink/45">
@@ -316,7 +318,7 @@ export function CompatibilityTest({
                 onClick={goBack}
                 className="font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
               >
-                &larr; Back
+                &larr; {data.quiz.back}
               </button>
               {question.kind === "multi" && (
                 <PremiumButton
@@ -324,7 +326,7 @@ export function CompatibilityTest({
                   onClick={advance}
                   disabled={!canAdvance(answers, question.id, required)}
                 >
-                  Next
+                  {data.quiz.next}
                 </PremiumButton>
               )}
             </div>
@@ -356,7 +358,7 @@ export function CompatibilityTest({
           >
             <WeaveLoader
               phrases={data.loaderPhrases}
-              intervalMs={Math.round(ANALYZING_MS / data.loaderPhrases.length)}
+              intervalMs={Math.round(LOADER_CYCLE_MS / data.loaderPhrases.length)}
             />
           </motion.div>
         )}

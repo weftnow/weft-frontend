@@ -394,6 +394,12 @@ export const content = {
       single: "Pick the one that fits",
       pick2: "Pick exactly two",
     },
+    quiz: {
+      // {n} and {total} are filled in by CompatibilityTest.
+      progress: "Question {n} of {total}",
+      back: "Back",
+      next: "Next",
+    },
     loaderPhrases: [
       "Reading the signal between your answers…",
       "Mapping your values…",

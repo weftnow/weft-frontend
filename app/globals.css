@@ -965,7 +965,6 @@ a {
 }
 
 .ctest-option span:first-child { font-family: var(--font-display); font-size: 1rem; font-weight: 500; letter-spacing: -0.02em; color: var(--color-ink); }
-.ctest-option-hint { font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.04em; color: rgb(18 18 18 / 48%); }
 
 .ctest-option-check {
   position: absolute;
@@ -998,19 +997,6 @@ a {
   padding: clamp(1.75rem, 4vw, 2.75rem);
   box-shadow: var(--shadow-premium);
   backdrop-filter: blur(12px);
-}
-
-.ctest-chip {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-ember) 12%, white);
-  padding: 0.4rem 0.85rem;
-  color: color-mix(in srgb, var(--color-ember) 82%, var(--color-ink));
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 /* ---------------------------------------------------------------- *
@@ -1202,32 +1188,6 @@ a {
   .ctest-traits { grid-template-columns: 1fr 1fr; gap: 1.1rem 1.25rem; }
 }
 
-.ctest-meter { position: relative; height: 0.5rem; border-radius: 999px; background: rgb(18 18 18 / 8%); overflow: hidden; }
-.ctest-meter-fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--color-ember), color-mix(in srgb, var(--color-ember) 60%, var(--color-signal)));
-}
-
-.ctest-share {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 3rem;
-  border-radius: 999px;
-  border: 1px solid rgb(18 18 18 / 14%);
-  background: var(--color-ink);
-  padding: 0 1.4rem;
-  color: var(--color-paper);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 140ms var(--ease-out-ui), background-color 180ms ease;
-}
-.ctest-share:hover { transform: translate3d(0, -1px, 0); }
-.ctest-share:active { transform: scale(0.98); }
-.ctest-share:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white); outline-offset: 3px; }
 .ctest-copied { font-family: var(--font-mono); font-size: 0.72rem; color: color-mix(in srgb, var(--color-signal) 80%, var(--color-ink)); }
 
 .ctest-pair {
@@ -1363,8 +1323,7 @@ a {
   .portrait-stack-icon,
   .ctest-option,
   .ctest-option-check,
-  .ctest-progressbar-fill,
-  .ctest-share {
+  .ctest-progressbar-fill {
     transition-duration: 0.01ms;
   }
 

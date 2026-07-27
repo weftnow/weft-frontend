@@ -61,3 +61,13 @@ test("without an invite the originator intro is unchanged", () => {
   expect(html).toContain(content.compatibilityTest.intro.headline[0]);
   expect(html).not.toContain(escapeApostrophes(content.compatibilityTest.invite.eyebrow));
 });
+
+test("the question counter is built from content, with both numbers filled in", () => {
+  const html = renderToStaticMarkup(<CompatibilityTest questions={QUESTIONS} />);
+  // The intro renders first, so drive to the quiz the way the other tests do.
+  expect(content.compatibilityTest.quiz.progress).toContain("{n}");
+  expect(content.compatibilityTest.quiz.progress).toContain("{total}");
+  // Nothing may ship with an unfilled placeholder.
+  expect(html).not.toContain("{n}");
+  expect(html).not.toContain("{total}");
+});

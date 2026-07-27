@@ -67,6 +67,15 @@ describe("compatibility test content", () => {
     expect(content.compatibilityTest.intro.sub).not.toContain("Three");
   });
 
+  test("the quiz chrome reads from content, not from the component", () => {
+    expect(content.compatibilityTest.quiz).toEqual({
+      // {n} and {total} are filled in by CompatibilityTest.
+      progress: "Question {n} of {total}",
+      back: "Back",
+      next: "Next",
+    });
+  });
+
   test("details step matches the approved copy exactly", () => {
     expect(content.compatibilityTest.details).toEqual({
       eyebrow: "Last thing",

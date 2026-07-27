@@ -15,6 +15,25 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+/**
+ * A switch rather than a ternary so a fourth PairOutcome status becomes a
+ * type error here instead of silently rendering "we couldn't reach the
+ * service" at someone whose problem is something else.
+ */
+function pickNotice(status: "not_found" | "unavailable") {
+  const copy = content.compatibilityTest.pair;
+  switch (status) {
+    case "not_found":
+      return copy.missing;
+    case "unavailable":
+      return copy.unavailable;
+    default: {
+      const never: never = status;
+      throw new Error(`unhandled pair status: ${String(never)}`);
+    }
+  }
+}
+
 export default async function PairPage({
   params,
   searchParams,
@@ -27,7 +46,7 @@ export default async function PairPage({
   const copy = content.compatibilityTest.pair;
 
   if (outcome.status !== "ok") {
-    const notice = outcome.status === "not_found" ? copy.missing : copy.unavailable;
+    const notice = pickNotice(outcome.status);
     return (
       <main id="main-content">
         <CompatibilityNotice
