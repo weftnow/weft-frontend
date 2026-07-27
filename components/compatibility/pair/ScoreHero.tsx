@@ -1,12 +1,11 @@
 import { content } from "@/content";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { scorePercent } from "@/lib/pairView";
 import type { PairResult } from "@/lib/weftTypes";
 
 /** The verdict: eyebrow, the number, the gauge it stands on, the sentence. */
 export function ScoreHero({ result }: { result: PairResult }) {
   const copy = content.compatibilityTest.pair;
-  const percent = scorePercent(result.score);
+  const percent = result.percent;
 
   return (
     <header className="flex flex-col items-center text-center">
@@ -18,7 +17,7 @@ export function ScoreHero({ result }: { result: PairResult }) {
           true, from the first paint and without JavaScript. */}
       <p className="ctest-score" aria-hidden>
         {percent}
-        <span className="ctest-score-unit">%</span>
+        <span className="ctest-score-unit">{copy.scoreUnit}</span>
       </p>
 
       <div

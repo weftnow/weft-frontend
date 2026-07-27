@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { content } from "@/content";
 import { pairHref } from "@/lib/links";
-import { scorePercent } from "@/lib/pairView";
 import type { PairSummary } from "@/lib/weftTypes";
 
 /**
@@ -14,7 +13,7 @@ import type { PairSummary } from "@/lib/weftTypes";
  */
 export function MatchCard({ pair, index }: { pair: PairSummary; index: number }) {
   const copy = content.compatibilityTest.matches;
-  const percent = scorePercent(pair.score);
+  const percent = pair.percent;
 
   return (
     <li className="ctest-match">
@@ -28,7 +27,7 @@ export function MatchCard({ pair, index }: { pair: PairSummary; index: number })
         <div className="ctest-match-meter">
           <span className="ctest-match-percent" aria-hidden>
             {percent}
-            <span className="ctest-match-unit">%</span>
+            <span className="ctest-match-unit">{content.compatibilityTest.pair.scoreUnit}</span>
           </span>
           <span
             className="ctest-gauge-track"

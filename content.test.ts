@@ -147,12 +147,14 @@ describe("compatibility test content", () => {
 
   test("the pair screen matches the approved copy exactly", () => {
     expect(content.compatibilityTest.pair).toEqual({
-      eyebrow: "Your compatibility",
-      scoreLabel: "Compatibility",
+      eyebrow: "Your fit",
+      scoreLabel: "Fit score",
       // {percent} is filled by the component; read to screen readers after scoreLabel.
       scoreOutOf: "{percent} out of 100",
+      // shown under the number so nobody reads it as a percentage or a grade
+      scoreUnit: "fit",
       scoreNote:
-        "Measured across values, outlook, humour and pace — not a popularity score.",
+        "A fit score out of 100, from values, outlook, humour and pace — not a grade.",
       scaleLow: "Different",
       scaleHigh: "Aligned",
       sharedLabel: "What you both lead with",

@@ -26,6 +26,7 @@ function pair(id: string, name: string, score = 0.1544): PairSummary {
     pair_id: id,
     headline: `Ana and ${name} both lead with Benevolence.`,
     score,
+    percent: 44,
     band: "A real mix.",
     shared_values: [VALUE],
     difference: "Where you differ most is humour.",

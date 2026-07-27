@@ -13,8 +13,9 @@ const VALUE = {
 
 const RESULT: PairResult = {
   headline: "Ana and Ben both lead with Benevolence.",
-  // 0.1544 is a real "a real mix" score from weft_core, and maps to 44%.
+  // 0.1544 is a real "a real mix" score from weft_core, and maps to 44.
   score: 0.1544,
+  percent: 44,
   band: "A real mix — some deep overlap, some genuine difference.",
   shared_values: [VALUE],
   difference: "Where you differ most is humour.",
@@ -84,25 +85,26 @@ test("without a token the page offers the quiz instead of a dead link", () => {
   );
 });
 
-test("the result shows the compatibility percentage and fills the gauge to match", () => {
+test("the result shows the fit score and fills the gauge to match", () => {
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken="tok-9" />);
   // The figure is rendered, not animated to, so it is true in the very first
   // paint and for anyone without JavaScript.
   expect(html).toContain(">44<");
-  expect(html).toContain("Compatibility 44 out of 100");
+  expect(html).toContain("Fit score 44 out of 100");
   expect(html).toContain("width:44%");
 });
 
 test("the percentage never contradicts the band beside it", () => {
-  // Both come off the same score, and scorePercent puts each band boundary on
-  // a round twenty -- so "strikingly aligned" can never render at 44%.
+  // Both come off the same backend payload, and the backend puts each band
+  // boundary on a round twenty -- so "strikingly aligned" can never render
+  // at 44.
   const aligned = renderToStaticMarkup(
     <PairResultView
-      result={{ ...RESULT, score: 0.9137, band: "You two are strikingly aligned." }}
+      result={{ ...RESULT, score: 0.9137, percent: 96, band: "You two are strikingly aligned." }}
       shareToken={null}
     />,
   );
-  expect(aligned).toContain("Compatibility 96 out of 100");
+  expect(aligned).toContain("Fit score 96 out of 100");
   expect(aligned).toContain("You two are strikingly aligned.");
 });
 
@@ -110,7 +112,7 @@ test("a pair who scored below zero still gets a meter, not a broken one", () => 
   // The backend's scale runs to -1. A negative width would paint nothing and
   // read as a rendering failure rather than a real result.
   const html = renderToStaticMarkup(
-    <PairResultView result={{ ...RESULT, score: -0.6 }} shareToken={null} />,
+    <PairResultView result={{ ...RESULT, score: -0.6, percent: 9 }} shareToken={null} />,
   );
   expect(html).toContain("width:9%");
   expect(html).not.toContain("width:-");
