@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { content } from "@/content";
 import { Turn } from "./Turn";
 
 test("turn renders one accessible media set and one hidden looping duplicate", () => {
@@ -9,5 +10,9 @@ test("turn renders one accessible media set and one hidden looping duplicate", (
   expect(html).toMatch(
     /<div[^>]*aria-hidden="true"[^>]*data-turn-media-set="duplicate"[^>]*>/,
   );
-  expect(html.match(/class="turn-media-card turn-media-card--/g)).toHaveLength(10);
+  // The rail is rendered twice -- once readable, once as the hidden loop --
+  // so the card count follows the catalog rather than a pinned number.
+  expect(html.match(/class="turn-media-card turn-media-card--/g)).toHaveLength(
+    content.media.heroRail.length * 2,
+  );
 });

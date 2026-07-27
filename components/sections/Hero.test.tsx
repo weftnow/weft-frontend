@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { content } from "@/content";
 import { Hero } from "./Hero";
 
 test("hero renders CTA-first markup with separately addressable headline words", () => {
@@ -15,8 +16,8 @@ test("hero renders CTA-first markup with separately addressable headline words",
   expect(html).toContain('data-hero-word="badge."');
   expect(html).toContain('class="hero-title-word hero-title-accent"');
   expect(html).toContain('class="hero-title-character"');
-  expect(html).toContain(
-    "Weft matches attendees on their goals, expertise, and values, not small talk. Finding the right people becomes the best part of the night.",
-  );
+  // The wording itself is pinned in content.test.ts; this test only cares that
+  // the sub reaches the markup, so copy edits land in one place.
+  expect(html).toContain(content.hero.sub);
   expect(html).not.toContain("hero-secondary-link");
 });

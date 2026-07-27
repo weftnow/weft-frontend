@@ -8,24 +8,46 @@ describe("placeholder media catalog", () => {
     expect(content.media.how).toHaveLength(3);
   });
 
-  test("ships only local, replaceable assets with intrinsic sizes", () => {
-    const media = [
-      ...content.media.heroRail,
-      ...content.media.portraits,
-      ...content.media.how,
-      content.media.problem,
-      content.media.outcome,
-      ...content.media.testimonialAvatars,
-      content.media.contact,
-    ];
+  const everyAsset = () => [
+    ...content.media.heroRail,
+    ...content.media.portraits,
+    ...content.media.how,
+    content.media.problem,
+    content.media.outcome,
+    ...content.media.testimonialAvatars,
+    content.media.contact,
+  ];
 
-    for (const item of media) {
+  test("ships only local, replaceable assets with intrinsic sizes", () => {
+    for (const item of everyAsset()) {
       expect(item.src.startsWith("/placeholders/weft/")).toBe(true);
       expect(item.width).toBeGreaterThan(0);
       expect(item.height).toBeGreaterThan(0);
       expect(item.alt.length).toBeGreaterThan(8);
-      expect(item.placeholder).toBe(true);
+      expect(typeof item.placeholder).toBe("boolean");
     }
+  });
+
+  // The flag is a ledger of what still needs real art -- nothing renders off
+  // it. Pinning the shipped set means swapping in real media fails here until
+  // the entry is marked, rather than silently leaving the ledger stale.
+  test("marks exactly the assets that are still stand-in art", () => {
+    const shipped = everyAsset()
+      .filter((item) => !item.placeholder)
+      .map((item) => item.src)
+      .sort();
+
+    expect(shipped).toEqual([
+      "/placeholders/weft/carousel1.JPG",
+      "/placeholders/weft/carousel33.png",
+      "/placeholders/weft/carousel5.png",
+      "/placeholders/weft/how-it-works-1.mp4",
+      "/placeholders/weft/how-it-works-3.webm",
+      "/placeholders/weft/video1.mp4",
+      "/placeholders/weft/video2.mp4",
+      "/placeholders/weft/video3.mp4",
+      "/placeholders/weft/video4.mp4",
+    ]);
   });
 });
 
@@ -38,7 +60,7 @@ test("uses the approved hero message", () => {
     },
   ]);
   expect(content.hero.sub).toBe(
-    "Weft matches attendees on their goals, expertise, and values, not small talk. Finding the right people becomes the best part of the night.",
+    "Weft matches attendees on their goals and values, not small talk. Finding the right people becomes the best part of the event.",
   );
 });
 
