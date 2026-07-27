@@ -81,6 +81,7 @@ describe("compatibility test content", () => {
       eyebrow: "Last thing",
       headline: "Where should we send your thread?",
       sub: "We need this to match you with whoever answers your link.",
+      fieldsLabel: "Your details",
       fields: { name: "Your name", email: "Email", phone: "Phone" },
       cta: "Get my link",
       back: "Back",
@@ -101,6 +102,7 @@ describe("compatibility test content", () => {
       restart: "Start over",
       announce: "Link copied to clipboard",
       matchesLink: "See who's answered",
+      linkLabel: "Your link",
     });
   });
 
@@ -156,6 +158,8 @@ describe("compatibility test content", () => {
       sharedLabel: "What you both lead with",
       peopleLabel: "How you each read",
       noShared: "You don't share a top value — which is its own kind of interesting.",
+      sharedTag: "Shared",
+      notMeasured: "not measured",
       differenceLabel: "Where you differ",
       traits: {
         humour: "Humour",
