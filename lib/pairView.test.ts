@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { personTraits, scorePercent, pairTraitRows, sharedTopValueKeys } from "./pairView";
+import { personTraits, pairTraitRows, sharedTopValueKeys } from "./pairView";
 import type { PairPerson } from "./weftTypes";
 
 const LABELS = {
@@ -52,51 +52,6 @@ describe("personTraits", () => {
       life_stage: "unspecified",
     };
     expect(personTraits(blank, LABELS)).toEqual([]);
-  });
-});
-
-describe("scorePercent", () => {
-  test("puts every band boundary on a round twenty", () => {
-    // These five numbers are weft_core's `_BANDS` thresholds. Each band owns
-    // exactly one fifth of the bar, so the meter and the sentence beside it
-    // can never disagree about which band you are in.
-    expect(scorePercent(-1)).toBe(0);
-    expect(scorePercent(-0.15)).toBe(20);
-    expect(scorePercent(0.1)).toBe(40);
-    expect(scorePercent(0.35)).toBe(60);
-    expect(scorePercent(0.6)).toBe(80);
-    expect(scorePercent(1)).toBe(100);
-  });
-
-  test("interpolates inside a band", () => {
-    // halfway between 0.35 and 0.60 is halfway between 60% and 80%
-    expect(scorePercent(0.475)).toBe(70);
-    // the real backend scores from phase 1, now readable
-    expect(scorePercent(0.9137)).toBe(96);
-    expect(scorePercent(0.1544)).toBe(44);
-    expect(scorePercent(0.0875)).toBe(39);
-  });
-
-  test("never leaves the bar", () => {
-    // The engine is cosine-based so it cannot exceed -1..1, but a percentage
-    // of 104 would paint outside the meter and there is no reason to risk it.
-    expect(scorePercent(-4)).toBe(0);
-    expect(scorePercent(4)).toBe(100);
-    expect(scorePercent(Number.NaN)).toBe(0);
-  });
-
-  test("rises with the score and never falls", () => {
-    let previous = -1;
-    for (let score = -1; score <= 1.0001; score += 0.01) {
-      const percent = scorePercent(score);
-      expect(percent).toBeGreaterThanOrEqual(previous);
-      previous = percent;
-    }
-  });
-
-  test("is a whole number, because a meter reading 43.7% invites a question", () => {
-    expect(Number.isInteger(scorePercent(0.4137))).toBe(true);
-    expect(Number.isInteger(scorePercent(-0.0731))).toBe(true);
   });
 });
 

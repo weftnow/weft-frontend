@@ -73,10 +73,16 @@ export type PairPerson = {
 export type PairResult = {
   headline: string;
   /**
-   * The pair's overall fit on the backend's native -1..1 scale -- not a
-   * percentage. `scorePercent()` in lib/pairView.ts turns it into one.
+   * The pair's overall fit on the backend's native -1..1 scale. Kept for
+   * debugging and tests; the meter renders `percent`, never this.
    */
   score: number;
+  /**
+   * The score as a 0-100 meter reading, computed by the backend from its
+   * band thresholds (each band owns a fifth of the bar). Presentation,
+   * not a population percentile. Render it verbatim.
+   */
+  percent: number;
   band: string;
   shared_values: ValueEntry[];
   difference: string;

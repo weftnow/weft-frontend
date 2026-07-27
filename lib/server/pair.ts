@@ -49,6 +49,10 @@ export function isPairResult(value: unknown): value is PairResult {
     // no width, so the finite check is the one that matters here.
     typeof p.score === "number" &&
     Number.isFinite(p.score) &&
+    typeof p.percent === "number" &&
+    Number.isInteger(p.percent) &&
+    p.percent >= 0 &&
+    p.percent <= 100 &&
     typeof p.band === "string" &&
     Array.isArray(p.shared_values) &&
     p.shared_values.every(isValueEntry) &&

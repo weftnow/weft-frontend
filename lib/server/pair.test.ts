@@ -22,6 +22,7 @@ const PERSON = {
 const PAIR = {
   headline: "Ana and Ben both lead with Benevolence.",
   score: 0.1544,
+  percent: 44,
   band: "A real mix.",
   shared_values: [VALUE],
   difference: "Where you differ most is humour.",
@@ -115,4 +116,20 @@ describe("isPairResult", () => {
       false,
     );
   });
+
+  test("accepts a result with a valid percent", () => {
+    expect(isPairResult(PAIR)).toBe(true);
+  });
+
+  test("rejects a result without percent", () => {
+    const { percent: _percent, ...rest } = PAIR;
+    expect(isPairResult(rest)).toBe(false);
+  });
+
+  test.each([[-1], [101], [63.5], [Number.NaN]])(
+    "rejects percent %p",
+    (percent: number) => {
+      expect(isPairResult({ ...PAIR, percent })).toBe(false);
+    },
+  );
 });
