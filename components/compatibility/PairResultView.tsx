@@ -2,9 +2,11 @@ import Link from "next/link";
 import { content } from "@/content";
 import { CtestShell } from "@/components/compatibility/CtestShell";
 import { ShareLink } from "@/components/compatibility/ShareLink";
-import { Eyebrow } from "@/components/ui/Eyebrow";
+import { DifferencePull } from "@/components/compatibility/pair/DifferencePull";
+import { ScoreHero } from "@/components/compatibility/pair/ScoreHero";
+import { SharedValues } from "@/components/compatibility/pair/SharedValues";
 import { PremiumButton } from "@/components/ui/PremiumButton";
-import { personTraits, scorePercent } from "@/lib/pairView";
+import { personTraits } from "@/lib/pairView";
 import type { PairPerson, PairResult, ValueEntry } from "@/lib/weftTypes";
 
 /**
@@ -31,66 +33,13 @@ export function PairResultView({
   shareToken: string | null;
 }) {
   const copy = content.compatibilityTest.pair;
-  const percent = scorePercent(result.score);
 
   return (
     <CtestShell align="top">
       <div className="ctest-pair relative z-10">
-        <header className="flex flex-col items-center text-center">
-          <Eyebrow>{copy.eyebrow}</Eyebrow>
-
-          {/* Deliberately not counted up. A rolling figure and the bar below it
-              are two clocks, and when they drift the page shows a number that
-              contradicts its own gauge. The bar animates; the number is just
-              true, from the first paint and without JavaScript. */}
-          <p className="ctest-score" aria-hidden>
-            {percent}
-            <span className="ctest-score-unit">%</span>
-          </p>
-
-          <div
-            className="ctest-gauge"
-            role="img"
-            aria-label={`${copy.scoreLabel} ${copy.scoreOutOf.replace("{percent}", String(percent))}. ${result.band}`}
-          >
-            <div className="ctest-gauge-track">
-              <span className="ctest-gauge-fill" style={{ width: `${percent}%` }} />
-              <span className="ctest-gauge-ticks" aria-hidden>
-                {/* One cell per band, so the bar is divided the way the
-                    sentence below divides the range. */}
-                {[0, 1, 2, 3, 4].map((band) => (
-                  <span key={band} />
-                ))}
-              </span>
-            </div>
-            <p className="ctest-gauge-scale" aria-hidden>
-              <span>{copy.scaleLow}</span>
-              <span>{copy.scaleHigh}</span>
-            </p>
-          </div>
-
-          <h1 className="ctest-band">{result.band}</h1>
-          <p className="ctest-note">{copy.scoreNote}</p>
-        </header>
-
-        <section className="ctest-card">
-          <CardHead label={copy.sharedLabel} />
-          <p className="ctest-headline">{result.headline}</p>
-          {result.shared_values.length > 0 ? (
-            <ul className="ctest-values">
-              {result.shared_values.map((value, index) => (
-                <ValueLine index={index} key={value.key} value={value} withBlurb />
-              ))}
-            </ul>
-          ) : (
-            <p className="ctest-body">{copy.noShared}</p>
-          )}
-        </section>
-
-        <section className="ctest-card">
-          <CardHead label={copy.differenceLabel} />
-          <p className="ctest-headline">{result.difference}</p>
-        </section>
+        <ScoreHero result={result} />
+        <SharedValues result={result} />
+        <DifferencePull difference={result.difference} />
 
         <div>
           <div className="ctest-card-head justify-center">
