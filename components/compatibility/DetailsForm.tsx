@@ -57,6 +57,10 @@ export function DetailsForm({
       </p>
 
       <form className="ctest-form mt-8" noValidate onSubmit={submit}>
+        <div className="ctest-card-head">
+          <span aria-hidden className="ctest-rule" />
+          <span className="ctest-section-label">{copy.fieldsLabel}</span>
+        </div>
         <DetailsField
           autoComplete="name"
           error={errors.name}

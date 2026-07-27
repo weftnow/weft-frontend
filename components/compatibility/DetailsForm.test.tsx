@@ -64,3 +64,11 @@ test("details form renders a seeded value in its fields", () => {
   expect(html).toContain('value="Ada Lovelace"');
   expect(html).toContain('value="ada@example.test"');
 });
+
+test("the fields sit under the rule-tick label like every other section", () => {
+  const html = renderToStaticMarkup(
+    <DetailsForm busy={false} initialDetails={EMPTY_DETAILS} onBack={() => {}} onSubmit={() => {}} submitError={null} />,
+  );
+  expect(html).toContain("ctest-rule");
+  expect(html).toContain(content.compatibilityTest.details.fieldsLabel);
+});

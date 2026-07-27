@@ -889,6 +889,7 @@ a {
 }
 
 .ctest-form { display: grid; gap: 1.05rem; width: min(24rem, 100%); text-align: left; }
+.ctest-form .ctest-card-head { margin-bottom: 0.1rem; }
 .ctest-label { display: grid; gap: 0.4rem; font-size: 0.875rem; font-weight: 500; color: var(--color-ink); }
 .ctest-input {
   min-height: 3.25rem;

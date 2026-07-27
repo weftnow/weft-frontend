@@ -411,6 +411,7 @@ export const content = {
       eyebrow: "Last thing",
       headline: "Where should we send your thread?",
       sub: "We need this to match you with whoever answers your link.",
+      fieldsLabel: "Your details",
       fields: { name: "Your name", email: "Email", phone: "Phone" },
       cta: "Get my link",
       back: "Back",
