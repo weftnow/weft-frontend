@@ -1121,6 +1121,13 @@ a {
 .ctest-compare-cell--left { text-align: right; }
 .ctest-compare-cell--blank { color: color-mix(in srgb, var(--color-ink) 28%, transparent); }
 
+/* DOM order is dt, left dd, right dd (valid dl grouping needs the dt first),
+   but the label reads centred between the two cells -- so place explicitly
+   rather than lean on source order. */
+.ctest-compare-row > .ctest-compare-label { grid-column: 2; grid-row: 1; }
+.ctest-compare-row > .ctest-compare-cell--left { grid-column: 1; grid-row: 1; }
+.ctest-compare-row > .ctest-compare-cell:not(.ctest-compare-cell--left) { grid-column: 3; grid-row: 1; }
+
 @media (max-width: 560px) {
   .ctest-compare-row {
     grid-template-columns: 1fr 1fr;
@@ -1129,7 +1136,7 @@ a {
   }
   .ctest-compare-row > .ctest-compare-label { grid-area: label; }
   .ctest-compare-row > .ctest-compare-cell--left { grid-area: left; }
-  .ctest-compare-row > .ctest-compare-cell:last-child { grid-area: right; }
+  .ctest-compare-row > .ctest-compare-cell:not(.ctest-compare-cell--left) { grid-area: right; }
 }
 
 /* ---------------------------------------------------------------- *

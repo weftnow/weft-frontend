@@ -40,10 +40,10 @@ export function PeopleCompare({ people }: { people: PairPerson[] }) {
         <dl className="ctest-compare-rows">
           {rows.map((row) => (
             <div className="ctest-compare-row" key={row.label}>
+              <dt className="ctest-compare-label">{row.label}</dt>
               <dd className="ctest-compare-cell ctest-compare-cell--left">
                 {row.left ?? <Blank />}
               </dd>
-              <dt className="ctest-compare-label">{row.label}</dt>
               <dd className="ctest-compare-cell">{row.right ?? <Blank />}</dd>
             </div>
           ))}
