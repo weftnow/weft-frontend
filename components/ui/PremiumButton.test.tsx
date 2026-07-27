@@ -33,3 +33,10 @@ test("a disabled button does not carry the hand marker", () => {
   const enabled = renderToStaticMarkup(<PremiumButton onClick={() => {}}>Next</PremiumButton>);
   expect(enabled).toContain("premium-cta-hand-track");
 });
+
+test("hand={false} opts an enabled button out of the hand marker", () => {
+  const html = renderToStaticMarkup(
+    <PremiumButton hand={false} onClick={() => {}} tone="ink">Next</PremiumButton>,
+  );
+  expect(html).not.toContain("premium-cta-hand-track");
+});

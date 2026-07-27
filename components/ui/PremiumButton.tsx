@@ -9,6 +9,7 @@ export type PremiumButtonProps = {
   type?: "button" | "submit";
   onClick?: () => void;
   disabled?: boolean;
+  hand?: boolean;
 };
 
 function RollingLabel({ label }: { label: string }) {
@@ -37,6 +38,7 @@ export function PremiumButton({
   type = "button",
   onClick,
   disabled = false,
+  hand = true,
 }: PremiumButtonProps) {
   const buttonClass =
     `premium-cta premium-cta--${tone} ${disabled ? "opacity-40 pointer-events-none" : ""} ${className}`.trim();
@@ -44,7 +46,7 @@ export function PremiumButton({
 
   return (
     <span className="premium-cta-cluster">
-      {!disabled && (
+      {hand && !disabled && (
         <span aria-hidden="true" className="premium-cta-hand-track">
           <span className="premium-cta-hand-marker">
             <GestureIcon

@@ -58,7 +58,7 @@ export function ShareLink({
         <span className="ctest-linkcard-label">{copy.linkLabel}</span>
         <p className="ctest-linkcard-url">{shareUrl.replace(/^https?:\/\//, "")}</p>
         <div className="ctest-linkcard-actions">
-          <PremiumButton onClick={copyLink} tone="ember">
+          <PremiumButton hand={false} onClick={copyLink} tone="ember">
             {copied ? copy.copied : copy.copy}
           </PremiumButton>
         </div>

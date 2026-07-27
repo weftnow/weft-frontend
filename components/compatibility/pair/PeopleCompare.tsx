@@ -58,7 +58,13 @@ function CompareValue({ shared, value }: { shared: boolean; value: ValueEntry })
   return (
     <li>
       <span className="ctest-value-name">{value.name}</span>
-      {shared && <span className="ctest-compare-shared"> ✓ {copy.sharedTag}</span>}
+      {shared && (
+        <span className="ctest-compare-shared">
+          {" "}
+          <span aria-hidden>✓ </span>
+          {copy.sharedTag}
+        </span>
+      )}
       <span className="ctest-value-tagline"> — {value.tagline}</span>
     </li>
   );
