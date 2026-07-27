@@ -1045,19 +1045,6 @@ a {
   min-height: 3.35rem;
 }
 
-/* Fills whatever column it is given. It used to cap at 560px, which left the
-   result's cards floating short of the 46rem grid they sit in and read as
-   accidental. The quiz screens that want a narrow card constrain it outside. */
-.ctest-card {
-  width: 100%;
-  border: 1px solid rgb(18 18 18 / 8%);
-  border-radius: 2rem;
-  background: rgb(255 255 255 / 82%);
-  padding: clamp(1.75rem, 4vw, 2.75rem);
-  box-shadow: var(--shadow-premium);
-  backdrop-filter: blur(12px);
-}
-
 /* Editorial result sections: the type is the frame. Left-aligned inside the
    centred 46rem column, so the page alternates centred verdict / set copy. */
 .ctest-section { width: 100%; text-align: left; }
@@ -1100,12 +1087,12 @@ a {
   stroke-width: 2.5;
   stroke-linecap: round;
   stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+  stroke-dashoffset: 0;
   animation: ctest-thread-draw 1100ms var(--ease-out-ui) 420ms both;
 }
 .ctest-threads path[data-thread="ember"] { stroke: var(--color-ember); opacity: 0.8; }
 .ctest-threads path[data-thread="signal"] { stroke: var(--color-signal); opacity: 0.55; }
-@keyframes ctest-thread-draw { to { stroke-dashoffset: 0; } }
+@keyframes ctest-thread-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 
 .ctest-compare-values {
   display: grid;
@@ -1318,15 +1305,6 @@ a {
   color: color-mix(in srgb, var(--color-ember) 70%, transparent);
 }
 
-.ctest-person-head {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-  border-bottom: 1px solid rgb(18 18 18 / 10%);
-  padding-bottom: 0.9rem;
-  margin-bottom: 1.3rem;
-}
-
 .ctest-body {
   font-size: 1rem;
   line-height: 1.65;
@@ -1345,17 +1323,12 @@ a {
 }
 
 /* Spacing between these blocks lives here, not in `mt-*` utilities.
-   `.ctest-values` and `.ctest-traits` set `margin`, and because this file is
-   unlayered while Tailwind's utilities sit in a layer, those resets win --
-   a `mt-6` on the list silently does nothing. Sibling rules are immune. */
+   `.ctest-values` sets `margin`, and because this file is unlayered while
+   Tailwind's utilities sit in a layer, those resets win -- a `mt-6` on the
+   list silently does nothing. Sibling rules are immune. */
 .ctest-headline + .ctest-values { margin-top: 1.6rem; }
 .ctest-headline + .ctest-body { margin-top: 1.25rem; }
-.ctest-values + .ctest-traits { margin-top: 1.85rem; }
 .ctest-sub-prompt + .ctest-body { margin-top: 0.9rem; }
-
-@media (min-width: 480px) {
-  .ctest-traits { grid-template-columns: 1fr 1fr; gap: 1.1rem 1.25rem; }
-}
 
 .ctest-copied { font-family: var(--font-mono); font-size: 0.72rem; color: color-mix(in srgb, var(--color-signal) 80%, var(--color-ink)); }
 
@@ -1390,19 +1363,6 @@ a {
   color: color-mix(in srgb, var(--color-ink) 48%, transparent);
 }
 
-.ctest-people { display: grid; gap: 1rem; grid-template-columns: 1fr; }
-@media (min-width: 720px) { .ctest-people { grid-template-columns: 1fr 1fr; } }
-
-.ctest-person-name {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  color: var(--color-ink);
-  /* A name is whatever someone typed; it must not push the card wider. */
-  overflow-wrap: anywhere;
-}
-
 .ctest-values { display: grid; gap: 0.85rem; margin: 0; padding: 0; list-style: none; }
 .ctest-value-name { font-weight: 600; color: var(--color-ink); }
 .ctest-value-tagline { color: color-mix(in srgb, var(--color-ink) 62%, transparent); }
@@ -1412,17 +1372,6 @@ a {
   line-height: 1.55;
   color: color-mix(in srgb, var(--color-ink) 66%, transparent);
 }
-
-.ctest-traits { display: grid; gap: 0.6rem; margin: 0; }
-.ctest-trait { display: grid; gap: 0.1rem; }
-.ctest-trait-label {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-ink) 44%, transparent);
-}
-.ctest-trait-value { margin: 0; font-size: 0.95rem; color: var(--color-ink); }
 
 .ctest-matches { display: grid; gap: 1rem; margin: 0; padding: 0; list-style: none; }
 
@@ -1510,6 +1459,7 @@ a {
   .portrait-stack-icon,
   .ctest-option,
   .ctest-option-check,
+  .ctest-option-index,
   .ctest-progressbar-fill {
     transition-duration: 0.01ms;
   }
