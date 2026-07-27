@@ -44,18 +44,20 @@ export function PremiumButton({
 
   return (
     <span className="premium-cta-cluster">
-      <span aria-hidden="true" className="premium-cta-hand-track">
-        <span className="premium-cta-hand-marker">
-          <GestureIcon
-            className="premium-cta-hand premium-cta-hand--point"
-            gesture="point"
-          />
-          <GestureIcon
-            className="premium-cta-hand premium-cta-hand--peace"
-            gesture="peace"
-          />
+      {!disabled && (
+        <span aria-hidden="true" className="premium-cta-hand-track">
+          <span className="premium-cta-hand-marker">
+            <GestureIcon
+              className="premium-cta-hand premium-cta-hand--point"
+              gesture="point"
+            />
+            <GestureIcon
+              className="premium-cta-hand premium-cta-hand--peace"
+              gesture="peace"
+            />
+          </span>
         </span>
-      </span>
+      )}
       {href ? (
         <a aria-label={children} className={buttonClass} href={href}>
           {label}

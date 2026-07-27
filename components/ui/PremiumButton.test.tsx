@@ -24,3 +24,12 @@ test("premium button reflects a disabled state in markup", () => {
   expect(html).toContain("disabled");
   expect(html).toContain("pointer-events-none");
 });
+
+test("a disabled button does not carry the hand marker", () => {
+  const html = renderToStaticMarkup(
+    <PremiumButton disabled onClick={() => {}} tone="ink">Next</PremiumButton>,
+  );
+  expect(html).not.toContain("premium-cta-hand-track");
+  const enabled = renderToStaticMarkup(<PremiumButton onClick={() => {}}>Next</PremiumButton>);
+  expect(enabled).toContain("premium-cta-hand-track");
+});
