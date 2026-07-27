@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { personTraits, scorePercent } from "./pairView";
+import { personTraits, scorePercent, pairTraitRows, sharedTopValueKeys } from "./pairView";
 import type { PairPerson } from "./weftTypes";
 
 const LABELS = {
@@ -97,5 +97,44 @@ describe("scorePercent", () => {
   test("is a whole number, because a meter reading 43.7% invites a question", () => {
     expect(Number.isInteger(scorePercent(0.4137))).toBe(true);
     expect(Number.isInteger(scorePercent(-0.0731))).toBe(true);
+  });
+});
+
+describe("pairTraitRows and sharedTopValueKeys", () => {
+  const VALUE = { key: "BE", name: "Benevolence", tagline: "care up close", blurb: "b" };
+  const OTHER = { key: "TR", name: "Tradition", tagline: "continuity", blurb: "b" };
+
+  function person(overrides: Partial<PairPerson>): PairPerson {
+    return {
+      name: "P",
+      top_values: [VALUE],
+      humour: "warm/affiliative",
+      opens_up: "opens up quickly",
+      pace: "likes a steady rhythm",
+      life_stage: "rooting",
+      ...overrides,
+    };
+  }
+
+  test("pairTraitRows pairs both people's phrasing per dimension, in label order", () => {
+    const rows = pairTraitRows([person({}), person({ pace: "likes space between" })], LABELS);
+    expect(rows.map((r) => r.label)).toEqual(["Humour", "Opens up", "Pace", "Life stage"]);
+    expect(rows[2]).toEqual({ label: "Pace", left: "likes a steady rhythm", right: "likes space between" });
+  });
+
+  test("a dimension unmeasured on one side is null there, not dropped", () => {
+    const rows = pairTraitRows([person({}), person({ humour: "—" })], LABELS);
+    expect(rows[0]).toEqual({ label: "Humour", left: "warm/affiliative", right: null });
+  });
+
+  test("a dimension unmeasured on both sides is omitted entirely", () => {
+    const rows = pairTraitRows([person({ humour: "—" }), person({ humour: "unspecified" })], LABELS);
+    expect(rows.map((r) => r.label)).not.toContain("Humour");
+  });
+
+  test("sharedTopValueKeys is the intersection of both value lists", () => {
+    const keys = sharedTopValueKeys([person({ top_values: [VALUE, OTHER] }), person({ top_values: [VALUE] })]);
+    expect(keys.has("BE")).toBe(true);
+    expect(keys.has("TR")).toBe(false);
   });
 });
