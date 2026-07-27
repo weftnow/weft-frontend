@@ -3,11 +3,11 @@ import { content } from "@/content";
 import { CtestShell } from "@/components/compatibility/CtestShell";
 import { ShareLink } from "@/components/compatibility/ShareLink";
 import { DifferencePull } from "@/components/compatibility/pair/DifferencePull";
+import { PeopleCompare } from "@/components/compatibility/pair/PeopleCompare";
 import { ScoreHero } from "@/components/compatibility/pair/ScoreHero";
 import { SharedValues } from "@/components/compatibility/pair/SharedValues";
 import { PremiumButton } from "@/components/ui/PremiumButton";
-import { personTraits } from "@/lib/pairView";
-import type { PairPerson, PairResult, ValueEntry } from "@/lib/weftTypes";
+import type { PairResult } from "@/lib/weftTypes";
 
 /**
  * The compatibility result, for both people at once.
@@ -41,18 +41,7 @@ export function PairResultView({
         <SharedValues result={result} />
         <DifferencePull difference={result.difference} />
 
-        <div>
-          <div className="ctest-card-head justify-center">
-            <span aria-hidden className="ctest-rule" />
-            <h2 className="ctest-section-label">{copy.peopleLabel}</h2>
-          </div>
-          <div className="ctest-people">
-            {result.people.map((person, index) => (
-              // Two people can share a name, so position is the only stable key.
-              <PersonCard key={index} person={person} />
-            ))}
-          </div>
-        </div>
+        <PeopleCompare people={result.people} />
 
         <section className="flex flex-col items-center text-center">
           {shareToken ? (
@@ -83,71 +72,5 @@ export function PairResultView({
         </section>
       </div>
     </CtestShell>
-  );
-}
-
-function CardHead({ label }: { label: string }) {
-  return (
-    <div className="ctest-card-head">
-      <span aria-hidden className="ctest-rule" />
-      <h2 className="ctest-section-label">{label}</h2>
-    </div>
-  );
-}
-
-function ValueLine({
-  index,
-  value,
-  withBlurb,
-}: {
-  index?: number;
-  value: ValueEntry;
-  withBlurb?: boolean;
-}) {
-  const body = (
-    <div>
-      <span className="ctest-value-name">{value.name}</span>
-      <span className="ctest-value-tagline"> — {value.tagline}</span>
-      {withBlurb && <p className="ctest-value-blurb">{value.blurb}</p>}
-    </div>
-  );
-
-  if (index === undefined) return <li>{body}</li>;
-
-  return (
-    <li className="ctest-value">
-      <span aria-hidden className="ctest-value-index">
-        {String(index + 1).padStart(2, "0")}
-      </span>
-      {body}
-    </li>
-  );
-}
-
-function PersonCard({ person }: { person: PairPerson }) {
-  const copy = content.compatibilityTest.pair;
-  const traits = personTraits(person, copy.traits);
-
-  return (
-    <article className="ctest-card">
-      <div className="ctest-person-head">
-        <h3 className="ctest-person-name">{person.name}</h3>
-      </div>
-      <ul className="ctest-values">
-        {person.top_values.map((value) => (
-          <ValueLine key={value.key} value={value} />
-        ))}
-      </ul>
-      {traits.length > 0 && (
-        <dl className="ctest-traits">
-          {traits.map((trait) => (
-            <div className="ctest-trait" key={trait.label}>
-              <dt className="ctest-trait-label">{trait.label}</dt>
-              <dd className="ctest-trait-value">{trait.value}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
-    </article>
   );
 }

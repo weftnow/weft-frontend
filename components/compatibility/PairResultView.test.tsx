@@ -137,22 +137,29 @@ test("the matches link is there even for someone arriving on a forwarded link", 
   expect(html).toContain('href="/compatibility-test/matches"');
 });
 
-test("a person with nothing measurable renders no empty definition list", () => {
-  // An empty <dl> is invalid and shows as a gap the reader cannot explain.
-  const blank = {
-    ...RESULT.people[0],
-    humour: "—",
-    opens_up: "",
-    pace: "unspecified",
-    life_stage: "—",
-  };
+test("a dimension neither person measured leaves no row behind", () => {
+  // Ana keeps humour; make both humourless and the row must vanish.
+  const [ana, ben] = RESULT.people;
   const html = renderToStaticMarkup(
-    <PairResultView result={{ ...RESULT, people: [blank, RESULT.people[1]] }} shareToken={null} />,
+    <PairResultView
+      result={{ ...RESULT, people: [{ ...ana, humour: "—" }, ben] }}
+      shareToken={null}
+    />,
   );
-  // Exactly one list, and it is the other person's. Asserting no <dl> at all
-  // could never pass here -- Ben still has two measurable traits -- so this
-  // pins the real contract: the blank person's list is dropped, not emptied.
-  expect(html.match(/<dl/g)).toHaveLength(1);
-  expect(html).toContain(content.compatibilityTest.pair.traits.opensUp);
   expect(html).not.toContain(content.compatibilityTest.pair.traits.humour);
+  expect(html).toContain(content.compatibilityTest.pair.traits.opensUp);
+});
+
+test("a dimension one person measured shows their reading beside a dash", () => {
+  // Ben's humour is "—": the row stays for Ana's sake.
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
+  expect(html).toContain(content.compatibilityTest.pair.traits.humour);
+  expect(html).toContain("warm/affiliative");
+  expect(html).toContain("ctest-compare-cell--blank");
+});
+
+test("a value both people hold is marked shared", () => {
+  // Both lead with Benevolence in the fixture.
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
+  expect(html).toContain(content.compatibilityTest.pair.sharedTag);
 });
