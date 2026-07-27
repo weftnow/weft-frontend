@@ -1,10 +1,10 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { escapeApostrophes } from "@/lib/testEscape";
 import { MatchesScreen, metadata } from "./page";
 import { content } from "@/content";
 import type { PairSummary } from "@/lib/weftTypes";
 
-const escaped = (s: string) => s.replace(/'/g, "&#x27;");
 const copy = content.compatibilityTest.matches;
 
 const VALUE = {
@@ -40,21 +40,21 @@ test("this page must never be indexed", () => {
 
 test("someone who has never taken it is invited to", () => {
   const html = renderToStaticMarkup(<MatchesScreen outcome={{ status: "no_session" }} />);
-  expect(html).toContain(escaped(copy.none.headline));
+  expect(html).toContain(escapeApostrophes(copy.none.headline));
   expect(html).toContain(`aria-label="${copy.none.cta}"`);
   expect(html).toContain('href="/compatibility-test"');
 });
 
 test("a cookie whose session is gone says so, and offers a restart", () => {
   const html = renderToStaticMarkup(<MatchesScreen outcome={{ status: "not_found" }} />);
-  expect(html).toContain(escaped(copy.lost.headline));
+  expect(html).toContain(escapeApostrophes(copy.lost.headline));
   expect(html).toContain(`aria-label="${copy.lost.cta}"`);
 });
 
 test("an unreachable backend offers a retry, not a restart", () => {
   // Their thread is fine. Sending them back to question one would be a lie.
   const html = renderToStaticMarkup(<MatchesScreen outcome={{ status: "unavailable" }} />);
-  expect(html).toContain(escaped(copy.unavailable.headline));
+  expect(html).toContain(escapeApostrophes(copy.unavailable.headline));
   expect(html).toContain(`aria-label="${copy.unavailable.cta}"`);
   expect(html).toContain('href="/compatibility-test/matches"');
 });
@@ -72,15 +72,15 @@ test("every dead end offers a way out", () => {
 
 test("nobody has answered yet gets the waiting screen and a mint button", () => {
   const html = renderToStaticMarkup(<MatchesScreen outcome={{ status: "ok", pairs: [] }} />);
-  expect(html).toContain(escaped(copy.waiting.headline));
+  expect(html).toContain(escapeApostrophes(copy.waiting.headline));
   expect(html).toContain(`aria-label="${copy.waiting.cta}"`);
   // The list heading belongs to the other screen entirely.
-  expect(html).not.toContain(escaped(copy.headline));
+  expect(html).not.toContain(escapeApostrophes(copy.headline));
 });
 
 test("at least one match renders the list instead", () => {
   const html = renderToStaticMarkup(<MatchesScreen outcome={{ status: "ok", pairs: [PAIR] }} />);
-  expect(html).toContain(escaped(copy.headline));
+  expect(html).toContain(escapeApostrophes(copy.headline));
   expect(html).toContain('href="/compatibility-test/pair/pair-1"');
-  expect(html).not.toContain(escaped(copy.waiting.headline));
+  expect(html).not.toContain(escapeApostrophes(copy.waiting.headline));
 });

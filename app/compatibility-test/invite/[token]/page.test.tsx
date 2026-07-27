@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { escapeApostrophes } from "@/lib/testEscape";
 import Page, { metadata } from "./page";
 import { content } from "@/content";
 
@@ -8,8 +9,6 @@ import { content } from "@/content";
 // mirrors that escaping so the assertions below compare like with like instead
 // of failing to match (or worse, passing by accident on a substring that
 // happens not to contain an apostrophe).
-const escaped = (text: string) => text.replace(/'/g, "&#x27;");
-
 test("an unreachable backend explains itself instead of crashing", async () => {
   // bun runs the whole suite in one process and other files set this, so the
   // outage being tested has to be arranged explicitly.
@@ -20,7 +19,7 @@ test("an unreachable backend explains itself instead of crashing", async () => {
   );
 
   expect(html).toContain(
-    escaped(content.compatibilityTest.inviteError.unavailable.headline),
+    escapeApostrophes(content.compatibilityTest.inviteError.unavailable.headline),
   );
   expect(html).toContain("ctest-shell");
   // Nothing to answer, so no quiz.
@@ -37,7 +36,7 @@ test("an empty token is a not-found without asking the backend", async () => {
   );
 
   expect(html).toContain(
-    escaped(content.compatibilityTest.inviteError.unknown.headline),
+    escapeApostrophes(content.compatibilityTest.inviteError.unknown.headline),
   );
   // Unlike the outage case, the link really is dead, so a way out is offered.
   expect(html).toContain(content.compatibilityTest.inviteError.cta);

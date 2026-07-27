@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { escapeApostrophes } from "@/lib/testEscape";
 import { MatchesView } from "./MatchesView";
 import { content } from "@/content";
 import type { PairSummary } from "@/lib/weftTypes";
@@ -32,11 +33,9 @@ function pair(id: string, name: string, score = 0.1544): PairSummary {
   };
 }
 
-const escaped = (s: string) => s.replace(/'/g, "&#x27;");
-
 test("one match reads as one, not as '1 matches'", () => {
   const html = renderToStaticMarkup(<MatchesView pairs={[pair("p1", "Ben")]} />);
-  expect(html).toContain(escaped(content.compatibilityTest.matches.countOne));
+  expect(html).toContain(escapeApostrophes(content.compatibilityTest.matches.countOne));
   expect(html).not.toContain("{count}");
 });
 

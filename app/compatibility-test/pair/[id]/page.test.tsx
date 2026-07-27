@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { escapeApostrophes } from "@/lib/testEscape";
 import Page, { metadata } from "./page";
 import { content } from "@/content";
 
@@ -7,8 +8,6 @@ import { content } from "@/content";
 // pair error headlines contain one ("We couldn't reach the service.",
 // "We can't find that result."). This mirrors that escaping so the assertions
 // below compare like with like instead of failing to match.
-const escaped = (text: string) => text.replace(/'/g, "&#x27;");
-
 // Annotated rather than inferred: `Promise<{}>` only satisfies the page's
 // parameter type by way of an implicit index signature, which is a fragile
 // thing to depend on.
@@ -22,7 +21,7 @@ test("an unreachable backend explains itself instead of crashing", async () => {
     await Page({ params: Promise.resolve({ id: "p1" }), searchParams: NO_QUERY }),
   );
 
-  expect(html).toContain(escaped(content.compatibilityTest.pair.unavailable.headline));
+  expect(html).toContain(escapeApostrophes(content.compatibilityTest.pair.unavailable.headline));
   expect(html).toContain("ctest-shell");
 });
 
@@ -33,7 +32,7 @@ test("an empty id is a not-found without asking the backend", async () => {
     await Page({ params: Promise.resolve({ id: "" }), searchParams: NO_QUERY }),
   );
 
-  expect(html).toContain(escaped(content.compatibilityTest.pair.missing.headline));
+  expect(html).toContain(escapeApostrophes(content.compatibilityTest.pair.missing.headline));
 });
 
 test("a result is never indexed", () => {
