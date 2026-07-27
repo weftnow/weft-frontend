@@ -1446,6 +1446,21 @@ a {
   outline-offset: 3px;
 }
 
+.ctest-match-index {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--color-ember) 70%, transparent);
+}
+
+/* Cards land the way the result's sections do. */
+.ctest-matches > li { animation: ctest-reveal 560ms var(--ease-out-ui) both; }
+.ctest-matches > li:nth-child(1) { animation-delay: 120ms; }
+.ctest-matches > li:nth-child(2) { animation-delay: 200ms; }
+.ctest-matches > li:nth-child(3) { animation-delay: 280ms; }
+.ctest-matches > li:nth-child(4) { animation-delay: 360ms; }
+.ctest-matches > li:nth-child(n + 5) { animation-delay: 440ms; }
+
 .ctest-match-headline {
   font-family: var(--font-display);
   font-size: 1.1rem;
@@ -1501,7 +1516,8 @@ a {
 
   .ctest-gauge-fill,
   .ctest-threads path,
-  .ctest-pair > * {
+  .ctest-pair > *,
+  .ctest-matches > li {
     animation: none;
   }
 

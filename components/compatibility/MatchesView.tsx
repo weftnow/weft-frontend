@@ -28,8 +28,8 @@ export function MatchesView({ pairs }: { pairs: PairSummary[] }) {
         </header>
 
         <ul className="ctest-matches">
-          {pairs.map((pair) => (
-            <MatchCard key={pair.pair_id} pair={pair} />
+          {pairs.map((pair, index) => (
+            <MatchCard index={index} key={pair.pair_id} pair={pair} />
           ))}
         </ul>
       </div>

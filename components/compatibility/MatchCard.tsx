@@ -12,13 +12,16 @@ import type { PairSummary } from "@/lib/weftTypes";
  * finished; someone reviewing their own matches is not handing out a
  * capability, and putting one in their history only risks leaking it.
  */
-export function MatchCard({ pair }: { pair: PairSummary }) {
+export function MatchCard({ pair, index }: { pair: PairSummary; index: number }) {
   const copy = content.compatibilityTest.matches;
   const percent = scorePercent(pair.score);
 
   return (
     <li className="ctest-match">
       <Link className="ctest-match-link" href={pairHref(pair.pair_id)}>
+        <span aria-hidden className="ctest-match-index">
+          {String(index + 1).padStart(2, "0")}
+        </span>
         <p className="ctest-match-headline">{pair.headline}</p>
         <p className="ctest-match-band">{pair.band}</p>
 

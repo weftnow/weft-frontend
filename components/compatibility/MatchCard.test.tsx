@@ -30,7 +30,7 @@ const PAIR: PairSummary = {
 };
 
 test("the card names both people and states the band", () => {
-  const html = renderToStaticMarkup(<MatchCard pair={PAIR} />);
+  const html = renderToStaticMarkup(<MatchCard index={0} pair={PAIR} />);
   // Nothing in the payload says which of the two is reading, so the card
   // names both rather than guessing at "you".
   expect(html).toContain("Ana and Ben both lead with Benevolence.");
@@ -38,7 +38,7 @@ test("the card names both people and states the band", () => {
 });
 
 test("the percentage matches the one the full result will show", () => {
-  const html = renderToStaticMarkup(<MatchCard pair={PAIR} />);
+  const html = renderToStaticMarkup(<MatchCard index={0} pair={PAIR} />);
   // Same scorePercent as PairResultView, so the card and the page it opens
   // can never disagree.
   expect(html).toContain(">44<");
@@ -46,31 +46,37 @@ test("the percentage matches the one the full result will show", () => {
 });
 
 test("the card links to its own pair page", () => {
-  const html = renderToStaticMarkup(<MatchCard pair={PAIR} />);
+  const html = renderToStaticMarkup(<MatchCard index={0} pair={PAIR} />);
   expect(html).toContain('href="/compatibility-test/pair/pair-1"');
 });
 
 test("the link carries no share token", () => {
   // A returning originator is not handing out a capability, and a token in
   // their history is a token that can leak from it.
-  const html = renderToStaticMarkup(<MatchCard pair={PAIR} />);
+  const html = renderToStaticMarkup(<MatchCard index={0} pair={PAIR} />);
   expect(html).not.toContain("?share=");
 });
 
 test("a pair id is encoded rather than trusted as URL syntax", () => {
   const html = renderToStaticMarkup(
-    <MatchCard pair={{ ...PAIR, pair_id: "a/b?c" }} />,
+    <MatchCard index={0} pair={{ ...PAIR, pair_id: "a/b?c" }} />,
   );
   expect(html).toContain('href="/compatibility-test/pair/a%2Fb%3Fc"');
 });
 
 test("the card never leaks the raw score", () => {
-  const html = renderToStaticMarkup(<MatchCard pair={PAIR} />);
+  const html = renderToStaticMarkup(<MatchCard index={0} pair={PAIR} />);
   expect(html).not.toContain("0.1544");
 });
 
 test("a negative score still paints a bar", () => {
-  const html = renderToStaticMarkup(<MatchCard pair={{ ...PAIR, score: -0.6 }} />);
+  const html = renderToStaticMarkup(<MatchCard index={0} pair={{ ...PAIR, score: -0.6 }} />);
   expect(html).toContain("width:9%");
   expect(html).not.toContain("width:-");
+});
+
+test("each match wears its position as a mono index", () => {
+  const html = renderToStaticMarkup(<MatchCard index={0} pair={PAIR} />);
+  expect(html).toContain("ctest-match-index");
+  expect(html).toContain(">01<");
 });
