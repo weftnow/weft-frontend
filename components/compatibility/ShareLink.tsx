@@ -54,13 +54,18 @@ export function ShareLink({
 
   return (
     <div className="flex w-full flex-col items-center">
-      <p className="ctest-linkbox mt-7">{shareUrl.replace(/^https?:\/\//, "")}</p>
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-        <PremiumButton onClick={copyLink} tone="ember">
-          {copied ? copy.copied : copy.copy}
-        </PremiumButton>
-        {secondary}
+      <div className="ctest-linkcard mt-7">
+        <span className="ctest-linkcard-label">{copy.linkLabel}</span>
+        <p className="ctest-linkcard-url">{shareUrl.replace(/^https?:\/\//, "")}</p>
+        <div className="ctest-linkcard-actions">
+          <PremiumButton onClick={copyLink} tone="ember">
+            {copied ? copy.copied : copy.copy}
+          </PremiumButton>
+        </div>
       </div>
+      {secondary && (
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-4">{secondary}</div>
+      )}
       <p aria-live="polite" className="ctest-copied mt-4 h-4">
         {copied ? copy.announce : ""}
       </p>

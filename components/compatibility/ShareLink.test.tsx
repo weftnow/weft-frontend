@@ -25,3 +25,10 @@ test("share link announces the copy politely", () => {
   const html = renderToStaticMarkup(<ShareLink token="tok-1" />);
   expect(html).toContain('aria-live="polite"');
 });
+
+test("the link sits in a labelled card with the copy action attached", () => {
+  const html = renderToStaticMarkup(<ShareLink token="tok-1" />);
+  expect(html).toContain("ctest-linkcard");
+  expect(html).toContain(content.compatibilityTest.share.linkLabel);
+  expect(html).not.toContain("ctest-linkbox");
+});

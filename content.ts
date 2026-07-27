@@ -427,6 +427,7 @@ export const content = {
       restart: "Start over",
       announce: "Link copied to clipboard",
       matchesLink: "See who's answered",
+      linkLabel: "Your link",
     },
     invite: {
       eyebrow: "You've been invited",

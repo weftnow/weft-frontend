@@ -916,6 +916,36 @@ a {
   word-break: break-all;
 }
 
+/* The share moment proper: a real card, not a debug box. The dashed
+   .ctest-linkbox stays for error surfaces only. */
+.ctest-linkcard {
+  display: grid;
+  gap: 0.4rem;
+  width: min(30rem, 100%);
+  border: 1px solid rgb(18 18 18 / 10%);
+  border-radius: 1.4rem;
+  background: rgb(255 255 255 / 82%);
+  padding: 1.15rem 1.35rem 1.25rem;
+  box-shadow: var(--shadow-media);
+  backdrop-filter: blur(10px);
+  text-align: left;
+}
+.ctest-linkcard-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-ink) 45%, transparent);
+}
+.ctest-linkcard-url {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--color-ink) 78%, transparent);
+  word-break: break-all;
+}
+.ctest-linkcard-actions { margin-top: 0.85rem; }
+
 .ctest-eyebrow { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in srgb, var(--color-ink) 52%, transparent); }
 
 .ctest-prompt {
