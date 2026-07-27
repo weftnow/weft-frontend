@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { content } from "@/content";
 import { CtestShell } from "@/components/compatibility/CtestShell";
 import { ShareLink } from "@/components/compatibility/ShareLink";
@@ -120,6 +121,16 @@ export function PairResultView({
               {copy.restart}
             </PremiumButton>
           )}
+
+          {/* Offered whether or not they hold a token: someone who followed a
+              forwarded link has no session, and the page they land on invites
+              them to take the test rather than dead-ending. */}
+          <Link
+            className="mt-8 font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
+            href="/compatibility-test/matches"
+          >
+            {copy.matchesLink}
+          </Link>
         </section>
       </div>
     </CtestShell>

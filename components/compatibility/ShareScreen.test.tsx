@@ -12,6 +12,15 @@ test("share screen leads with the link and why it needs sending", () => {
   expect(html).toContain("/compatibility-test/invite/tok-1");
 });
 
+test("the share screen points back to the matches page", () => {
+  // The screen promises they can come back. This is where back is.
+  const html = renderToStaticMarkup(<ShareScreen shareToken="tok-9" onRestart={() => {}} />);
+  expect(html).toContain('href="/compatibility-test/matches"');
+  expect(html).toContain(
+    content.compatibilityTest.share.matchesLink.replace(/'/g, "&#x27;"),
+  );
+});
+
 test("share screen never claims a compatibility result for one person", () => {
   const html = renderToStaticMarkup(<ShareScreen shareToken="tok-1" onRestart={() => {}} />);
   expect(html).not.toContain("ctest-meter");

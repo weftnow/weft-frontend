@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { content } from "@/content";
 import { ShareLink } from "@/components/compatibility/ShareLink";
 
@@ -40,6 +41,13 @@ export function ShareScreen({
       <p className="mt-2 max-w-sm font-mono text-[0.68rem] leading-relaxed text-ink/45">
         {copy.note}
       </p>
+
+      <Link
+        className="mt-6 font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
+        href="/compatibility-test/matches"
+      >
+        {copy.matchesLink}
+      </Link>
     </div>
   );
 }

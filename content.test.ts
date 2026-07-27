@@ -90,6 +90,7 @@ describe("compatibility test content", () => {
       note: "Keep this link. It's also how you come back to see your match.",
       restart: "Start over",
       announce: "Link copied to clipboard",
+      matchesLink: "See who's answered",
     });
   });
 
@@ -153,6 +154,7 @@ describe("compatibility test content", () => {
       shareHeadline: "Now send yours to someone else.",
       shareSub: "The same twenty questions, a different person, a different result.",
       restart: "Take it yourself",
+      matchesLink: "See all your threads",
       missing: {
         eyebrow: "Not found",
         headline: "We can't find that result.",

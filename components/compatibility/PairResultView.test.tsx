@@ -124,3 +124,15 @@ test("the result still never leaks the signal behind the score", () => {
     expect(html).not.toContain(leak);
   }
 });
+
+test("a result links onward to every other thread this person has", () => {
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken="tok-9" />);
+  expect(html).toContain('href="/compatibility-test/matches"');
+  expect(html).toContain(content.compatibilityTest.pair.matchesLink);
+});
+
+test("the matches link is there even for someone arriving on a forwarded link", () => {
+  // It costs nothing: with no session cookie the page invites them to take it.
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
+  expect(html).toContain('href="/compatibility-test/matches"');
+});
