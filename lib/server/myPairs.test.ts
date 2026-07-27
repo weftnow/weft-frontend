@@ -132,4 +132,18 @@ describe("loadMyPairs", () => {
       status: "unavailable",
     });
   });
+
+
+  test("an absurdly long session id is refused before it reaches the wire", async () => {
+    // Matches loadPair's guard: nothing near 128 chars is a real session id,
+    // and refusing locally means a garbage cookie cannot probe the backend.
+    let called = false;
+    const spy = (async () => {
+      called = true;
+      return new Response("{}", { status: 200 });
+    }) as unknown as typeof fetch;
+
+    expect(await loadMyPairs("x".repeat(129), spy)).toEqual({ status: "no_session" });
+    expect(called).toBe(false);
+  });
 });

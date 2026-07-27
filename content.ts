@@ -456,6 +456,8 @@ export const content = {
     pair: {
       eyebrow: "Your compatibility",
       scoreLabel: "Compatibility",
+      // {percent} is filled by the component; read to screen readers after scoreLabel.
+      scoreOutOf: "{percent} out of 100",
       scoreNote:
         "Measured across values, outlook, humour and pace — not a popularity score.",
       scaleLow: "Different",

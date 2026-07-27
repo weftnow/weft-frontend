@@ -30,13 +30,15 @@ export function MatchCard({ pair }: { pair: PairSummary }) {
           <span
             className="ctest-gauge-track"
             role="img"
-            aria-label={`${content.compatibilityTest.pair.scoreLabel} ${percent} out of 100`}
+            aria-label={`${content.compatibilityTest.pair.scoreLabel} ${content.compatibilityTest.pair.scoreOutOf.replace("{percent}", String(percent))}`}
           >
             <span className="ctest-gauge-fill" style={{ width: `${percent}%` }} />
           </span>
         </div>
 
-        <span className="ctest-match-open">{copy.open} &rarr;</span>
+        {/* The arrow is CSS (::after), not copy: decoration has no business
+            being a string a translator would be handed. */}
+        <span className="ctest-match-open">{copy.open}</span>
       </Link>
     </li>
   );

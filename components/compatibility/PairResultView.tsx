@@ -51,7 +51,7 @@ export function PairResultView({
           <div
             className="ctest-gauge"
             role="img"
-            aria-label={`${copy.scoreLabel} ${percent} out of 100. ${result.band}`}
+            aria-label={`${copy.scoreLabel} ${copy.scoreOutOf.replace("{percent}", String(percent))}. ${result.band}`}
           >
             <div className="ctest-gauge-track">
               <span className="ctest-gauge-fill" style={{ width: `${percent}%` }} />

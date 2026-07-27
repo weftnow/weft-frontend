@@ -71,4 +71,16 @@ describe("mintInvite", () => {
     });
     expect(await mintInvite("sess-1", stub(200, {}))).toEqual({ status: "unavailable" });
   });
+
+  test("an absurdly long session id is refused before it reaches the wire", async () => {
+    // Same guard as loadMyPairs: refuse locally, never probe the backend.
+    let called = false;
+    const spy = (async () => {
+      called = true;
+      return new Response("{}", { status: 200 });
+    }) as unknown as typeof fetch;
+
+    expect(await mintInvite("x".repeat(129), spy)).toEqual({ status: "no_session" });
+    expect(called).toBe(false);
+  });
 });

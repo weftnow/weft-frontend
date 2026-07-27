@@ -1312,6 +1312,9 @@ a {
   text-transform: uppercase;
   color: color-mix(in srgb, var(--color-ink) 52%, transparent);
 }
+/* Decoration, not copy: the arrow lives here so it is never handed to a
+   translator or asserted on as text. */
+.ctest-match-open::after { content: " \2192"; }
 
 @media (prefers-reduced-motion: reduce) {
   html {
