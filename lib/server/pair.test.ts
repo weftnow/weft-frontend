@@ -22,7 +22,7 @@ const PERSON = {
 const PAIR = {
   headline: "Ana and Ben both lead with Benevolence.",
   score: 0.1544,
-  percent: 44,
+  percent: 52,
   band: "A real mix.",
   shared_values: [VALUE],
   difference: "Where you differ most is humour.",

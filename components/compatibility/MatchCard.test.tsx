@@ -23,7 +23,7 @@ const PAIR: PairSummary = {
   pair_id: "pair-1",
   headline: "Ana and Ben both lead with Benevolence.",
   score: 0.1544,
-  percent: 44,
+  percent: 52,
   band: "A real mix — some deep overlap, some genuine difference.",
   shared_values: [VALUE],
   difference: "Where you differ most is humour.",
@@ -42,8 +42,8 @@ test("the percentage matches the one the full result will show", () => {
   const html = renderToStaticMarkup(<MatchCard index={0} pair={PAIR} />);
   // Same backend percent as PairResultView, so the card and the page it
   // opens can never disagree.
-  expect(html).toContain(">44<");
-  expect(html).toContain("width:44%");
+  expect(html).toContain(">52<");
+  expect(html).toContain("width:52%");
 });
 
 test("the card links to its own pair page", () => {
@@ -72,9 +72,9 @@ test("the card never leaks the raw score", () => {
 
 test("a negative score still paints a bar", () => {
   const html = renderToStaticMarkup(
-    <MatchCard index={0} pair={{ ...PAIR, score: -0.6, percent: 9 }} />,
+    <MatchCard index={0} pair={{ ...PAIR, score: -0.6, percent: 10 }} />,
   );
-  expect(html).toContain("width:9%");
+  expect(html).toContain("width:10%");
   expect(html).not.toContain("width:-");
 });
 

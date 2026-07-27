@@ -13,9 +13,9 @@ const VALUE = {
 
 const RESULT: PairResult = {
   headline: "Ana and Ben both lead with Benevolence.",
-  // 0.1544 is a real "a real mix" score from weft_core, and maps to 44.
+  // 0.1544 is a real "a real mix" score from weft_core, and maps to 52.
   score: 0.1544,
-  percent: 44,
+  percent: 52,
   band: "A real mix — some deep overlap, some genuine difference.",
   shared_values: [VALUE],
   difference: "Where you differ most is humour.",
@@ -89,9 +89,9 @@ test("the result shows the fit score and fills the gauge to match", () => {
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken="tok-9" />);
   // The figure is rendered, not animated to, so it is true in the very first
   // paint and for anyone without JavaScript.
-  expect(html).toContain(">44<");
-  expect(html).toContain("Fit score 44 out of 100");
-  expect(html).toContain("width:44%");
+  expect(html).toContain(">52<");
+  expect(html).toContain("Fit score 52 out of 100");
+  expect(html).toContain("width:52%");
 });
 
 test("the percentage never contradicts the band beside it", () => {
@@ -112,9 +112,9 @@ test("a pair who scored below zero still gets a meter, not a broken one", () => 
   // The backend's scale runs to -1. A negative width would paint nothing and
   // read as a rendering failure rather than a real result.
   const html = renderToStaticMarkup(
-    <PairResultView result={{ ...RESULT, score: -0.6, percent: 9 }} shareToken={null} />,
+    <PairResultView result={{ ...RESULT, score: -0.6, percent: 10 }} shareToken={null} />,
   );
-  expect(html).toContain("width:9%");
+  expect(html).toContain("width:10%");
   expect(html).not.toContain("width:-");
 });
 
