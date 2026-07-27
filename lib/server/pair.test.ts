@@ -126,10 +126,9 @@ describe("isPairResult", () => {
     expect(isPairResult(rest)).toBe(false);
   });
 
-  test.each([[-1], [101], [63.5], [Number.NaN]])(
-    "rejects percent %p",
-    (percent: number) => {
+  for (const percent of [-1, 101, 63.5, Number.NaN]) {
+    test(`rejects percent ${percent}`, () => {
       expect(isPairResult({ ...PAIR, percent })).toBe(false);
-    },
-  );
+    });
+  }
 });
