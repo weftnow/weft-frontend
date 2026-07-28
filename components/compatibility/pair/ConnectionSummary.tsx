@@ -1,6 +1,7 @@
 import { content } from "@/content";
 import { pairTraitRows } from "@/lib/pairView";
 import type { PairResult } from "@/lib/weftTypes";
+import { ResultIcon, traitIconKind } from "./ResultIcon";
 
 /** The reference's two-column read: overlap beside useful difference. */
 export function ConnectionSummary({ result }: { result: PairResult }) {
@@ -18,7 +19,9 @@ export function ConnectionSummary({ result }: { result: PairResult }) {
           <ul className="ctest-result-list">
             {result.shared_values.map((value) => (
               <li className="ctest-result-list-item" key={value.key}>
-                <span aria-hidden className="ctest-result-item-icon">♡</span>
+                <span aria-hidden className="ctest-result-item-icon">
+                  <ResultIcon kind="values" />
+                </span>
                 <div>
                   <h3>
                     {value.name}
@@ -49,7 +52,9 @@ export function ConnectionSummary({ result }: { result: PairResult }) {
           <dl className="ctest-result-traits">
             {rows.map((row) => (
               <div className="ctest-result-trait" key={row.label}>
-                <span aria-hidden className="ctest-result-item-icon">↕</span>
+                <span aria-hidden className="ctest-result-item-icon">
+                  <ResultIcon kind={traitIconKind(row.label, copy.traits)} />
+                </span>
                 <div>
                   <dt>{row.label}</dt>
                   <dd>

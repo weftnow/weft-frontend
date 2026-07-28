@@ -1,6 +1,7 @@
 import { content } from "@/content";
 import { pairTraitRows } from "@/lib/pairView";
 import type { PairResult } from "@/lib/weftTypes";
+import { ResultIcon, traitIconKind, type ResultIconKind } from "./ResultIcon";
 
 /** A qualitative account of what shaped the result; never a fabricated breakdown. */
 export function EvaluationPanel({ result }: { result: PairResult }) {
@@ -16,11 +17,11 @@ export function EvaluationPanel({ result }: { result: PairResult }) {
     [copy.traits.lifeStage]: copy.evaluationTraits.lifeStage,
   };
   const dimensions = [
-    { label: "Values", body: copy.evaluationValues, mark: "♡" },
+    { label: "Values", body: copy.evaluationValues, icon: "values" as ResultIconKind },
     ...rows.map((row) => ({
       label: row.label,
       body: traitDescriptions[row.label],
-      mark: dimensionMark(row.label, copy.traits),
+      icon: traitIconKind(row.label, copy.traits),
     })),
   ];
 
@@ -34,7 +35,7 @@ export function EvaluationPanel({ result }: { result: PairResult }) {
         {dimensions.map((dimension) => (
           <li key={dimension.label}>
             <span aria-hidden className="ctest-result-evaluation-icon">
-              {dimension.mark}
+              <ResultIcon kind={dimension.icon} />
             </span>
             <div>
               <h3>{dimension.label}</h3>
@@ -45,14 +46,4 @@ export function EvaluationPanel({ result }: { result: PairResult }) {
       </ul>
     </section>
   );
-}
-
-function dimensionMark(
-  label: string,
-  traits: { humour: string; opensUp: string; pace: string; lifeStage: string },
-) {
-  if (label === traits.humour) return "✦";
-  if (label === traits.opensUp) return "◎";
-  if (label === traits.pace) return "↕";
-  return "○";
 }

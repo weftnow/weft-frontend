@@ -242,3 +242,12 @@ test("the closing panel shares the test rather than the match", () => {
   expect(html).not.toContain("Share match");
   expect(html).not.toContain("Start a conversation");
 });
+
+test("each measured dimension has its own semantic icon", () => {
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
+
+  for (const icon of ["values", "humour", "opens-up", "pace", "life-stage"]) {
+    expect(html).toContain(`data-result-icon="${icon}"`);
+  }
+  expect(html).not.toContain(">↕<");
+});
