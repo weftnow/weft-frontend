@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 /**
  * The questionnaire's ambient visual signature. CSS moves the two paths as a
  * whole, keeping this component server-safe and the motion inexpensive.
@@ -18,7 +20,7 @@ export function QuestionnaireWeave() {
         </g>
       </svg>
       <span className="ctest-weave-mark">
-        <img alt="" height={38} src="/icon.svg" width={38} />
+        <Image alt="" height={38} src="/icon.svg" width={38} />
       </span>
     </div>
   );

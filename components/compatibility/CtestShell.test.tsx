@@ -15,7 +15,7 @@ test("questionnaire shell renders the weave only when requested", () => {
   );
 
   expect(withWeave).toContain("ctest-weave");
-  expect(withWeave).toContain('src="/icon.svg"');
+  expect(withWeave).toContain("icon.svg");
   expect(withWeave).toContain('aria-hidden="true"');
   expect(withoutWeave).not.toContain("ctest-weave");
 });

@@ -841,9 +841,11 @@ a {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  background: var(--color-bone);
-  padding: clamp(4.5rem, 9vh, 7rem) 1.5rem clamp(3rem, 6vh, 5rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #fbfaf8;
+  padding: clamp(5.5rem, 8vh, 7rem) clamp(1.25rem, 4vw, 3rem)
+    clamp(2.5rem, 6vh, 4.5rem);
 }
 
 /* A quiz step is one screen and centres nicely. The result scrolls, and
@@ -853,6 +855,86 @@ a {
 .ctest-ambient { position: absolute; border-radius: 999px; filter: blur(90px); pointer-events: none; }
 .ctest-ambient--ember { top: 6%; left: -9rem; width: 24rem; height: 24rem; background: rgb(244 81 30 / 9%); }
 .ctest-ambient--signal { bottom: 4%; right: -8rem; width: 22rem; height: 22rem; background: rgb(0 144 222 / 8%); }
+
+.ctest-stage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: min(68rem, 100%);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.ctest-stage--intro,
+.ctest-stage--details {
+  width: min(34rem, 100%);
+}
+
+.ctest-weave {
+  position: absolute;
+  z-index: 1;
+  top: clamp(20rem, 43vh, 27rem);
+  left: 50%;
+  width: max(100vw, 90rem);
+  height: 8rem;
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+.ctest-weave-lines {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ctest-weave-thread {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.ctest-weave-thread path {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.ctest-weave-thread--ember {
+  stroke: rgb(244 81 30 / 34%);
+  animation: ctest-thread-drift-a 14s ease-in-out infinite alternate;
+}
+
+.ctest-weave-thread--signal {
+  stroke: rgb(0 144 222 / 24%);
+  animation: ctest-thread-drift-b 17s ease-in-out infinite alternate;
+}
+
+.ctest-weave-mark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #fbfaf8;
+  translate: -50% -50%;
+}
+
+.ctest-weave-mark img {
+  width: 2.15rem;
+  height: 2.15rem;
+}
+
+@keyframes ctest-thread-drift-a {
+  to { transform: translate3d(3.5rem, 0.35rem, 0) scaleY(1.04); }
+}
+
+@keyframes ctest-thread-drift-b {
+  to { transform: translate3d(-4rem, -0.3rem, 0) scaleY(0.96); }
+}
 
 .ctest-home {
   position: fixed;
@@ -872,13 +954,21 @@ a {
 .ctest-home:hover { color: var(--color-ink); }
 .ctest-home:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white); outline-offset: 4px; }
 
+.ctest-progress {
+  display: grid;
+  width: min(44rem, 100%);
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
+}
+
 .ctest-progressbar {
-  width: min(20rem, 62vw);
+  width: 100%;
   height: 0.32rem;
   border-radius: 999px;
   background: rgb(18 18 18 / 12%);
   overflow: hidden;
-  margin-bottom: clamp(1.5rem, 4vh, 2.75rem);
 }
 .ctest-progressbar-fill {
   display: block;
@@ -886,6 +976,15 @@ a {
   border-radius: 999px;
   background: var(--color-ember);
   transition: width 420ms var(--ease-out-ui);
+}
+
+.ctest-progress-count {
+  min-width: 4.5rem;
+  color: rgb(18 18 18 / 54%);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  text-align: right;
 }
 
 .ctest-form { display: grid; gap: 1.05rem; width: min(24rem, 100%); text-align: left; }
@@ -963,23 +1062,23 @@ a {
 
 .ctest-grid {
   display: grid;
-  width: min(640px, 100%);
-  margin-top: clamp(1.75rem, 4vh, 2.75rem);
-  gap: 0.75rem;
-  grid-template-columns: 1fr;
+  width: min(58rem, 100%);
+  margin-top: clamp(4.75rem, 10vh, 7rem);
+  gap: 0.9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-@media (min-width: 560px) { .ctest-grid { grid-template-columns: 1fr 1fr; } }
 
 .ctest-option {
   position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-height: 4.4rem;
+  min-height: 7rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
   border: 1px solid rgb(18 18 18 / 10%);
   border-radius: 1.4rem;
-  background: rgb(255 255 255 / 70%);
-  padding: 1rem 2.6rem 1rem 1.15rem;
+  background: rgb(255 255 255 / 74%);
+  padding: 1.15rem 4rem 1.15rem 1.25rem;
   text-align: left;
   cursor: pointer;
   backdrop-filter: blur(8px);
@@ -994,21 +1093,45 @@ a {
   box-shadow: 0 0 0 1px var(--color-ember);
 }
 
-/* The label span, not the aria-hidden index/check decorations either side of it. */
-.ctest-option span:not([aria-hidden]) { font-family: var(--font-display); font-size: 1rem; font-weight: 500; letter-spacing: -0.02em; color: var(--color-ink); }
+.ctest-option-label {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.ctest-option-marker {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ctest-option-marker--0 { background: #fff0e9; color: #d94818; }
+.ctest-option-marker--1 { background: #edf3fb; color: #3869a6; }
+.ctest-option-marker--2 { background: #eff6eb; color: #397a31; }
+.ctest-option-marker--3 { background: #f4f0f8; color: #72588d; }
 
 .ctest-option-check {
   position: absolute;
   top: 50%;
   right: 1.05rem;
   display: grid;
-  width: 1.4rem;
-  height: 1.4rem;
+  width: 1.75rem;
+  height: 1.75rem;
   place-items: center;
   border: 1.5px solid rgb(18 18 18 / 22%);
   border-radius: 999px;
   color: var(--color-paper);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   translate: 0 -50%;
   scale: 0.6;
   opacity: 0;
@@ -1017,32 +1140,97 @@ a {
 }
 .ctest-option--on .ctest-option-check { opacity: 1; scale: 1; border-color: var(--color-ember); }
 
-/* The homepage's numbered-list device, worn by the options. */
-.ctest-option { padding-left: 2.9rem; }
-.ctest-option-index {
-  position: absolute;
-  top: 1.15rem;
-  left: 1.15rem;
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-  color: color-mix(in srgb, var(--color-ink) 38%, transparent);
-  transition: color 180ms ease;
-}
-.ctest-option--on .ctest-option-index { color: var(--color-ember); }
-
 /* A touch more lift than before -- the options are the page's only toys. */
 .ctest-option:hover { transform: translate3d(0, -3px, 0); box-shadow: var(--shadow-media); }
 
-/* Back and Next share a footer that keeps them apart -- the hand glyph
-   used to overlap the back link. */
-.ctest-quiz-footer {
+.ctest-quiz-footer,
+.ctest-actions {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3rem;
+  gap: 1rem;
   margin-top: 2rem;
   min-height: 3.35rem;
+}
+
+.ctest-back {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  color: rgb(18 18 18 / 58%);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.ctest-back:hover {
+  background: rgb(18 18 18 / 4%);
+  color: var(--color-ink);
+}
+
+.ctest-back:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: 3px;
+}
+
+.ctest-actions--details {
+  margin-top: 0.65rem;
+}
+
+@media (max-width: 719px) {
+  .ctest-shell {
+    justify-content: flex-start;
+    padding: 5.25rem 1.15rem 2.25rem;
+  }
+
+  .ctest-weave {
+    top: 23.5rem;
+    width: 78rem;
+  }
+
+  .ctest-prompt {
+    font-size: clamp(1.8rem, 9vw, 2.5rem);
+    line-height: 1.08;
+  }
+
+  .ctest-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+    margin-top: 5.5rem;
+  }
+
+  .ctest-option {
+    min-height: 6.2rem;
+    border-radius: 1.25rem;
+  }
+
+  .ctest-quiz-footer,
+  .ctest-actions {
+    width: 100%;
+  }
+
+  .ctest-actions .premium-cta-cluster {
+    flex: 1;
+  }
+
+  .ctest-actions .premium-cta {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctest-weave-thread--ember,
+  .ctest-weave-thread--signal {
+    animation: none;
+  }
+
+  .ctest-progressbar-fill,
+  .ctest-option {
+    transition-duration: 0.01ms;
+  }
 }
 
 /* Editorial result sections: the type is the frame. Left-aligned inside the
