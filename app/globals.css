@@ -1105,6 +1105,13 @@ a {
   color: var(--color-ink);
 }
 
+@media (min-width: 720px) {
+  .ctest-stage--quiz .ctest-prompt {
+    max-width: 27ch;
+    font-size: clamp(1.9rem, 3.5vw, 2.7rem);
+  }
+}
+
 .ctest-grid {
   display: grid;
   width: min(58rem, 100%);
