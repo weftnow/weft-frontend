@@ -1,15 +1,16 @@
 import { expect, test } from "bun:test";
+import { fileURLToPath } from "node:url";
 
 test(
   "questionnaire mounted interactions pass in an isolated DOM",
   async () => {
+    const projectRoot = fileURLToPath(new URL("../..", import.meta.url));
+    const mountedSuite = fileURLToPath(
+      new URL("./CompatibilityTest.interaction.mount.tsx", import.meta.url),
+    );
     const subprocess = Bun.spawn({
-      cmd: [
-        process.execPath,
-        "test",
-        "./components/compatibility/CompatibilityTest.interaction.mount.tsx",
-      ],
-      cwd: process.cwd(),
+      cmd: [process.execPath, "test", mountedSuite],
+      cwd: projectRoot,
       stderr: "pipe",
       stdout: "pipe",
     });

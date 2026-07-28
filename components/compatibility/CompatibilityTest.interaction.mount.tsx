@@ -24,8 +24,8 @@ const BANK: BankQuestion[] = [
 ];
 
 const QUESTIONS = toQuizQuestions(BANK);
-const AUTO_ADVANCE_WAIT_MS = 1050;
-const TRANSITION_WAIT_MS = 500;
+const CANCEL_WAIT_MS = 250;
+const CONDITION_TIMEOUT_MS = 2000;
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   pretendToBeVisual: true,
@@ -78,6 +78,16 @@ async function wait(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function waitFor(condition: () => boolean) {
+  const deadline = Date.now() + CONDITION_TIMEOUT_MS;
+  while (!condition()) {
+    if (Date.now() >= deadline) {
+      throw new Error("Timed out waiting for questionnaire state");
+    }
+    await act(async () => wait(10));
+  }
+}
+
 async function openQuiz() {
   const { CompatibilityTest } = await import("./CompatibilityTest");
   await act(async () => {
@@ -85,8 +95,8 @@ async function openQuiz() {
   });
   await act(async () => {
     buttonNamed(content.compatibilityTest.intro.cta).click();
-    await wait(TRANSITION_WAIT_MS);
   });
+  await waitFor(() => controls("radio").length > 0);
 }
 
 async function withQuestionnaire(run: () => Promise<void>) {
@@ -98,7 +108,6 @@ async function withQuestionnaire(run: () => Promise<void>) {
     await run();
   } finally {
     await act(async () => {
-      await wait(TRANSITION_WAIT_MS);
       root.unmount();
     });
     container.remove();
@@ -116,12 +125,17 @@ test("single-choice auto-advance updates one continuous progress bar", async () 
 
     await act(async () => {
       controls("radio")[0].click();
-      await wait(AUTO_ADVANCE_WAIT_MS);
     });
-    await act(async () => wait(TRANSITION_WAIT_MS));
+    await waitFor(
+      () =>
+        container
+          .querySelector('[role="progressbar"]')
+          ?.getAttribute("aria-valuenow") === "2",
+    );
 
     const progressbars = container.querySelectorAll('[role="progressbar"]');
     expect(progressbars).toHaveLength(1);
+    expect(progressbars[0]).toBe(before);
     expect(progressbars[0].getAttribute("aria-valuenow")).toBe("2");
     expect(
       container.querySelector<HTMLElement>(".ctest-progressbar-fill")?.style
@@ -137,8 +151,8 @@ test("deselecting a single choice cancels its pending auto-advance", async () =>
     });
     await act(async () => {
       controls("radio")[0].click();
-      await wait(AUTO_ADVANCE_WAIT_MS);
     });
+    await act(async () => wait(CANCEL_WAIT_MS));
 
     expect(
       container
@@ -153,9 +167,14 @@ test("multi-choice gates Next, orders Back first, and preserves prior answers", 
   await withQuestionnaire(async () => {
     await act(async () => {
       controls("radio")[0].click();
-      await wait(AUTO_ADVANCE_WAIT_MS);
     });
-    await act(async () => wait(TRANSITION_WAIT_MS));
+    await waitFor(
+      () =>
+        container
+          .querySelector('[role="progressbar"]')
+          ?.getAttribute("aria-valuenow") === "2",
+    );
+    await waitFor(() => controls("checkbox").length > 0);
 
     expect(buttonNamed(content.compatibilityTest.quiz.next).disabled).toBe(true);
 
@@ -177,8 +196,8 @@ test("multi-choice gates Next, orders Back first, and preserves prior answers", 
 
     await act(async () => {
       actions?.[0].click();
-      await wait(TRANSITION_WAIT_MS);
     });
+    await waitFor(() => controls("radio").length > 0);
     expect(controls("radio")[0].getAttribute("aria-checked")).toBe("true");
   });
 });
