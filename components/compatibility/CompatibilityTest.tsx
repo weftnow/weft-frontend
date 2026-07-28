@@ -268,66 +268,79 @@ export function CompatibilityTest({
 
         {phase === "quiz" && question && (
           <motion.div
-            key={`q-${activeIndex}`}
+            key="quiz"
             {...fade}
             transition={transition}
             className="ctest-stage ctest-stage--quiz"
           >
-            <QuizProgress activeIndex={activeIndex} total={questions.length} />
-            <span className="ctest-eyebrow">{data.quiz.eyebrow}</span>
-            <h2 className="ctest-prompt">{question.prompt}</h2>
-            <p className="mt-2 font-mono text-xs uppercase tracking-wider text-ink/45">
-              {question.kind === "multi"
-                ? pickTwoHint(
-                    answers[question.id]?.length ?? 0,
-                    data.helpers.pick2,
-                    data.helpers.pick2Count,
-                  )
-                : data.helpers.single}
-            </p>
-            <div
-              className="ctest-grid"
-              role={question.kind === "single" ? "radiogroup" : "group"}
-              aria-label={question.prompt}
-            >
-              {question.options.map((option, optionIndex) => {
-                const on = isSelected(answers, question.id, option.id);
-                return (
-                  <QuizOptionCard
-                    key={option.id}
-                    kind={question.kind}
-                    onChoose={() => choose(option.id)}
-                    option={option}
-                    optionIndex={optionIndex}
-                    selected={on}
-                  />
-                );
-              })}
-            </div>
-            {submitError && (
-              <p className="ctest-error" role="alert">
-                {submitError}
-              </p>
-            )}
-            <div className="ctest-quiz-footer">
-              <button
-                type="button"
-                onClick={goBack}
-                className="ctest-back"
+            <QuizProgress
+              activeIndex={activeIndex}
+              labelTemplate={data.quiz.progress}
+              total={questions.length}
+            />
+            <AnimatePresence initial={false} mode="wait">
+              <motion.div
+                key={`q-${activeIndex}`}
+                {...fade}
+                className="ctest-question"
+                transition={transition}
               >
-                <span aria-hidden>&larr;</span> {data.quiz.back}
-              </button>
-              {question.kind === "multi" && (
-                <PremiumButton
-                  hand={false}
-                  tone="ember"
-                  onClick={advance}
-                  disabled={!canAdvance(answers, question.id, required)}
+                <span className="ctest-eyebrow">{data.quiz.eyebrow}</span>
+                <h2 className="ctest-prompt">{question.prompt}</h2>
+                <p className="mt-2 font-mono text-xs uppercase tracking-wider text-ink/45">
+                  {question.kind === "multi"
+                    ? pickTwoHint(
+                        answers[question.id]?.length ?? 0,
+                        data.helpers.pick2,
+                        data.helpers.pick2Count,
+                      )
+                    : data.helpers.single}
+                </p>
+                <div
+                  className="ctest-grid"
+                  role={question.kind === "single" ? "radiogroup" : "group"}
+                  aria-label={question.prompt}
                 >
-                  {data.quiz.next}
-                </PremiumButton>
-              )}
-            </div>
+                  {question.options.map((option, optionIndex) => {
+                    const on = isSelected(answers, question.id, option.id);
+                    return (
+                      <QuizOptionCard
+                        key={option.id}
+                        kind={question.kind}
+                        onChoose={() => choose(option.id)}
+                        option={option}
+                        optionIndex={optionIndex}
+                        selected={on}
+                      />
+                    );
+                  })}
+                </div>
+                {submitError && (
+                  <p className="ctest-error" role="alert">
+                    {submitError}
+                  </p>
+                )}
+                <div className="ctest-quiz-footer">
+                  <button
+                    type="button"
+                    onClick={goBack}
+                    className="ctest-back"
+                  >
+                    <span aria-hidden>&larr;</span> {data.quiz.back}
+                  </button>
+                  {question.kind === "multi" && (
+                    <PremiumButton
+                      hand={false}
+                      tone="ember"
+                      onClick={advance}
+                      disabled={!canAdvance(answers, question.id, required)}
+                    >
+                      {data.quiz.next}
+                    </PremiumButton>
+                  )}
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </motion.div>
         )}
 

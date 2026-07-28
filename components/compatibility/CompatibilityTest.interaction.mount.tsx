@@ -1,0 +1,184 @@
+import { expect, test } from "bun:test";
+import { act } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { JSDOM } from "jsdom";
+import { content } from "@/content";
+import { toQuizQuestions } from "@/lib/compatibilityQuestions";
+import type { BankQuestion } from "@/lib/weftTypes";
+
+const BANK: BankQuestion[] = [
+  {
+    id: "Q1",
+    prompt: "Pick one",
+    kind: "single",
+    seg: 1,
+    options: ["First", "Second"],
+  },
+  {
+    id: "Q2",
+    prompt: "Pick two",
+    kind: "pick2",
+    seg: 2,
+    options: ["Alpha", "Beta", "Gamma"],
+  },
+];
+
+const QUESTIONS = toQuizQuestions(BANK);
+const AUTO_ADVANCE_WAIT_MS = 1050;
+const TRANSITION_WAIT_MS = 500;
+
+const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+  pretendToBeVisual: true,
+  url: "http://localhost/compatibility-test",
+});
+let container: HTMLDivElement;
+let root: Root;
+
+Object.defineProperty(dom.window, "matchMedia", {
+  configurable: true,
+  value: () => ({
+    addEventListener() {},
+    dispatchEvent: () => false,
+    matches: true,
+    media: "(prefers-reduced-motion: reduce)",
+    onchange: null,
+    removeEventListener() {},
+  }),
+});
+Object.assign(globalThis, {
+  Element: dom.window.Element,
+  HTMLElement: dom.window.HTMLElement,
+  Node: dom.window.Node,
+  SVGElement: dom.window.SVGElement,
+  cancelAnimationFrame: dom.window.cancelAnimationFrame.bind(dom.window),
+  document: dom.window.document,
+  getComputedStyle: dom.window.getComputedStyle.bind(dom.window),
+  navigator: dom.window.navigator,
+  requestAnimationFrame: dom.window.requestAnimationFrame.bind(dom.window),
+  window: dom.window,
+});
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean })
+  .IS_REACT_ACT_ENVIRONMENT = true;
+
+function buttonNamed(name: string): HTMLButtonElement {
+  const button = container.querySelector<HTMLButtonElement>(
+    `button[aria-label="${name}"]`,
+  );
+  if (!button) throw new Error(`Button not found: ${name}`);
+  return button;
+}
+
+function controls(role: "checkbox" | "radio"): HTMLButtonElement[] {
+  return Array.from(
+    container.querySelectorAll<HTMLButtonElement>(`button[role="${role}"]`),
+  );
+}
+
+async function wait(ms: number) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function openQuiz() {
+  const { CompatibilityTest } = await import("./CompatibilityTest");
+  await act(async () => {
+    root.render(<CompatibilityTest questions={QUESTIONS} />);
+  });
+  await act(async () => {
+    buttonNamed(content.compatibilityTest.intro.cta).click();
+    await wait(TRANSITION_WAIT_MS);
+  });
+}
+
+async function withQuestionnaire(run: () => Promise<void>) {
+  container = dom.window.document.createElement("div");
+  dom.window.document.body.append(container);
+  root = createRoot(container);
+  try {
+    await openQuiz();
+    await run();
+  } finally {
+    await act(async () => {
+      await wait(TRANSITION_WAIT_MS);
+      root.unmount();
+    });
+    container.remove();
+  }
+}
+
+test("single-choice auto-advance updates one continuous progress bar", async () => {
+  await withQuestionnaire(async () => {
+    const before = container.querySelector<HTMLElement>('[role="progressbar"]');
+    const fill = container.querySelector<HTMLElement>(
+      ".ctest-progressbar-fill",
+    );
+    expect(before?.getAttribute("aria-valuenow")).toBe("1");
+    expect(fill?.style.width).toBe("50%");
+
+    await act(async () => {
+      controls("radio")[0].click();
+      await wait(AUTO_ADVANCE_WAIT_MS);
+    });
+    await act(async () => wait(TRANSITION_WAIT_MS));
+
+    const progressbars = container.querySelectorAll('[role="progressbar"]');
+    expect(progressbars).toHaveLength(1);
+    expect(progressbars[0].getAttribute("aria-valuenow")).toBe("2");
+    expect(
+      container.querySelector<HTMLElement>(".ctest-progressbar-fill")?.style
+        .width,
+    ).toBe("100%");
+  });
+});
+
+test("deselecting a single choice cancels its pending auto-advance", async () => {
+  await withQuestionnaire(async () => {
+    await act(async () => {
+      controls("radio")[0].click();
+    });
+    await act(async () => {
+      controls("radio")[0].click();
+      await wait(AUTO_ADVANCE_WAIT_MS);
+    });
+
+    expect(
+      container
+        .querySelector('[role="progressbar"]')
+        ?.getAttribute("aria-valuenow"),
+    ).toBe("1");
+    expect(controls("radio")[0].getAttribute("aria-checked")).toBe("false");
+  });
+});
+
+test("multi-choice gates Next, orders Back first, and preserves prior answers", async () => {
+  await withQuestionnaire(async () => {
+    await act(async () => {
+      controls("radio")[0].click();
+      await wait(AUTO_ADVANCE_WAIT_MS);
+    });
+    await act(async () => wait(TRANSITION_WAIT_MS));
+
+    expect(buttonNamed(content.compatibilityTest.quiz.next).disabled).toBe(true);
+
+    await act(async () => controls("checkbox")[0].click());
+    expect(buttonNamed(content.compatibilityTest.quiz.next).disabled).toBe(true);
+
+    await act(async () => controls("checkbox")[1].click());
+    expect(buttonNamed(content.compatibilityTest.quiz.next).disabled).toBe(false);
+
+    const footer = container.querySelector(".ctest-quiz-footer");
+    const actions = footer?.querySelectorAll("button");
+    expect(actions).toHaveLength(2);
+    expect(actions?.[0].textContent).toContain(
+      content.compatibilityTest.quiz.back,
+    );
+    expect(actions?.[1].getAttribute("aria-label")).toBe(
+      content.compatibilityTest.quiz.next,
+    );
+
+    await act(async () => {
+      actions?.[0].click();
+      await wait(TRANSITION_WAIT_MS);
+    });
+    expect(controls("radio")[0].getAttribute("aria-checked")).toBe("true");
+  });
+});
