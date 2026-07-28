@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { QuestionnaireWeave } from "./QuestionnaireWeave";
 
 /**
  * The furniture every compatibility screen sits in: the bone backdrop, the two
@@ -13,9 +14,11 @@ export function CtestShell({
   children,
   /** Set on screens that scroll: centring a tall page hides its own opening. */
   align = "center",
+  showWeave = false,
 }: {
   children: ReactNode;
   align?: "center" | "top";
+  showWeave?: boolean;
 }) {
   return (
     <div className={`ctest-shell${align === "top" ? " ctest-shell--top" : ""}`}>
@@ -24,6 +27,7 @@ export function CtestShell({
       <Link className="ctest-home" href="/">
         <span aria-hidden>&larr;</span> Weft
       </Link>
+      {showWeave && <QuestionnaireWeave />}
       {children}
     </div>
   );
