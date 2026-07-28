@@ -894,7 +894,7 @@ a {
 .ctest-weave {
   position: absolute;
   z-index: 1;
-  top: clamp(20rem, 43vh, 27rem);
+  top: clamp(17.5rem, 38.5vh, 24.5rem);
   left: 50%;
   width: max(100vw, 90rem);
   height: 8rem;
