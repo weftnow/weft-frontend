@@ -21,3 +21,13 @@ test("hero renders CTA-first markup with separately addressable headline words",
   expect(html).toContain(content.hero.sub);
   expect(html).not.toContain("hero-secondary-link");
 });
+
+test("hero headline uses breakable spaces between animated words", () => {
+  const html = renderToStaticMarkup(<Hero />);
+  const headlineMarkup = html.slice(html.indexOf("<h1"), html.indexOf("</h1>") + 5);
+
+  expect(headlineMarkup).not.toContain("\u00a0");
+  expect(headlineMarkup).toContain(
+    '</span> <span aria-hidden="true" class="hero-title-word" data-hero-word="on">',
+  );
+});

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { Fragment } from "react";
 import { content } from "@/content";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PremiumButton } from "@/components/ui/PremiumButton";
@@ -64,37 +65,38 @@ export function Hero() {
 
         <motion.h1 aria-label={headline} className="font-display text-balance hero-title" initial={false}>
           {headlineWords.map(({ characters, isAccent, word }, wordIndex) => (
-            <span
-              aria-hidden="true"
-              className={`hero-title-word${isAccent ? " hero-title-accent" : ""}`}
-              data-hero-word={word}
-              key={`${word}-${wordIndex}`}
-            >
-              {characters.map(({ character, index }) => (
-                <motion.span
-                  animate={{
-                    clipPath: "inset(0 0% 0 0)",
-                    opacity: 1,
-                    transform: "translate3d(0, 0, 0)",
-                  }}
-                  className="hero-title-character"
-                  initial={reduce ? false : {
-                    clipPath: "inset(0 100% 0 0)",
-                    opacity: 0,
-                    transform: "translate3d(0, 0.16em, 0)",
-                  }}
-                  key={`${character}-${index}`}
-                  transition={{
-                    delay: reduce ? 0 : wordRevealDelay + index * characterRevealStagger,
-                    duration: characterRevealDuration,
-                    ease: heroEase,
-                  }}
-                >
-                  {character}
-                </motion.span>
-              ))}
-              {wordIndex < headlineWords.length - 1 ? "\u00a0" : ""}
-            </span>
+            <Fragment key={`${word}-${wordIndex}`}>
+              <span
+                aria-hidden="true"
+                className={`hero-title-word${isAccent ? " hero-title-accent" : ""}`}
+                data-hero-word={word}
+              >
+                {characters.map(({ character, index }) => (
+                  <motion.span
+                    animate={{
+                      clipPath: "inset(0 0% 0 0)",
+                      opacity: 1,
+                      transform: "translate3d(0, 0, 0)",
+                    }}
+                    className="hero-title-character"
+                    initial={reduce ? false : {
+                      clipPath: "inset(0 100% 0 0)",
+                      opacity: 0,
+                      transform: "translate3d(0, 0.16em, 0)",
+                    }}
+                    key={`${character}-${index}`}
+                    transition={{
+                      delay: reduce ? 0 : wordRevealDelay + index * characterRevealStagger,
+                      duration: characterRevealDuration,
+                      ease: heroEase,
+                    }}
+                  >
+                    {character}
+                  </motion.span>
+                ))}
+              </span>
+              {wordIndex < headlineWords.length - 1 ? " " : ""}
+            </Fragment>
           ))}
         </motion.h1>
 
