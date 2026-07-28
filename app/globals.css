@@ -952,13 +952,15 @@ a {
   top: 45%;
 }
 
-.ctest-shell:has(.ctest-stage--intro) .ctest-weave-mark {
+.ctest-shell:has(.ctest-stage--intro) .ctest-weave-mark,
+.ctest-shell:has(.ctest-stage--quiz) .ctest-weave-mark {
   top: 58%;
   width: 3.75rem;
   height: 3.75rem;
 }
 
-.ctest-shell:has(.ctest-stage--intro) .ctest-weave-mark img {
+.ctest-shell:has(.ctest-stage--intro) .ctest-weave-mark img,
+.ctest-shell:has(.ctest-stage--quiz) .ctest-weave-mark img {
   width: 2.75rem;
   height: 2.75rem;
 }
