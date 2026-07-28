@@ -253,6 +253,7 @@ export function CompatibilityTest({
             </p>
             <div className="mt-8">
               <PremiumButton
+                hand={false}
                 tone="ember"
                 onClick={() => {
                   setPhase("quiz");

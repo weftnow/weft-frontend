@@ -928,6 +928,18 @@ a {
   height: 2.15rem;
 }
 
+.ctest-shell:has(.ctest-stage--intro) .ctest-weave {
+  top: 72%;
+}
+
+.ctest-shell:has(.ctest-stage--details) .ctest-weave {
+  top: 21rem;
+}
+
+.ctest-stage--details .ctest-form {
+  margin-top: 8rem;
+}
+
 @keyframes ctest-thread-drift-a {
   to { transform: translate3d(3.5rem, 0.35rem, 0) scaleY(1.04); }
 }
