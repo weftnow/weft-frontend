@@ -20,7 +20,7 @@ export function QuestionnaireWeave() {
         </g>
       </svg>
       <span className="ctest-weave-mark">
-        <Image alt="" height={38} src="/icon.svg" width={38} />
+        <Image alt="" height={38} loading="eager" src="/icon.svg" width={38} />
       </span>
     </div>
   );
