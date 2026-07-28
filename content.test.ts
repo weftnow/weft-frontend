@@ -84,6 +84,13 @@ test("every testimonial declares its content type", () => {
 });
 
 describe("compatibility test content", () => {
+  test("intro names the other person in the compatibility question", () => {
+    expect(content.compatibilityTest.intro.headline).toEqual([
+      "How compatible are you",
+      "with that person?",
+    ]);
+  });
+
   test("intro no longer promises three questions", () => {
     // The served quiz is twenty questions long.
     expect(content.compatibilityTest.intro.sub).not.toContain("Three");

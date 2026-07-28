@@ -248,6 +248,7 @@ export function CompatibilityTest({
                 </span>
               ))}
             </h1>
+            <span aria-hidden className="ctest-intro-weave-space" />
             <p className="mt-5 max-w-md text-pretty text-base leading-relaxed text-ink/60">
               {intro.sub}
             </p>

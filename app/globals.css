@@ -882,6 +882,15 @@ a {
   align-items: center;
 }
 
+.ctest-intro-weave-space {
+  display: block;
+  height: clamp(6.5rem, 11vh, 8rem);
+}
+
+.ctest-stage--intro .ctest-prompt > .block {
+  white-space: nowrap;
+}
+
 .ctest-weave {
   position: absolute;
   z-index: 1;
@@ -940,7 +949,18 @@ a {
 }
 
 .ctest-shell:has(.ctest-stage--intro) .ctest-weave {
-  top: 72%;
+  top: 45%;
+}
+
+.ctest-shell:has(.ctest-stage--intro) .ctest-weave-mark {
+  top: 58%;
+  width: 3.75rem;
+  height: 3.75rem;
+}
+
+.ctest-shell:has(.ctest-stage--intro) .ctest-weave-mark img {
+  width: 2.75rem;
+  height: 2.75rem;
 }
 
 .ctest-shell:has(.ctest-stage--details) .ctest-weave {
@@ -1219,9 +1239,17 @@ a {
     width: 78rem;
   }
 
+  .ctest-shell:has(.ctest-stage--intro) .ctest-weave {
+    top: 12rem;
+  }
+
   .ctest-prompt {
     font-size: clamp(1.8rem, 9vw, 2.5rem);
     line-height: 1.08;
+  }
+
+  .ctest-stage--intro .ctest-prompt > .block {
+    white-space: normal;
   }
 
   .ctest-grid {

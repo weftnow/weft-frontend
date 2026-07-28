@@ -33,6 +33,17 @@ test("questionnaire intro opts into the weave without adding site navigation", (
   expect(html).not.toContain("<nav");
 });
 
+test("questionnaire intro reserves the motif between its headline and explanation", () => {
+  const html = renderToStaticMarkup(<CompatibilityTest questions={QUESTIONS} />);
+  const headline = html.indexOf("ctest-prompt");
+  const motifGap = html.indexOf("ctest-intro-weave-space");
+  const explanation = html.indexOf(content.compatibilityTest.intro.sub);
+
+  expect(headline).toBeGreaterThan(-1);
+  expect(motifGap).toBeGreaterThan(headline);
+  expect(explanation).toBeGreaterThan(motifGap);
+});
+
 test("compatibility intro does not leak later phases into static markup", () => {
   const html = renderToStaticMarkup(<CompatibilityTest questions={QUESTIONS} />);
   expect(html).not.toContain("ctest-option");

@@ -386,7 +386,7 @@ export const content = {
   compatibilityTest: {
     intro: {
       eyebrow: "Compatibility Test",
-      headline: ["How do you", "really connect?"],
+      headline: ["How compatible are you", "with that person?"],
       sub: "Twenty questions, about four minutes. We read the signal between them, then hand you a link to send someone.",
       cta: "Begin",
     },
