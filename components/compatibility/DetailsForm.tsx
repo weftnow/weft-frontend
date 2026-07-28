@@ -49,7 +49,7 @@ export function DetailsForm({
   }
 
   return (
-    <div className="relative z-10 flex w-full flex-col items-center text-center">
+    <div className="ctest-stage ctest-stage--details">
       <span className="ctest-eyebrow">{copy.eyebrow}</span>
       <h2 className="ctest-prompt">{copy.headline}</h2>
       <p className="mt-2 max-w-sm text-pretty text-base leading-relaxed text-ink/60">
@@ -95,15 +95,15 @@ export function DetailsForm({
           </p>
         )}
 
-        <div className="mt-2 flex items-center justify-between gap-4">
+        <div className="ctest-actions ctest-actions--details">
           <button
-            className="font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
+            className="ctest-back"
             onClick={onBack}
             type="button"
           >
-            &larr; {copy.back}
+            <span aria-hidden>&larr;</span> {copy.back}
           </button>
-          <PremiumButton tone="ember" type="submit" disabled={busy}>
+          <PremiumButton hand={false} tone="ember" type="submit" disabled={busy}>
             {copy.cta}
           </PremiumButton>
         </div>

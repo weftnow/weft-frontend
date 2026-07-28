@@ -7,6 +7,8 @@ import { WeaveLoader } from "@/components/ui/WeaveLoader";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 import { CtestShell } from "@/components/compatibility/CtestShell";
 import { DetailsForm } from "@/components/compatibility/DetailsForm";
+import { QuizOptionCard } from "@/components/compatibility/QuizOption";
+import { QuizProgress } from "@/components/compatibility/QuizProgress";
 import { ShareScreen } from "@/components/compatibility/ShareScreen";
 import { firstUnansweredIndex, toBackendAnswers } from "@/lib/answers";
 import type { QuizQuestion } from "@/lib/compatibilityQuestions";
@@ -22,7 +24,6 @@ import {
   nextQuizState,
   pickTwoHint,
   prevQuizState,
-  progressFraction,
   toggleOption,
   type Answers,
   type Phase,
@@ -228,14 +229,16 @@ export function CompatibilityTest({
   };
 
   return (
-    <CtestShell>
+    <CtestShell
+      showWeave={phase === "intro" || phase === "quiz" || phase === "details"}
+    >
       <AnimatePresence mode="wait">
         {phase === "intro" && (
           <motion.div
             key="intro"
             {...fade}
             transition={transition}
-            className="relative z-10 flex flex-col items-center text-center"
+            className="ctest-stage ctest-stage--intro"
           >
             <span className="ctest-eyebrow">{intro.eyebrow}</span>
             <h1 className="ctest-prompt">
@@ -267,19 +270,10 @@ export function CompatibilityTest({
             key={`q-${activeIndex}`}
             {...fade}
             transition={transition}
-            className="relative z-10 flex w-full flex-col items-center text-center"
+            className="ctest-stage ctest-stage--quiz"
           >
-            <div className="ctest-progressbar" aria-hidden>
-              <span
-                className="ctest-progressbar-fill"
-                style={{ width: `${progressFraction(activeIndex, questions.length) * 100}%` }}
-              />
-            </div>
-            <span className="ctest-eyebrow">
-              {data.quiz.progress
-                .replace("{n}", String(activeIndex + 1))
-                .replace("{total}", String(questions.length))}
-            </span>
+            <QuizProgress activeIndex={activeIndex} total={questions.length} />
+            <span className="ctest-eyebrow">{data.quiz.eyebrow}</span>
             <h2 className="ctest-prompt">{question.prompt}</h2>
             <p className="mt-2 font-mono text-xs uppercase tracking-wider text-ink/45">
               {question.kind === "multi"
@@ -298,22 +292,14 @@ export function CompatibilityTest({
               {question.options.map((option, optionIndex) => {
                 const on = isSelected(answers, question.id, option.id);
                 return (
-                  <button
+                  <QuizOptionCard
                     key={option.id}
-                    type="button"
-                    role={question.kind === "single" ? "radio" : "checkbox"}
-                    aria-checked={on}
-                    className={`ctest-option${on ? " ctest-option--on" : ""}`}
-                    onClick={() => choose(option.id)}
-                  >
-                    <span aria-hidden className="ctest-option-index">
-                      {String.fromCharCode(65 + optionIndex)}
-                    </span>
-                    <span>{option.label}</span>
-                    <span aria-hidden className="ctest-option-check">
-                      &#10003;
-                    </span>
-                  </button>
+                    kind={question.kind}
+                    onChoose={() => choose(option.id)}
+                    option={option}
+                    optionIndex={optionIndex}
+                    selected={on}
+                  />
                 );
               })}
             </div>
@@ -326,13 +312,14 @@ export function CompatibilityTest({
               <button
                 type="button"
                 onClick={goBack}
-                className="font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
+                className="ctest-back"
               >
-                &larr; {data.quiz.back}
+                <span aria-hidden>&larr;</span> {data.quiz.back}
               </button>
               {question.kind === "multi" && (
                 <PremiumButton
-                  tone="ink"
+                  hand={false}
+                  tone="ember"
                   onClick={advance}
                   disabled={!canAdvance(answers, question.id, required)}
                 >

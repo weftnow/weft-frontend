@@ -72,3 +72,20 @@ test("the fields sit under the rule-tick label like every other section", () => 
   expect(html).toContain("ctest-rule");
   expect(html).toContain(content.compatibilityTest.details.fieldsLabel);
 });
+
+test("details actions keep Back before the primary submit action", () => {
+  const html = renderToStaticMarkup(
+    <DetailsForm
+      busy={false}
+      initialDetails={EMPTY_DETAILS}
+      onBack={() => {}}
+      onSubmit={() => {}}
+      submitError={null}
+    />,
+  );
+
+  expect(html).toContain("ctest-actions--details");
+  expect(html.indexOf(content.compatibilityTest.details.back)).toBeLessThan(
+    html.indexOf(`aria-label="${content.compatibilityTest.details.cta}`),
+  );
+});

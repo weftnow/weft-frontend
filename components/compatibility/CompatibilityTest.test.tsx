@@ -27,6 +27,12 @@ test("compatibility test exposes a home link back to Weft", () => {
   expect(html).toContain("ctest-home");
 });
 
+test("questionnaire intro opts into the weave without adding site navigation", () => {
+  const html = renderToStaticMarkup(<CompatibilityTest questions={QUESTIONS} />);
+  expect(html).toContain("ctest-weave");
+  expect(html).not.toContain("<nav");
+});
+
 test("compatibility intro does not leak later phases into static markup", () => {
   const html = renderToStaticMarkup(<CompatibilityTest questions={QUESTIONS} />);
   expect(html).not.toContain("ctest-option");

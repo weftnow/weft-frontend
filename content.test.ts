@@ -91,10 +91,10 @@ describe("compatibility test content", () => {
 
   test("the quiz chrome reads from content, not from the component", () => {
     expect(content.compatibilityTest.quiz).toEqual({
-      // {n} and {total} are filled in by CompatibilityTest.
-      progress: "Question {n} of {total}",
+      eyebrow: "About you",
+      progress: "{n} of {total}",
       back: "Back",
-      next: "Next",
+      next: "Next question",
     });
   });
 

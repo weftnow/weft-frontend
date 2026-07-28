@@ -396,10 +396,10 @@ export const content = {
       pick2Count: "{n} of 2 picked",
     },
     quiz: {
-      // {n} and {total} are filled in by CompatibilityTest.
-      progress: "Question {n} of {total}",
+      eyebrow: "About you",
+      progress: "{n} of {total}",
       back: "Back",
-      next: "Next",
+      next: "Next question",
     },
     loaderPhrases: [
       "Reading the signal between your answers…",
