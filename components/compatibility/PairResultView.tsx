@@ -1,26 +1,15 @@
+import Link from "next/link";
 import { CtestShell } from "@/components/compatibility/CtestShell";
-import { DifferencePull } from "@/components/compatibility/pair/DifferencePull";
-import { PeopleCompare } from "@/components/compatibility/pair/PeopleCompare";
+import { ConnectionSummary } from "@/components/compatibility/pair/ConnectionSummary";
+import { EvaluationPanel } from "@/components/compatibility/pair/EvaluationPanel";
 import { ScoreHero } from "@/components/compatibility/pair/ScoreHero";
-import { SharedValues } from "@/components/compatibility/pair/SharedValues";
 import { ShareClose } from "@/components/compatibility/pair/ShareClose";
+import { content } from "@/content";
 import type { PairResult } from "@/lib/weftTypes";
 
 /**
- * The compatibility result, for both people at once.
- *
- * `result.people` is exactly two, in the backend's order -- the sender first,
- * the responder second -- but nothing in the payload identifies which of them
- * is reading it, and this link may have been forwarded. Both are named; nobody
- * is called "you".
- *
- * `shareToken` is present only for the person who just finished, carried on
- * the query string from their own submission. Without it there is no link to
- * offer, so the page offers the quiz instead.
- *
- * The staggered entrance is CSS, keyed off the direct children of
- * `.ctest-pair` -- see globals.css. Reordering or wrapping those children
- * changes which delay each block gets.
+ * The compatibility result for both people at once. The payload has no reader
+ * identity, so both people remain named and neither is rewritten as "you".
  */
 export function PairResultView({
   result,
@@ -29,13 +18,17 @@ export function PairResultView({
   result: PairResult;
   shareToken: string | null;
 }) {
+  const copy = content.compatibilityTest.pair;
+
   return (
     <CtestShell align="top">
       <div className="ctest-pair relative z-10">
+        <Link className="ctest-result-back" href="/compatibility-test/matches">
+          <span aria-hidden>&larr;</span> {copy.backToMatches}
+        </Link>
         <ScoreHero result={result} />
-        <SharedValues result={result} />
-        <DifferencePull difference={result.difference} />
-        <PeopleCompare people={result.people} />
+        <ConnectionSummary result={result} />
+        <EvaluationPanel result={result} />
         <ShareClose shareToken={shareToken} />
       </div>
     </CtestShell>

@@ -176,7 +176,9 @@ describe("compatibility test content", () => {
 
   test("the pair screen matches the approved copy exactly", () => {
     expect(content.compatibilityTest.pair).toEqual({
-      eyebrow: "Your fit",
+      eyebrow: "Compatibility result",
+      heading: "Here's your match",
+      backToMatches: "Back to matches",
       scoreLabel: "Fit score",
       // {percent} is filled by the component; read to screen readers after scoreLabel.
       scoreOutOf: "{percent} out of 100",
@@ -187,11 +189,23 @@ describe("compatibility test content", () => {
       scaleLow: "Different",
       scaleHigh: "Aligned",
       sharedLabel: "What you both lead with",
+      matchLabel: "You match on",
+      matchSub: "The things that bring you together.",
       peopleLabel: "How you each read",
       noShared: "You don't share a top value — which is its own kind of interesting.",
       sharedTag: "Shared",
       notMeasured: "not measured",
       differenceLabel: "Where you differ",
+      differenceSub: "Healthy differences to be aware of.",
+      evaluationHeading: "How we evaluated this match",
+      evaluationSub: "The qualities reflected in both of your answers.",
+      evaluationValues: "Beliefs, principles, and what matters most.",
+      evaluationTraits: {
+        humour: "The way you create ease and connection.",
+        opensUp: "How quickly trust and openness tend to build.",
+        pace: "The rhythm and space each person prefers.",
+        lifeStage: "The context shaping what matters right now.",
+      },
       traits: {
         humour: "Humour",
         opensUp: "Opens up",

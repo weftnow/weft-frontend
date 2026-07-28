@@ -41,6 +41,7 @@ const RESULT: PairResult = {
 
 test("the result leads with the headline and the band", () => {
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
+  expect(html).toContain(content.compatibilityTest.pair.heading.replace(/'/g, "&#x27;"));
   expect(html).toContain(RESULT.headline);
   expect(html).toContain(RESULT.band);
   expect(html).toContain(RESULT.difference);
@@ -91,7 +92,7 @@ test("the result shows the fit score and fills the gauge to match", () => {
   // paint and for anyone without JavaScript.
   expect(html).toContain(">52<");
   expect(html).toContain("Fit score 52 out of 100");
-  expect(html).toContain("width:52%");
+  expect(html).toContain("--score:52");
 });
 
 test("the percentage never contradicts the band beside it", () => {
@@ -114,8 +115,8 @@ test("a pair who scored below zero still gets a meter, not a broken one", () => 
   const html = renderToStaticMarkup(
     <PairResultView result={{ ...RESULT, score: -0.6, percent: 10 }} shareToken={null} />,
   );
-  expect(html).toContain("width:10%");
-  expect(html).not.toContain("width:-");
+  expect(html).toContain("--score:10");
+  expect(html).not.toContain("--score:-");
 });
 
 test("the result still never leaks the signal behind the score", () => {
@@ -157,11 +158,87 @@ test("a dimension one person measured shows their reading beside a dash", () => 
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
   expect(html).toContain(content.compatibilityTest.pair.traits.humour);
   expect(html).toContain("warm/affiliative");
-  expect(html).toContain("ctest-compare-cell--blank");
+  expect(html).toContain("ctest-result-trait-blank");
 });
 
 test("a value both people hold is marked shared", () => {
   // Both lead with Benevolence in the fixture.
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
   expect(html).toContain(content.compatibilityTest.pair.sharedTag);
+});
+
+test("the reference result hierarchy uses only supported profile data", () => {
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken="tok-9" />);
+  expect(html).toContain(content.compatibilityTest.pair.backToMatches);
+  expect(html).toContain("ctest-result-score");
+  expect(html).toContain("ctest-result-summary");
+  expect(html).toContain("ctest-result-evaluation");
+  expect(html).not.toContain("Match breakdown");
+  expect(html).not.toContain("Start a conversation");
+  expect(html).not.toContain("Share match");
+});
+
+test("the result does not invent unsupported participant metadata", () => {
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
+  for (const unsupported of [
+    "Marketing Lead",
+    "Product Designer",
+    "New York",
+    "Seoul",
+    "Matched across",
+    "<img",
+  ]) {
+    expect(html).not.toContain(unsupported);
+  }
+});
+
+test("the two names frame a circular score with an accessible verdict", () => {
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
+  expect(html).toContain("ctest-result-person--left");
+  expect(html).toContain("ctest-result-person--right");
+  expect(html).toContain("Ana");
+  expect(html).toContain("Ben");
+  expect(html).toContain("Fit score 52 out of 100");
+  expect(html).toContain("--score:52");
+  expect(html).toContain(RESULT.band);
+});
+
+test("the summary separates shared values from measured differences", () => {
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
+  expect(html).toContain(content.compatibilityTest.pair.matchLabel);
+  expect(html).toContain(content.compatibilityTest.pair.matchSub);
+  expect(html).toContain(content.compatibilityTest.pair.differenceSub);
+  expect(html).toContain(VALUE.name);
+  expect(html).toContain(VALUE.blurb);
+  expect(html).toContain(RESULT.difference);
+  expect(html).toContain(content.compatibilityTest.pair.traits.pace);
+});
+
+test("evaluation lists only dimensions represented by the result", () => {
+  const [ana, ben] = RESULT.people;
+  const html = renderToStaticMarkup(
+    <PairResultView
+      result={{
+        ...RESULT,
+        people: [
+          { ...ana, humour: "—", life_stage: "unspecified" },
+          { ...ben, humour: "—", life_stage: "unspecified" },
+        ],
+      }}
+      shareToken={null}
+    />,
+  );
+  expect(html).toContain(content.compatibilityTest.pair.evaluationHeading);
+  expect(html).toContain(content.compatibilityTest.pair.evaluationValues);
+  expect(html).not.toContain(content.compatibilityTest.pair.evaluationTraits.humour);
+  expect(html).not.toContain(content.compatibilityTest.pair.evaluationTraits.lifeStage);
+});
+
+test("the closing panel shares the test rather than the match", () => {
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken="tok-9" />);
+  expect(html).toContain("ctest-result-share");
+  expect(html).toContain(content.compatibilityTest.pair.shareHeadline);
+  expect(html).toContain("/compatibility-test/invite/tok-9");
+  expect(html).not.toContain("Share match");
+  expect(html).not.toContain("Start a conversation");
 });
