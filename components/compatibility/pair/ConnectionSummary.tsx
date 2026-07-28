@@ -47,7 +47,6 @@ export function ConnectionSummary({ result }: { result: PairResult }) {
           title={copy.differenceLabel}
           body={copy.differenceSub}
         />
-        <p className="ctest-result-difference">{result.difference}</p>
         {rows.length > 0 && (
           <dl className="ctest-result-traits">
             {rows.map((row) => (
@@ -67,6 +66,7 @@ export function ConnectionSummary({ result }: { result: PairResult }) {
             ))}
           </dl>
         )}
+        <p className="ctest-result-difference">{result.difference}</p>
       </div>
     </section>
   );

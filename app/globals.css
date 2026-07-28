@@ -2092,7 +2092,7 @@ a {
   color: var(--color-ink);
 }
 
-.ctest-result-traits { margin-top: 0.7rem; }
+.ctest-result-traits { margin-top: 1.4rem; }
 .ctest-result-trait-divider { color: rgb(18 18 18 / 20%); }
 .ctest-result-trait-blank { color: rgb(18 18 18 / 28%); }
 

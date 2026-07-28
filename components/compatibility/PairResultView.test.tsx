@@ -251,3 +251,12 @@ test("each measured dimension has its own semantic icon", () => {
   }
   expect(html).not.toContain(">↕<");
 });
+
+test("both summary lists start before the difference callout", () => {
+  const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
+  const traits = html.indexOf("ctest-result-traits");
+  const callout = html.indexOf('class="ctest-result-difference"');
+
+  expect(traits).toBeGreaterThan(-1);
+  expect(callout).toBeGreaterThan(traits);
+});
