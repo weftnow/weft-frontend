@@ -347,15 +347,15 @@ export const content = {
     links: [
       {
         label: "WhatsApp",
-        value: "+57 300 123 4567",
-        href: "https://wa.me/573001234567",
+        value: "+57 314 513 5153",
+        href: "https://wa.me/573145135153",
         mark: "WA",
         external: true,
       },
       {
         label: "Email",
-        value: "hello@weftnow.com",
-        href: "mailto:hello@weftnow.com",
+        value: "team@weft.now",
+        href: "mailto:team@weft.now",
         mark: "@",
         external: false,
       },
