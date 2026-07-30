@@ -5,8 +5,8 @@
  * syntax.
  */
 
-const INVITE_BASE = "/compatibility-test/invite";
-const PAIR_BASE = "/compatibility-test/pair";
+const INVITE_BASE = "/match/invite";
+const PAIR_BASE = "/match/pair";
 
 export function inviteHref(token: string): string {
   return `${INVITE_BASE}/${encodeURIComponent(token)}`;

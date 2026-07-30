@@ -48,7 +48,7 @@ test("the percentage matches the one the full result will show", () => {
 
 test("the card links to its own pair page", () => {
   const html = renderToStaticMarkup(<MatchCard index={0} pair={PAIR} />);
-  expect(html).toContain('href="/compatibility-test/pair/pair-1"');
+  expect(html).toContain('href="/match/pair/pair-1"');
 });
 
 test("the link carries no share token", () => {
@@ -62,7 +62,7 @@ test("a pair id is encoded rather than trusted as URL syntax", () => {
   const html = renderToStaticMarkup(
     <MatchCard index={0} pair={{ ...PAIR, pair_id: "a/b?c" }} />,
   );
-  expect(html).toContain('href="/compatibility-test/pair/a%2Fb%3Fc"');
+  expect(html).toContain('href="/match/pair/a%2Fb%3Fc"');
 });
 
 test("the card never leaks the raw score", () => {

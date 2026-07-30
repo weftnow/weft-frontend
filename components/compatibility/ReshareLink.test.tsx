@@ -8,7 +8,7 @@ test("it offers the button and no link until one is asked for", () => {
   expect(html).toContain(`aria-label="${content.compatibilityTest.matches.waiting.cta}"`);
   // No token exists yet, so no link box and no invite path may appear.
   expect(html).not.toContain("ctest-linkbox");
-  expect(html).not.toContain("/compatibility-test/invite/");
+  expect(html).not.toContain("/match/invite/");
 });
 
 test("nothing is minted just by rendering the page", async () => {

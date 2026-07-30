@@ -53,7 +53,7 @@ export default async function PairPage({
           eyebrow={notice.eyebrow}
           headline={notice.headline}
           body={notice.body}
-          cta={{ href: "/compatibility-test", label: copy.restart }}
+          cta={{ href: "/match", label: copy.restart }}
         />
       </main>
     );

@@ -21,17 +21,17 @@ test("a notice offers a way out only when one is given", () => {
   const without = renderToStaticMarkup(
     <CompatibilityNotice eyebrow="e" headline="h" body="b" />,
   );
-  expect(without).not.toContain("/compatibility-test");
+  expect(without).not.toContain("/match");
 
   const withCta = renderToStaticMarkup(
     <CompatibilityNotice
       eyebrow="e"
       headline="h"
       body="b"
-      cta={{ href: "/compatibility-test", label: "Start your own" }}
+      cta={{ href: "/match", label: "Start your own" }}
     />,
   );
   // PremiumButton splits its label into per-glyph spans; aria-label carries it whole.
   expect(withCta).toContain('aria-label="Start your own"');
-  expect(withCta).toContain('href="/compatibility-test"');
+  expect(withCta).toContain('href="/match"');
 });
