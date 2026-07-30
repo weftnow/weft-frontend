@@ -17,12 +17,14 @@ export type OriginatorResponse = {
   role: "originator";
   session_id: string;
   share_token: string;
+  return_token: string;
 };
 
 export type ResponderResponse = {
   role: "responder";
   session_id: string;
   share_token: string;
+  return_token: string;
   pair_id: string;
 };
 

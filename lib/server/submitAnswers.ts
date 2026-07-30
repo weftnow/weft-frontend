@@ -5,6 +5,8 @@ import type { AnswersRequest, AnswersResponse } from "@/lib/weftTypes";
 export type ClientAnswers = {
   role: "originator" | "responder";
   share_token: string;
+  /** The sender's way back, independent of the session cookie. */
+  return_token: string;
   pair_id?: string;
 };
 
@@ -47,8 +49,10 @@ export function parseAnswersBody(raw: unknown): AnswersRequest | null {
 
 function isAnswersResponse(value: unknown): value is AnswersResponse {
   if (typeof value !== "object" || value === null) return false;
-  const { role, session_id: sid, share_token: tok, pair_id: pid } = value as Record<string, unknown>;
+  const { role, session_id: sid, share_token: tok, return_token: ret, pair_id: pid } =
+    value as Record<string, unknown>;
   if (typeof sid !== "string" || typeof tok !== "string") return false;
+  if (typeof ret !== "string") return false;
   if (role === "originator") return true;
   return role === "responder" && typeof pid === "string";
 }
@@ -98,6 +102,7 @@ export async function submitAnswers(
     body: {
       role: data.role,
       share_token: data.share_token,
+      return_token: data.return_token,
       ...(data.role === "responder" ? { pair_id: data.pair_id } : {}),
     },
   };

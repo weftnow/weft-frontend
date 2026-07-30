@@ -6,7 +6,7 @@ test("a success sets the session cookie once and never leaks the session id", as
   const outcome: SubmitOutcome = {
     ok: true,
     sessionId: "sess-123",
-    body: { role: "originator", share_token: "tok-abc" },
+    body: { role: "originator", share_token: "tok-abc", return_token: "ret-abc" },
   };
   const calls: string[] = [];
   const setCookie = async (sessionId: string) => {
