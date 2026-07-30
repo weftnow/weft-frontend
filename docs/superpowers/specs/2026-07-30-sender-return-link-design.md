@@ -26,6 +26,8 @@ The cookie remains the primary path. This is a fallback, not a replacement.
 
 `Invite` gains a `return_token` field, indexed for lookup in the same way `token` already is in `storage.py`. Both storage backends implement it.
 
+`Pair` gains an `invite_token`. This is load-bearing rather than incidental: a pair currently records only `session_a` and `session_b`, so which invitation produced it is not recoverable. Without this column a return token could only be resolved back to its session, which would list every pair the sender belongs to — the session-scoped behaviour this design rejects. The column is nullable, because pairs created before this change carry no record of their invite and cannot be backfilled; those senders keep the cookie path.
+
 `POST /api/invite` and the originator branch of `POST /api/answers` return `return_token` alongside `token`.
 
 A new `GET /api/thread/{return_token}` returns `{"pairs": [...]}` for that invite, newest first, built from the existing `_pair_body` helper so the response shape matches `/api/session/{session_id}/pairs` exactly and the frontend can reuse its validator. Unknown token is 404.
