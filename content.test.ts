@@ -131,6 +131,8 @@ describe("compatibility test content", () => {
       returnLink: "Save your own link",
       returnHint:
         "Opens your result when they answer. Keep it — it works without cookies, on any device.",
+      returnCopy: "Copy your own link",
+      returnAnnounce: "Your own link copied to clipboard",
       restart: "Start over",
       announce: "Link copied to clipboard",
       matchesLink: "See who's answered",

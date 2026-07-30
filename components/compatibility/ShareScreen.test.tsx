@@ -46,6 +46,20 @@ test("the sender is offered their own link, below the invite", () => {
   expect(html).toContain(content.compatibilityTest.share.returnHint.replace(/'/g, "&#x27;"));
 });
 
+test("the return link is saved by copying it, never by navigating to it", () => {
+  // The share phase is client state. Following the return link unmounts the
+  // only place the invite token exists, and nothing lists a session's invite
+  // tokens -- so a link the sender must tap to read is a link that costs them
+  // the one they were told to send. The URL is on screen and copyable instead.
+  const html = renderToStaticMarkup(
+    <ShareScreen shareToken="out-1" returnToken="in-1" onRestart={() => {}} />,
+  );
+  expect(html).toContain(">/match/thread/in-1<");
+  expect(html).not.toContain('href="/match/thread/in-1"');
+  expect(html).not.toContain("/match/thread/in-1</a>");
+  expect(html).toContain(content.compatibilityTest.share.returnCopy);
+});
+
 test("no return link is offered when there is no token", () => {
   const html = renderToStaticMarkup(
     <ShareScreen shareToken="out-1" returnToken={null} onRestart={() => {}} />,

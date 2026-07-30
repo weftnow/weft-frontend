@@ -429,6 +429,11 @@ export const content = {
       note: "Send this link to one person. Opening it starts the questions for them.",
       returnLink: "Save your own link",
       returnHint: "Opens your result when they answer. Keep it — it works without cookies, on any device.",
+      // Named apart from `copy` so screen readers and a hurried thumb can tell
+      // the two buttons on this screen apart: one link is for sending, one is
+      // only ever for keeping.
+      returnCopy: "Copy your own link",
+      returnAnnounce: "Your own link copied to clipboard",
       restart: "Start over",
       announce: "Link copied to clipboard",
       matchesLink: "See who's answered",

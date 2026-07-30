@@ -315,17 +315,22 @@ test("the rendered return link carries the response's return token, not its shar
         form.dispatchEvent(new dom.window.Event("submit", { bubbles: true, cancelable: true }));
       });
 
-      await waitFor(
-        () => container.querySelector('a[href="/match/thread/in-1"]') !== null,
-      );
+      await waitFor(() => container.querySelector(".ctest-returnlink-url") !== null);
 
-      const returnLink = container.querySelector('a[href="/match/thread/in-1"]');
-      expect(returnLink?.textContent).toBe(content.compatibilityTest.share.returnLink);
+      // The URL is printed rather than linked -- see `ReturnLink` -- so the
+      // token that reached the DOM is read off the text a visitor would copy.
+      const returnUrl = container.querySelector(".ctest-returnlink-url");
+      expect(returnUrl?.textContent).toContain("/match/thread/in-1");
       // The bug this guards against: the invite/share token ("out-1")
-      // landing in the return-link href instead of the return token
-      // ("in-1").
-      expect(container.querySelector('a[href="/match/thread/out-1"]')).toBeNull();
+      // landing in the return link instead of the return token ("in-1").
+      expect(container.innerHTML).not.toContain("/match/thread/out-1");
       expect(container.innerHTML).toContain("/match/invite/out-1");
+      // Copyable, and never a navigation that would take the invite token
+      // (client state, listed nowhere) off the screen with it.
+      expect(
+        container.querySelector<HTMLElement>(".ctest-returnlink-copy")?.textContent,
+      ).toBe(content.compatibilityTest.share.returnCopy);
+      expect(container.querySelector('a[href^="/match/thread/"]')).toBeNull();
     });
   } finally {
     globalThis.fetch = originalFetch;

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { content } from "@/content";
+import { ReturnLink } from "@/components/compatibility/ReturnLink";
 import { ShareLink } from "@/components/compatibility/ShareLink";
-import { threadHref } from "@/lib/links";
 
 /**
  * Everything an originator gets: a link, and the reason to send it. No profile
@@ -45,19 +45,7 @@ export function ShareScreen({
         {copy.note}
       </p>
 
-      {returnToken ? (
-        <a
-          className="mt-6 font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
-          href={threadHref(returnToken)}
-        >
-          {copy.returnLink}
-        </a>
-      ) : null}
-      {returnToken ? (
-        <p className="mt-1 max-w-sm font-mono text-[0.62rem] leading-relaxed text-ink/40">
-          {copy.returnHint}
-        </p>
-      ) : null}
+      {returnToken ? <ReturnLink token={returnToken} /> : null}
 
       <Link
         className="mt-6 font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
