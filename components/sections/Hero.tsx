@@ -110,7 +110,7 @@ export function Hero() {
         </motion.p>
 
         <motion.div className="hero-actions hero-actions--initial" initial={false}>
-          <PremiumButton href="#contact" tone="ember">
+          <PremiumButton href="/match" tone="ember">
             {hero.ctaPrimary}
           </PremiumButton>
           {/*
