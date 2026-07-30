@@ -60,7 +60,7 @@ export function Hero() {
           initial={reduce ? false : { opacity: 0, transform: "translate3d(0, 10px, 0)" }}
           transition={{ delay: reduce ? 0 : supportingDelay, duration: 0.4, ease: heroEase }}
         >
-          <Eyebrow>{hero.ycLabel}</Eyebrow>
+          <Eyebrow>{hero.proofLabel}</Eyebrow>
         </motion.div>
 
         <motion.h1 aria-label={headline} className="font-display text-balance hero-title" initial={false}>

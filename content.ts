@@ -180,7 +180,9 @@ export const content = {
     sub: "Weft matches attendees on their goals and values, not small talk. Finding the right people becomes the best part of the event.",
     ctaPrimary: "Try it!",
     ctaSecondary: "See how it works",
-    ycLabel: "Backed by Y Combinator",
+    // Placeholder metric. Replace NN with the real post-event figure before launch,
+    // and keep it identical to the matching number in `payoff.stats`.
+    proofLabel: "Boost your event engagement rate",
   },
 
   // logos: `real` renders real wordmark components; `placeholders` are placeholder marks.
