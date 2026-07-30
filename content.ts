@@ -251,7 +251,6 @@ export const content = {
       { value: 3.4, suffix: "x", label: "more qualified conversations vs. open networking" },
       { value: 4.8, suffix: "/5", label: "average event rating after adding Weft" },
     ],
-    statsNote: "Placeholder metrics. Replace in content.ts before launch.",
     // The five avatars in the fan-out: [attendee, ...four matches]
     group: [
       { initials: "YOU", role: "You" },

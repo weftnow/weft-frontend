@@ -26,8 +26,8 @@ test("testimonials renders an arrow-controlled review rail", () => {
   expect(html).toContain("testimonial-rail-avatar");
   expect(html).toContain('aria-label="Previous story"');
   expect(html).toContain('aria-label="Next story"');
-  expect(html).toContain("Placeholder testimonials");
 
+  expect(html.includes("Placeholder testimonials")).toBe(false);
   expect(html.includes("testimonial-rail-set")).toBe(false);
   expect(html.includes("testimonial-rail-card--wide")).toBe(false);
 
