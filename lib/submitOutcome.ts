@@ -28,9 +28,14 @@ export function decideSubmitOutcome(
     return { phase: "pair", pairId: body.pair_id, shareToken: body.share_token ?? "" };
   }
   if (ok && body?.share_token) {
-    // `?? ""` guards an older backend that has not shipped `return_token` yet:
-    // an empty string suppresses the return-link affordance downstream rather
-    // than rendering a link with nothing to point to.
+    // `?? ""` is a type-level default, NOT graceful degradation. A response
+    // without `return_token` never reaches this function: `isAnswersResponse`
+    // in `lib/server/submitAnswers.ts` rejects it and `/api/answers` answers
+    // 503, so an `ok` body always carries one. That makes deploy order
+    // mandatory rather than optional -- weft_core must ship `return_token`
+    // BEFORE this frontend, or every submission fails and the quiz is offline.
+    // The empty string only ever describes a body this branch cannot receive;
+    // it exists so the parameter type may keep the field optional.
     return { phase: "share", token: body.share_token, returnToken: body.return_token ?? "" };
   }
   const error = body?.error ? body.error : fallbackError;
