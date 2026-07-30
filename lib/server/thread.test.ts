@@ -62,8 +62,33 @@ test("an outage is unavailable", async () => {
 });
 
 test("a missing token never reaches the backend", async () => {
-  const outcome = await loadThread(null, stub(200, { pairs: [] }));
-  expect(outcome.status).toBe("not_found");
+  // Not an error, and not worth an upstream round trip: it is the ordinary
+  // state of someone who received a link but hasn't opened it yet.
+  let called = false;
+  const spy = (async () => {
+    called = true;
+    return new Response("{}", { status: 200 });
+  }) as unknown as typeof fetch;
+
+  expect(await loadThread(null, spy)).toEqual({ status: "not_found" });
+  expect(called).toBe(false);
+});
+
+test("an empty token is treated the same as no token", async () => {
+  expect(await loadThread("", stub(200, {}))).toEqual({ status: "not_found" });
+});
+
+test("an absurdly long return token is refused before it reaches the wire", async () => {
+  // Matches lib/server/pair.ts: nothing near 128 chars is a real token,
+  // and refusing locally means a garbage token cannot probe the backend.
+  let called = false;
+  const spy = (async () => {
+    called = true;
+    return new Response("{}", { status: 200 });
+  }) as unknown as typeof fetch;
+
+  expect(await loadThread("x".repeat(129), spy)).toEqual({ status: "not_found" });
+  expect(called).toBe(false);
 });
 
 test("one unrenderable pair sinks the response rather than vanishing", async () => {
