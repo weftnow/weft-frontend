@@ -75,12 +75,12 @@ test("two people with nothing in common still get a sentence", () => {
 test("a responder is offered a link of their own", () => {
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken="tok-9" />);
   expect(html).toContain(content.compatibilityTest.pair.shareHeadline);
-  expect(html).toContain("/compatibility-test/invite/tok-9");
+  expect(html).toContain("/match/invite/tok-9");
 });
 
 test("without a token the page offers the quiz instead of a dead link", () => {
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
-  expect(html).not.toContain("/compatibility-test/invite/");
+  expect(html).not.toContain("/match/invite/");
   expect(html).toContain(
     `aria-label="${content.compatibilityTest.pair.restart}"`,
   );
@@ -130,14 +130,14 @@ test("the result still never leaks the signal behind the score", () => {
 
 test("a result links onward to every other thread this person has", () => {
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken="tok-9" />);
-  expect(html).toContain('href="/compatibility-test/matches"');
+  expect(html).toContain('href="/match/matches"');
   expect(html).toContain(content.compatibilityTest.pair.matchesLink);
 });
 
 test("the matches link is there even for someone arriving on a forwarded link", () => {
   // It costs nothing: with no session cookie the page invites them to take it.
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken={null} />);
-  expect(html).toContain('href="/compatibility-test/matches"');
+  expect(html).toContain('href="/match/matches"');
 });
 
 test("a dimension neither person measured leaves no row behind", () => {
@@ -238,7 +238,7 @@ test("the closing panel shares the test rather than the match", () => {
   const html = renderToStaticMarkup(<PairResultView result={RESULT} shareToken="tok-9" />);
   expect(html).toContain("ctest-result-share");
   expect(html).toContain(content.compatibilityTest.pair.shareHeadline);
-  expect(html).toContain("/compatibility-test/invite/tok-9");
+  expect(html).toContain("/match/invite/tok-9");
   expect(html).not.toContain("Share match");
   expect(html).not.toContain("Start a conversation");
 });

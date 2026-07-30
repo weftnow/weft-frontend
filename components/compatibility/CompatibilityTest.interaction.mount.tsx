@@ -29,7 +29,7 @@ const CONDITION_TIMEOUT_MS = 2000;
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   pretendToBeVisual: true,
-  url: "http://localhost/compatibility-test",
+  url: "http://localhost/match",
 });
 let container: HTMLDivElement;
 let root: Root;

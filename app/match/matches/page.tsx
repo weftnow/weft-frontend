@@ -7,8 +7,8 @@ import { content } from "@/content";
 import { loadMyPairs, type MyPairsOutcome } from "@/lib/server/myPairs";
 import { readSessionId } from "@/lib/server/session";
 
-const MATCHES_PATH = "/compatibility-test/matches";
-const QUIZ_PATH = "/compatibility-test";
+const MATCHES_PATH = "/match/matches";
+const QUIZ_PATH = "/match";
 
 export const metadata: Metadata = {
   title: "Weft: Your threads",

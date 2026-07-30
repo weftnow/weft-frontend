@@ -44,7 +44,7 @@ export function ShareScreen({
 
       <Link
         className="mt-6 font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
-        href="/compatibility-test/matches"
+        href="/match/matches"
       >
         {copy.matchesLink}
       </Link>
