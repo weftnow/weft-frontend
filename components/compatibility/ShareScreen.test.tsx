@@ -15,7 +15,7 @@ test("share screen leads with the link and why it needs sending", () => {
 });
 
 test("the share screen points back to the matches page", () => {
-  // The screen promises they can come back. This is where back is.
+  // The invite link is not how they get back -- this is where back is.
   const html = renderToStaticMarkup(
     <ShareScreen shareToken="tok-9" returnToken={null} onRestart={() => {}} />,
   );
@@ -42,6 +42,8 @@ test("the sender is offered their own link, below the invite", () => {
   expect(html).toContain("/match/thread/in-1");
   // The invite is still the primary action: it appears first.
   expect(html.indexOf("/match/invite/out-1")).toBeLessThan(html.indexOf("/match/thread/in-1"));
+  // The return link comes with an explanation, not just a bare URL.
+  expect(html).toContain(content.compatibilityTest.share.returnHint.replace(/'/g, "&#x27;"));
 });
 
 test("no return link is offered when there is no token", () => {
