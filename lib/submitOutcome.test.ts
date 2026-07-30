@@ -4,8 +4,19 @@ import { decideSubmitOutcome, strandedOutcome } from "./submitOutcome";
 const FALLBACK = "We couldn't save that. Please try again.";
 
 test("a successful response with a token lands on the share phase", () => {
+  const outcome = decideSubmitOutcome(
+    true,
+    { share_token: "abc123", return_token: "ret-1" },
+    FALLBACK,
+  );
+  expect(outcome).toEqual({ phase: "share", token: "abc123", returnToken: "ret-1" });
+});
+
+test("a share token without a return token still reaches the share phase", () => {
+  // An older backend that has not shipped return_token yet: the affordance
+  // downstream is suppressed by the empty string, not a broken link.
   const outcome = decideSubmitOutcome(true, { share_token: "abc123" }, FALLBACK);
-  expect(outcome).toEqual({ phase: "share", token: "abc123" });
+  expect(outcome).toEqual({ phase: "share", token: "abc123", returnToken: "" });
 });
 
 test("ok true but no token falls back to the details phase", () => {

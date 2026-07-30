@@ -127,7 +127,10 @@ describe("compatibility test content", () => {
       sub: "Compatibility takes two. Your result appears the moment someone answers your link — and you'll both see it.",
       copy: "Copy link",
       copied: "Copied ✓",
-      note: "Keep this link. It's also how you come back to see your match.",
+      note: "Send this link to one person. Opening it starts the questions for them.",
+      returnLink: "Save your own link",
+      returnHint:
+        "Opens your result when they answer. Keep it — it works without cookies, on any device.",
       restart: "Start over",
       announce: "Link copied to clipboard",
       matchesLink: "See who's answered",

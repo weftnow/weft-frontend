@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { content } from "@/content";
 import { ShareLink } from "@/components/compatibility/ShareLink";
+import { threadHref } from "@/lib/links";
 
 /**
  * Everything an originator gets: a link, and the reason to send it. No profile
@@ -10,9 +11,11 @@ import { ShareLink } from "@/components/compatibility/ShareLink";
  */
 export function ShareScreen({
   shareToken,
+  returnToken,
   onRestart,
 }: {
   shareToken: string;
+  returnToken: string | null;
   onRestart: () => void;
 }) {
   const copy = content.compatibilityTest.share;
@@ -41,6 +44,20 @@ export function ShareScreen({
       <p className="mt-2 max-w-sm font-mono text-[0.68rem] leading-relaxed text-ink/45">
         {copy.note}
       </p>
+
+      {returnToken ? (
+        <a
+          className="mt-6 font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
+          href={threadHref(returnToken)}
+        >
+          {copy.returnLink}
+        </a>
+      ) : null}
+      {returnToken ? (
+        <p className="mt-1 max-w-sm font-mono text-[0.62rem] leading-relaxed text-ink/40">
+          {copy.returnHint}
+        </p>
+      ) : null}
 
       <Link
         className="mt-6 font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
