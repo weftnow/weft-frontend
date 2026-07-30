@@ -280,4 +280,28 @@ describe("compatibility test content", () => {
       },
     });
   });
+
+  test("the thread screen matches the approved copy exactly", () => {
+    expect(content.compatibilityTest.thread).toEqual({
+      waiting: {
+        eyebrow: "Your thread",
+        headline: "No one has answered yet.",
+        // The promise the return link is for: this page survives a cleared
+        // cookie and a new phone. Losing that sentence loses the feature.
+        body: "The moment someone opens your link and answers, their result appears here. Keep this page — it works even if you clear your cookies or switch phones.",
+      },
+      unknown: {
+        eyebrow: "Not found",
+        headline: "We don't recognise this link.",
+        body: "Check you copied the whole thing. If it was a link you saved, it may have been from a different browser.",
+        cta: "Take the test",
+      },
+      unavailable: {
+        eyebrow: "Not right now",
+        headline: "We can't reach your thread.",
+        // An outage, not a dead link -- the saved URL is still good.
+        body: "Something on our side is down. Your result is safe — try again in a moment.",
+      },
+    });
+  });
 });

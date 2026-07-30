@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { escapeApostrophes } from "@/lib/testEscape";
-import Page, { ThreadScreen } from "./page";
+import Page, { ThreadScreen, metadata } from "./page";
 import { content } from "@/content";
 import { pairHref } from "@/lib/links";
 
@@ -15,6 +15,13 @@ const SUMMARY = {
   shared_values: [VALUE], difference: "humour",
   people: [PERSON, { ...PERSON, name: "Ben" }],
 };
+
+test("a saved return link is never indexed", () => {
+  // This URL is the one bearer secret with no expiry at all: it is meant to be
+  // kept for as long as the sender wants their result. A crawler holding one
+  // would publish both people's profiles.
+  expect(metadata.robots).toEqual({ index: false, follow: false });
+});
 
 test("a thread nobody has answered says so and does not apologise", () => {
   const html = renderToStaticMarkup(<ThreadScreen outcome={{ status: "ok", pairs: [] }} />);
@@ -39,6 +46,34 @@ test("several pairs render as a list", () => {
   );
   expect(html).toContain("/match/pair/p1");
   expect(html).toContain("/match/pair/p2");
+});
+
+test("two pairs render as a list and redirect nowhere", async () => {
+  // The `pairs.length === 1` guard is what keeps a sender who invited several
+  // people from being dropped on the first result with the rest hidden. Only
+  // `ThreadPage` can prove that: `ThreadScreen` never reaches `redirect()`, so
+  // relaxing the guard to `>= 1` would pass every other test in this file.
+  // Same global-`fetch` seam as the single-pair test below.
+  const originalFetchUrl = process.env.WEFT_API_URL;
+  const originalFetch = globalThis.fetch;
+  process.env.WEFT_API_URL = "https://api.example.test";
+  globalThis.fetch = (async () =>
+    new Response(JSON.stringify({ pairs: [SUMMARY, { ...SUMMARY, pair_id: "p2" }] }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    })) as unknown as typeof fetch;
+
+  try {
+    // Returning at all is half the assertion: redirect() throws.
+    const html = renderToStaticMarkup(
+      await Page({ params: Promise.resolve({ token: "sender-token" }) }),
+    );
+    expect(html).toContain("/match/pair/p1");
+    expect(html).toContain("/match/pair/p2");
+  } finally {
+    globalThis.fetch = originalFetch;
+    process.env.WEFT_API_URL = originalFetchUrl;
+  }
 });
 
 test("exactly one pair redirects to its own result page instead of rendering inline", async () => {
