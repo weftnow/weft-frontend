@@ -542,6 +542,24 @@ export const content = {
         cta: "Try again",
       },
     },
+    thread: {
+      waiting: {
+        eyebrow: "Your thread",
+        headline: "No one has answered yet.",
+        body: "The moment someone opens your link and answers, their result appears here. Keep this page — it works even if you clear your cookies or switch phones.",
+      },
+      unknown: {
+        eyebrow: "Not found",
+        headline: "We don't recognise this link.",
+        body: "Check you copied the whole thing. If it was a link you saved, it may have been from a different browser.",
+        cta: "Take the test",
+      },
+      unavailable: {
+        eyebrow: "Not right now",
+        headline: "We can't reach your thread.",
+        body: "Something on our side is down. Your result is safe — try again in a moment.",
+      },
+    },
   },
 } as const;
 
