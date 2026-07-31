@@ -241,7 +241,7 @@ export function CompatibilityTest({
             key="intro"
             {...fade}
             transition={transition}
-            className="ctest-stage ctest-stage--intro"
+            className={`ctest-stage ctest-stage--intro${invite ? " ctest-stage--intro-named" : ""}`}
           >
             <span className="ctest-eyebrow">{intro.eyebrow}</span>
             <h1 className="ctest-prompt">

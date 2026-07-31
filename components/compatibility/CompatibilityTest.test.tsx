@@ -88,3 +88,23 @@ test("the question counter is built from content, with both numbers filled in", 
   expect(html).not.toContain("{n}");
   expect(html).not.toContain("{total}");
 });
+
+// The invite headline is one interpolated sentence carrying a name of unknown
+// length. Held to the static intro's `white-space: nowrap` it grows past
+// .ctest-prompt's 22ch max-width, which is itself wider than the 34rem intro
+// stage -- and an element wider than its parent sits against the parent's left
+// edge, putting the title ~33px right of the centred eyebrow and subtitle.
+// The modifier is what releases it; without the class the CSS silently stops
+// applying and the misalignment returns with nothing failing.
+test("an invite intro is marked so its headline may wrap", () => {
+  const html = renderToStaticMarkup(
+    <CompatibilityTest questions={QUESTIONS} invite={{ token: "t-1", fromName: "Sheary" }} />,
+  );
+  expect(html).toContain("ctest-stage--intro-named");
+});
+
+test("the static intro keeps its authored line breaks and is not marked", () => {
+  const html = renderToStaticMarkup(<CompatibilityTest questions={QUESTIONS} />);
+  expect(html).toContain("ctest-stage--intro");
+  expect(html.includes("ctest-stage--intro-named")).toBe(false);
+});
