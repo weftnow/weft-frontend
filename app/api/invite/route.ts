@@ -7,9 +7,16 @@ import { readSessionId } from "@/lib/server/session";
  *
  * The bodies are deliberately bare. The client shows its own copy from
  * content.ts; anything the backend said is for the log, not the browser.
+ *
+ * A success carries both tokens: the invite to send, and the sender's own way
+ * back to whatever that invite produces. Dropping the second would mint a
+ * capability nobody ever receives -- and lose that pair the moment the sender's
+ * cookie does.
  */
 export function respondWithMint(outcome: MintOutcome): Response {
-  if (outcome.status === "ok") return Response.json({ token: outcome.token });
+  if (outcome.status === "ok") {
+    return Response.json({ token: outcome.token, return_token: outcome.returnToken });
+  }
   if (outcome.status === "no_session") {
     return Response.json({ error: "no_session" }, { status: 401 });
   }

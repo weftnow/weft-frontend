@@ -62,6 +62,7 @@ export function CompatibilityTest({
   const [answers, setAnswers] = useState<Answers>({});
   const [details, setDetails] = useState<Details>(EMPTY_DETAILS);
   const [shareToken, setShareToken] = useState("");
+  const [returnToken, setReturnToken] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [stranded, setStranded] = useState<{ pairId: string; shareToken: string } | null>(null);
@@ -123,6 +124,7 @@ export function CompatibilityTest({
     setActiveIndex(0);
     setDetails(EMPTY_DETAILS);
     setShareToken("");
+    setReturnToken("");
     setSubmitError(null);
     setStranded(null);
     setPhase("intro");
@@ -174,7 +176,7 @@ export function CompatibilityTest({
         }),
       });
       const body = (await response.json().catch(() => null)) as
-        | { share_token?: string; pair_id?: string; error?: string }
+        | { share_token?: string; return_token?: string; pair_id?: string; error?: string }
         | null;
 
       const outcome = decideSubmitOutcome(response.ok, body, data.details.failed);
@@ -198,6 +200,7 @@ export function CompatibilityTest({
       }
       if (outcome.phase === "share") {
         setShareToken(outcome.token);
+        setReturnToken(outcome.returnToken);
         setPhase("share");
       } else {
         setSubmitError(outcome.error);
@@ -377,7 +380,7 @@ export function CompatibilityTest({
 
         {phase === "share" && (
           <motion.div key="share" {...fade} transition={transition} className="relative z-10 w-full">
-            <ShareScreen shareToken={shareToken} onRestart={reset} />
+            <ShareScreen shareToken={shareToken} returnToken={returnToken || null} onRestart={reset} />
           </motion.div>
         )}
 

@@ -43,12 +43,21 @@ describe("parseAnswersBody", () => {
 describe("submitAnswers", () => {
   test("hands back the share token and keeps the session id for the cookie", async () => {
     const out = await submitAnswers(VALID, async () =>
-      json({ role: "originator", session_id: "sess-1", share_token: "tok-1" }),
+      json({
+        role: "originator",
+        session_id: "sess-1",
+        share_token: "tok-1",
+        return_token: "ret-1",
+      }),
     );
     expect(out.ok).toBe(true);
     if (out.ok) {
       expect(out.sessionId).toBe("sess-1");
-      expect(out.body).toEqual({ role: "originator", share_token: "tok-1" });
+      expect(out.body).toEqual({
+        role: "originator",
+        share_token: "tok-1",
+        return_token: "ret-1",
+      });
       // The session id is the identity itself -- it belongs in an httpOnly
       // cookie and nowhere JS can read it.
       expect(JSON.stringify(out.body)).not.toContain("sess-1");
@@ -57,7 +66,13 @@ describe("submitAnswers", () => {
 
   test("passes a responder's pair id through", async () => {
     const out = await submitAnswers({ ...VALID, invite_token: "abc" }, async () =>
-      json({ role: "responder", session_id: "s2", share_token: "t2", pair_id: "p2" }),
+      json({
+        role: "responder",
+        session_id: "s2",
+        share_token: "t2",
+        return_token: "ret-2",
+        pair_id: "p2",
+      }),
     );
     expect(out.ok).toBe(true);
     if (out.ok) expect(out.body.pair_id).toBe("p2");
@@ -69,10 +84,39 @@ describe("submitAnswers", () => {
     await submitAnswers(VALID, async (_input, init) => {
       method = String(init?.method);
       sent = JSON.parse(String(init?.body));
-      return json({ role: "originator", session_id: "s", share_token: "t" });
+      return json({
+        role: "originator",
+        session_id: "s",
+        share_token: "t",
+        return_token: "ret-s",
+      });
     });
     expect(method).toBe("POST");
     expect(sent).toEqual(VALID);
+  });
+
+  test("the return token reaches the browser", async () => {
+    const out = await submitAnswers(VALID, async () =>
+      json({
+        session_id: "s1",
+        share_token: "out-1",
+        return_token: "in-1",
+        role: "originator",
+      }),
+    );
+
+    expect(out.ok).toBe(true);
+    if (!out.ok) return;
+    expect(out.body.return_token).toBe("in-1");
+    // The session id is still never handed to the browser.
+    expect(JSON.stringify(out.body)).not.toContain("s1");
+  });
+
+  test("a response without a return token is not trusted", async () => {
+    const out = await submitAnswers(VALID, async () =>
+      json({ session_id: "s1", share_token: "out-1", role: "originator" }),
+    );
+    expect(out.ok).toBe(false);
   });
 
   test("refuses a malformed body without calling the backend", async () => {

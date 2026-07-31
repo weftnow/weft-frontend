@@ -1091,6 +1091,61 @@ a {
 }
 .ctest-linkcard-actions { margin-top: 0.85rem; }
 
+/* The sender's own link. Same information as the card above and just as
+   copyable, but deliberately a whisper beside it: a hairline rule instead of a
+   card, and a text button instead of a filled one. Only one of these two links
+   is meant to leave the sender's hands, and it is not this one. */
+.ctest-returnlink {
+  display: grid;
+  justify-items: start;
+  gap: 0.28rem;
+  width: min(30rem, 100%);
+  margin-top: 2.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgb(18 18 18 / 8%);
+  text-align: left;
+}
+.ctest-returnlink-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-ink) 40%, transparent);
+}
+.ctest-returnlink-url {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--color-ink) 58%, transparent);
+  word-break: break-all;
+}
+.ctest-returnlink-copy {
+  margin-top: 0.3rem;
+  padding-bottom: 0.12rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 22%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.ctest-returnlink-copy:hover {
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+.ctest-returnlink-copy:focus-visible {
+  outline: 3px solid var(--color-signal);
+  outline-offset: 3px;
+}
+.ctest-returnlink-hint {
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--color-ink) 40%, transparent);
+}
+
 .ctest-eyebrow { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in srgb, var(--color-ink) 52%, transparent); }
 
 .ctest-prompt {

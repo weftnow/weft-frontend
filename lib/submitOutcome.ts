@@ -4,7 +4,7 @@
  * so it can be tested without a DOM.
  */
 export type SubmitDecision =
-  | { phase: "share"; token: string }
+  | { phase: "share"; token: string; returnToken: string }
   | { phase: "pair"; pairId: string; shareToken: string }
   | { phase: "stranded"; pairId: string; shareToken: string }
   | { phase: "details"; error: string };
@@ -18,7 +18,7 @@ export type SubmitDecision =
  */
 export function decideSubmitOutcome(
   ok: boolean,
-  body: { share_token?: string; pair_id?: string; error?: string } | null,
+  body: { share_token?: string; return_token?: string; pair_id?: string; error?: string } | null,
   fallbackError: string,
 ): Exclude<SubmitDecision, { phase: "stranded" }> {
   // A pair id means a second person just completed the pair. That result is
@@ -28,7 +28,15 @@ export function decideSubmitOutcome(
     return { phase: "pair", pairId: body.pair_id, shareToken: body.share_token ?? "" };
   }
   if (ok && body?.share_token) {
-    return { phase: "share", token: body.share_token };
+    // `?? ""` is a type-level default, NOT graceful degradation. A response
+    // without `return_token` never reaches this function: `isAnswersResponse`
+    // in `lib/server/submitAnswers.ts` rejects it and `/api/answers` answers
+    // 503, so an `ok` body always carries one. That makes deploy order
+    // mandatory rather than optional -- weft_core must ship `return_token`
+    // BEFORE this frontend, or every submission fails and the quiz is offline.
+    // The empty string only ever describes a body this branch cannot receive;
+    // it exists so the parameter type may keep the field optional.
+    return { phase: "share", token: body.share_token, returnToken: body.return_token ?? "" };
   }
   const error = body?.error ? body.error : fallbackError;
   return { phase: "details", error };

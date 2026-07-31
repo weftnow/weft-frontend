@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { inviteHref, pairHref, readShareParam } from "./links";
+import { inviteHref, pairHref, readShareParam, threadHref } from "./links";
 
 describe("inviteHref", () => {
   test("builds the friend landing path", () => {
@@ -44,4 +44,12 @@ describe("readShareParam", () => {
     expect(readShareParam("")).toBeNull();
     expect(readShareParam([])).toBeNull();
   });
+});
+
+test("threadHref points at the sender's own thread", () => {
+  expect(threadHref("in-1")).toBe("/match/thread/in-1");
+});
+
+test("threadHref encodes a token that would otherwise change the path", () => {
+  expect(threadHref("a/b?c")).toBe("/match/thread/a%2Fb%3Fc");
 });
