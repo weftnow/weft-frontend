@@ -354,8 +354,8 @@ export const content = {
       },
       {
         label: "Email",
-        value: "team@weft.now",
-        href: "mailto:team@weft.now",
+        value: "team@weftnow.com",
+        href: "mailto:team@weftnow.com",
         mark: "@",
         external: false,
       },
