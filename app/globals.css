@@ -887,8 +887,19 @@ a {
   height: clamp(6.5rem, 11vh, 8rem);
 }
 
+/* The static intro headline is authored as deliberate lines ("How compatible
+   are you" / "with that person?"); nowrap stops the browser re-breaking them. */
 .ctest-stage--intro .ctest-prompt > .block {
   white-space: nowrap;
+}
+
+/* The invite headline is one interpolated sentence carrying a name of unknown
+   length, so it must be free to wrap. Held to nowrap it exceeds .ctest-prompt's
+   22ch max-width, that max-width is wider than the 34rem intro stage, and an
+   element wider than its parent lands against the parent's left edge -- putting
+   the title ~33px right of the centred eyebrow and subtitle. */
+.ctest-stage--intro-named .ctest-prompt > .block {
+  white-space: normal;
 }
 
 .ctest-weave {
@@ -1149,7 +1160,11 @@ a {
 .ctest-eyebrow { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in srgb, var(--color-ink) 52%, transparent); }
 
 .ctest-prompt {
-  max-width: 22ch;
+  /* `min(..., 100%)` rather than a bare 22ch: on the 34rem intro and details
+     stages, 22ch resolves wider than the stage itself, and a headline wider
+     than its parent is placed against the parent's left edge rather than
+     centred on it. */
+  max-width: min(22ch, 100%);
   margin: 0.9rem auto 0;
   font-family: var(--font-display);
   font-size: clamp(1.9rem, 4vw, 3rem);
