@@ -14,3 +14,39 @@ test("all application source lives under src", () => {
   expect(existsSync(resolve(projectRoot, "lib"))).toBe(false);
   expect(existsSync(resolve(projectRoot, "content.ts"))).toBe(false);
 });
+
+test("demo b2c owns its feature-specific source", () => {
+  expect(
+    existsSync(
+      resolve(
+        projectRoot,
+        "src/features/demo-b2c/components/CompatibilityTest.tsx",
+      ),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(projectRoot, "src/features/demo-b2c/model/compatibility.ts"),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(projectRoot, "src/features/demo-b2c/schemas/details.ts"),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(projectRoot, "src/features/demo-b2c/types/contracts.ts"),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(resolve(projectRoot, "src/features/demo-b2c/content.ts")),
+  ).toBe(true);
+  expect(
+    existsSync(resolve(projectRoot, "src/components/compatibility")),
+  ).toBe(false);
+  expect(existsSync(resolve(projectRoot, "src/lib/compatibility.ts"))).toBe(
+    false,
+  );
+  expect(existsSync(resolve(projectRoot, "src/lib/weftTypes.ts"))).toBe(false);
+});

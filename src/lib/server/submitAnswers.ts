@@ -1,5 +1,5 @@
 import { weftFetch, type WeftErrorCode } from "@/lib/server/weftApi";
-import type { AnswersRequest, AnswersResponse } from "@/lib/weftTypes";
+import type { AnswersRequest, AnswersResponse } from "@/features/demo-b2c/types/contracts";
 
 /** What the browser is allowed to see: never the session id. */
 export type ClientAnswers = {

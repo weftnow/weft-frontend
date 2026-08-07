@@ -1,5 +1,5 @@
 import { weftFetch } from "@/lib/server/weftApi";
-import type { PairPerson, PairResult, ValueEntry } from "@/lib/weftTypes";
+import type { PairPerson, PairResult, ValueEntry } from "@/features/demo-b2c/types/contracts";
 
 export type PairOutcome =
   | { status: "ok"; result: PairResult }

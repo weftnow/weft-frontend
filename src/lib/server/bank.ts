@@ -1,6 +1,6 @@
-import { FALLBACK_BANK, isBankResponse } from "@/lib/compatibilityQuestions";
+import { FALLBACK_BANK, isBankResponse } from "@/features/demo-b2c/schemas/compatibilityQuestions";
 import { weftFetch } from "@/lib/server/weftApi";
-import type { BankResponse } from "@/lib/weftTypes";
+import type { BankResponse } from "@/features/demo-b2c/types/contracts";
 
 export type BankSource = "live" | "fallback";
 export type LoadedBank = { bank: BankResponse; source: BankSource };

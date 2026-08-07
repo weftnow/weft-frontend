@@ -1,11 +1,11 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { escapeApostrophes } from "@/lib/testEscape";
+import { escapeApostrophes } from "@/features/demo-b2c/test/escape";
 import { MatchesScreen, metadata } from "./page";
-import { content } from "@/content";
-import type { PairSummary } from "@/lib/weftTypes";
+import { demoB2cContent } from "@/features/demo-b2c/content";
+import type { PairSummary } from "@/features/demo-b2c/types/contracts";
 
-const copy = content.compatibilityTest.matches;
+const copy = demoB2cContent.matches;
 
 const VALUE = {
   key: "BE",

@@ -1,6 +1,6 @@
-import { isBankQuestion } from "@/lib/compatibilityQuestions";
+import { isBankQuestion } from "@/features/demo-b2c/schemas/compatibilityQuestions";
 import { weftFetch } from "@/lib/server/weftApi";
-import type { InviteResponse } from "@/lib/weftTypes";
+import type { InviteResponse } from "@/features/demo-b2c/types/contracts";
 
 /**
  * What the friend landing page can be. `expired` is deliberately not folded

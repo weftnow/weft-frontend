@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { CompatibilityNotice } from "@/components/compatibility/CompatibilityNotice";
-import { PairResultView } from "@/components/compatibility/PairResultView";
-import { content } from "@/content";
-import { readShareParam } from "@/lib/links";
+import { CompatibilityNotice } from "@/features/demo-b2c/components/CompatibilityNotice";
+import { PairResultView } from "@/features/demo-b2c/components/PairResultView";
+import { demoB2cContent } from "@/features/demo-b2c/content";
+import { readShareParam } from "@/features/demo-b2c/model/links";
 import { loadPair } from "@/lib/server/pair";
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
  * service" at someone whose problem is something else.
  */
 function pickNotice(status: "not_found" | "unavailable") {
-  const copy = content.compatibilityTest.pair;
+  const copy = demoB2cContent.pair;
   switch (status) {
     case "not_found":
       return copy.missing;
@@ -43,7 +43,7 @@ export default async function PairPage({
 }) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const outcome = await loadPair(id);
-  const copy = content.compatibilityTest.pair;
+  const copy = demoB2cContent.pair;
 
   if (outcome.status !== "ok") {
     const notice = pickNotice(outcome.status);

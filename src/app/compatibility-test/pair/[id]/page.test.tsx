@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { escapeApostrophes } from "@/lib/testEscape";
+import { escapeApostrophes } from "@/features/demo-b2c/test/escape";
 import Page, { metadata } from "./page";
-import { content } from "@/content";
+import { demoB2cContent } from "@/features/demo-b2c/content";
 
 // renderToStaticMarkup HTML-escapes apostrophes ("'" -> "&#x27;"), and both
 // pair error headlines contain one ("We couldn't reach the service.",
@@ -21,7 +21,7 @@ test("an unreachable backend explains itself instead of crashing", async () => {
     await Page({ params: Promise.resolve({ id: "p1" }), searchParams: NO_QUERY }),
   );
 
-  expect(html).toContain(escapeApostrophes(content.compatibilityTest.pair.unavailable.headline));
+  expect(html).toContain(escapeApostrophes(demoB2cContent.pair.unavailable.headline));
   expect(html).toContain("ctest-shell");
 });
 
@@ -32,7 +32,7 @@ test("an empty id is a not-found without asking the backend", async () => {
     await Page({ params: Promise.resolve({ id: "" }), searchParams: NO_QUERY }),
   );
 
-  expect(html).toContain(escapeApostrophes(content.compatibilityTest.pair.missing.headline));
+  expect(html).toContain(escapeApostrophes(demoB2cContent.pair.missing.headline));
 });
 
 test("a result is never indexed", () => {

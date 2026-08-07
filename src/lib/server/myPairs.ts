@@ -1,6 +1,6 @@
 import { isPairResult } from "@/lib/server/pair";
 import { weftFetch } from "@/lib/server/weftApi";
-import type { PairSummary } from "@/lib/weftTypes";
+import type { PairSummary } from "@/features/demo-b2c/types/contracts";
 
 /**
  * What the matches page can be. `no_session` is deliberately not folded into

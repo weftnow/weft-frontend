@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { CompatibilityNotice } from "@/components/compatibility/CompatibilityNotice";
-import { CtestShell } from "@/components/compatibility/CtestShell";
-import { MatchesView } from "@/components/compatibility/MatchesView";
-import { ReshareLink } from "@/components/compatibility/ReshareLink";
-import { content } from "@/content";
+import { CompatibilityNotice } from "@/features/demo-b2c/components/CompatibilityNotice";
+import { CtestShell } from "@/features/demo-b2c/components/CtestShell";
+import { MatchesView } from "@/features/demo-b2c/components/MatchesView";
+import { ReshareLink } from "@/features/demo-b2c/components/ReshareLink";
+import { demoB2cContent } from "@/features/demo-b2c/content";
 import { loadMyPairs, type MyPairsOutcome } from "@/lib/server/myPairs";
 import { readSessionId } from "@/lib/server/session";
 
@@ -25,7 +25,7 @@ export const dynamic = "force-dynamic";
  * without a request context -- `readSessionId()` throws outside one.
  */
 export function MatchesScreen({ outcome }: { outcome: MyPairsOutcome }) {
-  const copy = content.compatibilityTest.matches;
+  const copy = demoB2cContent.matches;
 
   if (outcome.status === "no_session") {
     return (

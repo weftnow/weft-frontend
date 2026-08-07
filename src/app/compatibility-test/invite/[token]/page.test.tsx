@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { escapeApostrophes } from "@/lib/testEscape";
+import { escapeApostrophes } from "@/features/demo-b2c/test/escape";
 import Page, { metadata } from "./page";
-import { content } from "@/content";
+import { demoB2cContent } from "@/features/demo-b2c/content";
 
 // renderToStaticMarkup HTML-escapes apostrophes ("'" -> "&#x27;"), and several
 // inviteError headlines contain one ("We can't find that invitation."). This
@@ -19,13 +19,13 @@ test("an unreachable backend explains itself instead of crashing", async () => {
   );
 
   expect(html).toContain(
-    escapeApostrophes(content.compatibilityTest.inviteError.unavailable.headline),
+    escapeApostrophes(demoB2cContent.inviteError.unavailable.headline),
   );
   expect(html).toContain("ctest-shell");
   // Nothing to answer, so no quiz.
   expect(html).not.toContain("ctest-option");
   // An outage is temporary and the link is still good: no way out is offered.
-  expect(html).not.toContain(content.compatibilityTest.inviteError.cta);
+  expect(html).not.toContain(demoB2cContent.inviteError.cta);
 });
 
 test("an empty token is a not-found without asking the backend", async () => {
@@ -36,10 +36,10 @@ test("an empty token is a not-found without asking the backend", async () => {
   );
 
   expect(html).toContain(
-    escapeApostrophes(content.compatibilityTest.inviteError.unknown.headline),
+    escapeApostrophes(demoB2cContent.inviteError.unknown.headline),
   );
   // Unlike the outage case, the link really is dead, so a way out is offered.
-  expect(html).toContain(content.compatibilityTest.inviteError.cta);
+  expect(html).toContain(demoB2cContent.inviteError.cta);
 });
 
 test("an invite is never indexed", () => {

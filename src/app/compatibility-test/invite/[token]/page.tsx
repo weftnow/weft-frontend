@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { CompatibilityTest } from "@/components/compatibility/CompatibilityTest";
-import { CompatibilityNotice } from "@/components/compatibility/CompatibilityNotice";
-import { content } from "@/content";
-import { toQuizQuestions } from "@/lib/compatibilityQuestions";
+import { CompatibilityTest } from "@/features/demo-b2c/components/CompatibilityTest";
+import { CompatibilityNotice } from "@/features/demo-b2c/components/CompatibilityNotice";
+import { demoB2cContent } from "@/features/demo-b2c/content";
+import { toQuizQuestions } from "@/features/demo-b2c/schemas/compatibilityQuestions";
 import { loadInvite } from "@/lib/server/invite";
 
 export const metadata: Metadata = {
@@ -26,7 +26,7 @@ export default async function InvitePage({
 }) {
   const { token } = await params;
   const outcome = await loadInvite(token);
-  const errors = content.compatibilityTest.inviteError;
+  const errors = demoB2cContent.inviteError;
 
   if (outcome.status !== "ok") {
     const notice =
