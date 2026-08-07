@@ -168,6 +168,7 @@ test("multiple choice enforces bounds and reveals Continue at minimum", async ()
       expect(container.textContent).toContain("Continue");
       await act(async () => buttonNamed(container, "Product").click());
       await act(async () => buttonNamed(container, "Design").click());
+      expect(buttonNamed(container, "Marketing").disabled).toBe(true);
       await act(async () => buttonNamed(container, "Marketing").click());
       expect(
         container.querySelectorAll('[role="checkbox"][aria-checked="true"]'),

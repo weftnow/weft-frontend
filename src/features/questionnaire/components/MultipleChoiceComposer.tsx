@@ -65,15 +65,16 @@ export function MultipleChoiceComposer({
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3" role="group" aria-label={question.message}>
         {question.options.map((option, index) => {
           const checked = selected.includes(option.value);
+          const atSelectionLimit = selected.length >= maximum && !checked;
           return (
             <motion.button
               aria-checked={checked}
-              className={`flex min-h-14 items-center justify-between gap-2 rounded-[1.05rem] border px-3.5 py-3 text-left text-[0.88rem] leading-5 transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-signal ${
+              className={`flex min-h-14 items-center justify-between gap-2 rounded-[1.05rem] border px-3.5 py-3 text-left text-[0.88rem] leading-5 transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-signal disabled:cursor-not-allowed disabled:opacity-45 ${
                 checked
                   ? "border-ember/48 bg-[color-mix(in_srgb,var(--color-ember)_8%,white)] text-[#c84419]"
                   : "border-ink/10 bg-white/48 text-ink hover:border-ink/18"
               }`}
-              disabled={disabled || submitting}
+              disabled={disabled || submitting || atSelectionLimit}
               key={option.id}
               onClick={() => toggle(option.value)}
               ref={index === 0 ? firstOptionRef : undefined}

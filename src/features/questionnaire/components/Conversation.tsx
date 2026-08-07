@@ -51,6 +51,18 @@ export function Conversation({
     followConversation(true);
   }, [composerVersion, followConversation, items.length]);
 
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || typeof ResizeObserver === "undefined") return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      followConversation(true);
+    });
+    resizeObserver.observe(viewport);
+
+    return () => resizeObserver.disconnect();
+  }, [followConversation]);
+
   return (
     <section
       aria-label="Your conversation with Weft"
@@ -58,7 +70,7 @@ export function Conversation({
       data-animated-item-id={animatedItemId ?? undefined}
     >
       <div
-        className="questionnaire-conversation-viewport h-full overflow-y-auto px-1 pb-7 pt-4"
+        className="questionnaire-conversation-viewport h-full overflow-y-auto px-1 pb-14 pt-4"
         onScroll={() => {
           const viewport = viewportRef.current;
           if (!viewport) return;
@@ -80,7 +92,7 @@ export function Conversation({
             />
           ))}
         </ol>
-        <div aria-hidden="true" className="h-px" ref={endRef} />
+        <div aria-hidden="true" className="h-12" ref={endRef} />
       </div>
     </section>
   );
