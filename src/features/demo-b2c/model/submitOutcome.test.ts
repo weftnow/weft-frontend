@@ -4,8 +4,22 @@ import { decideSubmitOutcome, strandedOutcome } from "./submitOutcome";
 const FALLBACK = "We couldn't save that. Please try again.";
 
 test("a successful response with a token lands on the share phase", () => {
+  const outcome = decideSubmitOutcome(
+    true,
+    { share_token: "abc123", return_token: "ret-1" },
+    FALLBACK,
+  );
+  expect(outcome).toEqual({ phase: "share", token: "abc123", returnToken: "ret-1" });
+});
+
+test("a share token without a return token still reaches the share phase", () => {
+  // Pins the default for a body this function cannot be handed in production:
+  // `isAnswersResponse` rejects a response missing `return_token` and the route
+  // answers 503, so a share phase with an empty return token is unreachable
+  // through the real path. The empty string keeps the affordance suppressed
+  // rather than rendering a link to nowhere if a future caller does allow it.
   const outcome = decideSubmitOutcome(true, { share_token: "abc123" }, FALLBACK);
-  expect(outcome).toEqual({ phase: "share", token: "abc123" });
+  expect(outcome).toEqual({ phase: "share", token: "abc123", returnToken: "" });
 });
 
 test("ok true but no token falls back to the details phase", () => {

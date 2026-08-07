@@ -2,10 +2,12 @@ import { describe, expect, test } from "bun:test";
 import { respondWithMint } from "./route";
 
 describe("respondWithMint", () => {
-  test("hands the token back and nothing else", async () => {
-    const response = respondWithMint({ status: "ok", token: "tok-9" });
+  test("hands both tokens back and nothing else", async () => {
+    // The return token has to make the trip: it is minted and persisted either
+    // way, so a body without it is a live capability nobody will ever hold.
+    const response = respondWithMint({ status: "ok", token: "tok-9", returnToken: "ret-9" });
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ token: "tok-9" });
+    expect(await response.json()).toEqual({ token: "tok-9", return_token: "ret-9" });
   });
 
   test("no cookie is 401, because the fix is to take the quiz", async () => {

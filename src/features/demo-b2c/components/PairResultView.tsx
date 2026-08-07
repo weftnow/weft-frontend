@@ -23,7 +23,7 @@ export function PairResultView({
   return (
     <CtestShell align="top">
       <div className="ctest-pair relative z-10">
-        <Link className="ctest-result-back" href="/compatibility-test/matches">
+        <Link className="ctest-result-back" href="/match/matches">
           <span aria-hidden>&larr;</span> {copy.backToMatches}
         </Link>
         <ScoreHero result={result} />

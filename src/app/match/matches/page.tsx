@@ -7,8 +7,8 @@ import { demoB2cContent } from "@/features/demo-b2c/content";
 import { loadMyPairs, type MyPairsOutcome } from "@/features/demo-b2c/api/server/myPairs";
 import { readSessionId } from "@/features/demo-b2c/api/server/session";
 
-const MATCHES_PATH = "/compatibility-test/matches";
-const QUIZ_PATH = "/compatibility-test";
+const MATCHES_PATH = "/match/matches";
+const QUIZ_PATH = "/match";
 
 export const metadata: Metadata = {
   title: "Weft: Your threads",

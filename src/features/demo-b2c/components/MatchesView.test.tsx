@@ -53,8 +53,8 @@ test("every pair gets its own card", () => {
     <MatchesView pairs={[pair("p1", "Ben"), pair("p2", "Cal")]} />,
   );
   expect(html.match(/class="ctest-match"/g)).toHaveLength(2);
-  expect(html).toContain('href="/compatibility-test/pair/p1"');
-  expect(html).toContain('href="/compatibility-test/pair/p2"');
+  expect(html).toContain('href="/match/pair/p1"');
+  expect(html).toContain('href="/match/pair/p2"');
 });
 
 test("the backend's newest-first order is preserved", () => {

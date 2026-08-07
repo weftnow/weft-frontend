@@ -180,7 +180,9 @@ export const content = {
     sub: "Weft matches attendees on their goals and values, not small talk. Finding the right people becomes the best part of the event.",
     ctaPrimary: "Try it!",
     ctaSecondary: "See how it works",
-    ycLabel: "Backed by Y Combinator",
+    // Placeholder metric. Replace NN with the real post-event figure before launch,
+    // and keep it identical to the matching number in `payoff.stats`.
+    proofLabel: "Boost your event engagement rate",
   },
 
   // logos: `real` renders real wordmark components; `placeholders` are placeholder marks.
@@ -249,7 +251,6 @@ export const content = {
       { value: 3.4, suffix: "x", label: "more qualified conversations vs. open networking" },
       { value: 4.8, suffix: "/5", label: "average event rating after adding Weft" },
     ],
-    statsNote: "Placeholder metrics. Replace in content.ts before launch.",
     // The five avatars in the fan-out: [attendee, ...four matches]
     group: [
       { initials: "YOU", role: "You" },
@@ -346,15 +347,15 @@ export const content = {
     links: [
       {
         label: "WhatsApp",
-        value: "+57 300 123 4567",
-        href: "https://wa.me/573001234567",
+        value: "+57 314 513 5153",
+        href: "https://wa.me/573145135153",
         mark: "WA",
         external: true,
       },
       {
         label: "Email",
-        value: "hello@weftnow.com",
-        href: "mailto:hello@weftnow.com",
+        value: "team@weftnow.com",
+        href: "mailto:team@weftnow.com",
         mark: "@",
         external: false,
       },

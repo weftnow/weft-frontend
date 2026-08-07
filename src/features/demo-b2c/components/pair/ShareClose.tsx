@@ -22,11 +22,11 @@ export function ShareClose({ shareToken }: { shareToken: string | null }) {
       {shareToken ? (
         <ShareLink token={shareToken} />
       ) : (
-        <PremiumButton href="/compatibility-test" tone="ember">
+        <PremiumButton href="/match" tone="ember">
           {copy.restart}
         </PremiumButton>
       )}
-      <Link className="ctest-result-matches-link" href="/compatibility-test/matches">
+      <Link className="ctest-result-matches-link" href="/match/matches">
         {copy.matchesLink}
       </Link>
     </section>

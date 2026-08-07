@@ -5,13 +5,13 @@ import { demoB2cContent } from "@/features/demo-b2c/content";
 
 test("share link renders the invite path and a copy button", () => {
   const html = renderToStaticMarkup(<ShareLink token="tok-1" />);
-  expect(html).toContain("/compatibility-test/invite/tok-1");
+  expect(html).toContain("/match/invite/tok-1");
   expect(html).toContain(`aria-label="${demoB2cContent.share.copy}"`);
 });
 
 test("share link encodes a token that would otherwise change the path", () => {
   const html = renderToStaticMarkup(<ShareLink token="a/b" />);
-  expect(html).toContain("/compatibility-test/invite/a%2Fb");
+  expect(html).toContain("/match/invite/a%2Fb");
 });
 
 test("share link places a neighbour beside the copy button when given one", () => {

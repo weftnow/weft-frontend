@@ -76,7 +76,7 @@ export function Nav() {
         </div>
 
         <div className="nav-actions">
-          <a className="nav-cta" href="#contact">
+          <a className="nav-cta" href="/match">
             {content.nav.cta}
           </a>
           <button
@@ -119,7 +119,7 @@ export function Nav() {
                 <span>{link.label}</span>
               </a>
             ))}
-            <a className="nav-mobile-cta" href="#contact" onClick={() => setMenuOpen(false)}>
+            <a className="nav-mobile-cta" href="/match" onClick={() => setMenuOpen(false)}>
               {content.nav.cta}
             </a>
           </motion.div>

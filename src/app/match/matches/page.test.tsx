@@ -43,7 +43,7 @@ test("someone who has never taken it is invited to", () => {
   const html = renderToStaticMarkup(<MatchesScreen outcome={{ status: "no_session" }} />);
   expect(html).toContain(escapeApostrophes(copy.none.headline));
   expect(html).toContain(`aria-label="${copy.none.cta}"`);
-  expect(html).toContain('href="/compatibility-test"');
+  expect(html).toContain('href="/match"');
 });
 
 test("a cookie whose session is gone says so, and offers a restart", () => {
@@ -57,7 +57,7 @@ test("an unreachable backend offers a retry, not a restart", () => {
   const html = renderToStaticMarkup(<MatchesScreen outcome={{ status: "unavailable" }} />);
   expect(html).toContain(escapeApostrophes(copy.unavailable.headline));
   expect(html).toContain(`aria-label="${copy.unavailable.cta}"`);
-  expect(html).toContain('href="/compatibility-test/matches"');
+  expect(html).toContain('href="/match/matches"');
 });
 
 test("every dead end offers a way out", () => {
@@ -82,6 +82,6 @@ test("nobody has answered yet gets the waiting screen and a mint button", () => 
 test("at least one match renders the list instead", () => {
   const html = renderToStaticMarkup(<MatchesScreen outcome={{ status: "ok", pairs: [PAIR] }} />);
   expect(html).toContain(escapeApostrophes(copy.headline));
-  expect(html).toContain('href="/compatibility-test/pair/pair-1"');
+  expect(html).toContain('href="/match/pair/pair-1"');
   expect(html).not.toContain(escapeApostrophes(copy.waiting.headline));
 });

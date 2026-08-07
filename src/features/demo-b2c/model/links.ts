@@ -5,8 +5,9 @@
  * syntax.
  */
 
-const INVITE_BASE = "/compatibility-test/invite";
-const PAIR_BASE = "/compatibility-test/pair";
+const INVITE_BASE = "/match/invite";
+const PAIR_BASE = "/match/pair";
+const THREAD_BASE = "/match/thread";
 
 export function inviteHref(token: string): string {
   return `${INVITE_BASE}/${encodeURIComponent(token)}`;
@@ -21,6 +22,16 @@ export function pairHref(pairId: string, shareToken?: string | null): string {
   const path = `${PAIR_BASE}/${encodeURIComponent(pairId)}`;
   if (!shareToken) return path;
   return `${path}?share=${encodeURIComponent(shareToken)}`;
+}
+
+/**
+ * Where the sender comes back to. Scoped to one invite, so it shows what that
+ * invitation produced rather than every match they belong to -- and it is a
+ * different secret from the invite token, so forwarding the invite does not
+ * hand this over.
+ */
+export function threadHref(returnToken: string): string {
+  return `${THREAD_BASE}/${encodeURIComponent(returnToken)}`;
 }
 
 /**

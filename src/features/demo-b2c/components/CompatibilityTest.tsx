@@ -63,6 +63,7 @@ export function CompatibilityTest({
   const [answers, setAnswers] = useState<Answers>({});
   const [details, setDetails] = useState<Details>(EMPTY_DETAILS);
   const [shareToken, setShareToken] = useState("");
+  const [returnToken, setReturnToken] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [stranded, setStranded] = useState<{ pairId: string; shareToken: string } | null>(null);
@@ -124,6 +125,7 @@ export function CompatibilityTest({
     setActiveIndex(0);
     setDetails(EMPTY_DETAILS);
     setShareToken("");
+    setReturnToken("");
     setSubmitError(null);
     setStranded(null);
     setPhase("intro");
@@ -173,7 +175,7 @@ export function CompatibilityTest({
         AbortSignal.timeout(SUBMIT_TIMEOUT_MS),
       );
       const body = (await response.json().catch(() => null)) as
-        | { share_token?: string; pair_id?: string; error?: string }
+        | { share_token?: string; return_token?: string; pair_id?: string; error?: string }
         | null;
 
       const outcome = decideSubmitOutcome(response.ok, body, data.details.failed);
@@ -197,6 +199,7 @@ export function CompatibilityTest({
       }
       if (outcome.phase === "share") {
         setShareToken(outcome.token);
+        setReturnToken(outcome.returnToken);
         setPhase("share");
       } else {
         setSubmitError(outcome.error);
@@ -237,7 +240,7 @@ export function CompatibilityTest({
             key="intro"
             {...fade}
             transition={transition}
-            className="ctest-stage ctest-stage--intro"
+            className={`ctest-stage ctest-stage--intro${invite ? " ctest-stage--intro-named" : ""}`}
           >
             <span className="ctest-eyebrow">{intro.eyebrow}</span>
             <h1 className="ctest-prompt">
@@ -376,7 +379,7 @@ export function CompatibilityTest({
 
         {phase === "share" && (
           <motion.div key="share" {...fade} transition={transition} className="relative z-10 w-full">
-            <ShareScreen shareToken={shareToken} onRestart={reset} />
+            <ShareScreen shareToken={shareToken} returnToken={returnToken || null} onRestart={reset} />
           </motion.div>
         )}
 

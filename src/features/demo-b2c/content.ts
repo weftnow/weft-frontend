@@ -40,7 +40,11 @@ export const demoB2cContent = {
     sub: "Compatibility takes two. Your result appears the moment someone answers your link — and you'll both see it.",
     copy: "Copy link",
     copied: "Copied ✓",
-    note: "Keep this link. It's also how you come back to see your match.",
+    note: "Send this link to one person. Opening it starts the questions for them.",
+    returnLink: "Save your own link",
+    returnHint: "Opens your result when they answer. Keep it — it works without cookies, on any device.",
+    returnCopy: "Copy your own link",
+    returnAnnounce: "Your own link copied to clipboard",
     restart: "Start over",
     announce: "Link copied to clipboard",
     matchesLink: "See who's answered",
@@ -154,6 +158,24 @@ export const demoB2cContent = {
       headline: "We couldn't reach the service.",
       body: "Something on our side is having a moment. Your thread is safe — try again shortly.",
       cta: "Try again",
+    },
+  },
+  thread: {
+    waiting: {
+      eyebrow: "Your thread",
+      headline: "No one has answered yet.",
+      body: "The moment someone opens your link and answers, their result appears here. Keep this page — it works even if you clear your cookies or switch phones.",
+    },
+    unknown: {
+      eyebrow: "Not found",
+      headline: "We don't recognise this link.",
+      body: "Check you copied the whole thing. If it was a link you saved, it may have been from a different browser.",
+      cta: "Take the test",
+    },
+    unavailable: {
+      eyebrow: "Not right now",
+      headline: "We can't reach your thread.",
+      body: "Something on our side is down. Your result is safe — try again in a moment.",
     },
   },
 } as const;

@@ -47,7 +47,7 @@ export default async function InvitePage({
           cta={
             outcome.status === "unavailable"
               ? undefined
-              : { href: "/compatibility-test", label: errors.cta }
+              : { href: "/match", label: errors.cta }
           }
         />
       </main>

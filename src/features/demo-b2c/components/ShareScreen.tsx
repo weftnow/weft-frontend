@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { demoB2cContent } from "@/features/demo-b2c/content";
+import { ReturnLink } from "@/features/demo-b2c/components/ReturnLink";
 import { ShareLink } from "@/features/demo-b2c/components/ShareLink";
 
 /**
@@ -10,9 +11,11 @@ import { ShareLink } from "@/features/demo-b2c/components/ShareLink";
  */
 export function ShareScreen({
   shareToken,
+  returnToken,
   onRestart,
 }: {
   shareToken: string;
+  returnToken: string | null;
   onRestart: () => void;
 }) {
   const copy = demoB2cContent.share;
@@ -42,9 +45,11 @@ export function ShareScreen({
         {copy.note}
       </p>
 
+      {returnToken ? <ReturnLink token={returnToken} /> : null}
+
       <Link
         className="mt-6 font-mono text-xs uppercase tracking-wider text-ink/50 transition-colors hover:text-ink focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
-        href="/compatibility-test/matches"
+        href="/match/matches"
       >
         {copy.matchesLink}
       </Link>

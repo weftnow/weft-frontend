@@ -10,6 +10,6 @@ test("reveal renders the matched portrait interaction and approved metrics", () 
   expect(html).toContain("Placeholder portrait of a matched event attendee");
   expect(html).toContain("Placeholder portrait of another matched attendee");
   expect(html).toContain("Matched group");
-  expect(html).toContain("Placeholder metrics");
+  expect(html.includes("Placeholder metrics")).toBe(false);
   expect(html.match(/min-w-0/g)?.length).toBe(2);
 });

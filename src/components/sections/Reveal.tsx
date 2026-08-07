@@ -42,7 +42,6 @@ export function Reveal() {
               </div>
             ))}
           </div>
-          <p className="font-meta mt-6 text-[10px] text-ash">{reveal.statsNote}</p>
         </div>
       </div>
     </SectionShell>
