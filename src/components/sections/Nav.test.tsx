@@ -13,7 +13,7 @@ test("navigation exposes the premium shell and accessible mobile disclosure", ()
 });
 
 test("navigation uses pill geometry and Zolo's link font treatment", () => {
-  const styles = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+  const styles = readFileSync(new URL("../../styles/globals.css", import.meta.url), "utf8");
 
   expect(styles).toMatch(/\.nav-premium-shell\s*\{[^}]*border-radius:\s*999px;/s);
   expect(styles).toMatch(/\.nav-cta\s*\{[^}]*border-radius:\s*999px;/s);
