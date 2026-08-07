@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import Image from "next/image";
 import type { ConversationItem } from "../types/questionnaire.types";
 import { TypewriterMessage } from "./TypewriterMessage";
 
@@ -51,7 +52,7 @@ export function ConversationItemView({
           aria-hidden="true"
           className="grid size-11 place-items-center rounded-full border border-ink/10 bg-white/70"
         >
-          <img alt="" height={25} src="/icon.svg" width={25} />
+          <Image alt="" height={25} src="/icon.svg" width={25} />
         </span>
         <div className="max-w-[33rem] rounded-[1.35rem] rounded-tl-[0.45rem] border border-ink/9 bg-white/32 px-5 py-4 text-[0.98rem] leading-7 text-ink">
           <TypewriterMessage

@@ -56,14 +56,10 @@ export function TypewriterMessage({
 
   useEffect(() => {
     if (!animate) {
-      setVisibleText(content);
-      setComplete(true);
       return;
     }
 
     if (!shouldType) {
-      setVisibleText(content);
-      setComplete(true);
       onCompleteRef.current?.();
       return;
     }
@@ -75,9 +71,6 @@ export function TypewriterMessage({
       10,
       Math.min(characterDelayMs, Math.floor(1_400 / Math.max(content.length, 1))),
     );
-
-    setVisibleText("");
-    setComplete(false);
 
     const typeNextCharacter = () => {
       if (cancelled) return;
@@ -112,7 +105,7 @@ export function TypewriterMessage({
 
   return (
     <>
-      <span aria-hidden={animate && !complete}>{visibleText}</span>
+      <span aria-hidden={animate}>{visibleText}</span>
       {animate && complete ? (
         <span className="sr-only" role="status">
           {content}

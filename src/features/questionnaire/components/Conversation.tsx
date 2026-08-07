@@ -55,6 +55,7 @@ export function Conversation({
     <section
       aria-label="Your conversation with Weft"
       className="questionnaire-conversation min-h-0 flex-1"
+      data-animated-item-id={animatedItemId ?? undefined}
     >
       <div
         className="questionnaire-conversation-viewport h-full overflow-y-auto px-1 pb-7 pt-4"

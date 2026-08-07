@@ -78,7 +78,11 @@ function safeStorage(storage: QuestionnaireStorage): QuestionnaireStorage {
 
 function defaultStorage(): QuestionnaireStorage {
   if (typeof window === "undefined") return serverStorage;
-  return window.localStorage;
+  try {
+    return window.localStorage;
+  } catch {
+    return serverStorage;
+  }
 }
 
 async function waitForMockNetwork(enabled: boolean) {
