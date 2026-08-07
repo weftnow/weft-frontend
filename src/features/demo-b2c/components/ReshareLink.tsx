@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { postInvite } from "@/features/demo-b2c/api/client/mintInvite";
 import { demoB2cContent } from "@/features/demo-b2c/content";
 import { ShareLink } from "@/features/demo-b2c/components/ShareLink";
 import { PremiumButton } from "@/components/ui/PremiumButton";
@@ -32,10 +33,7 @@ export function ReshareLink() {
     setFailed(false);
 
     try {
-      const response = await fetch("/api/invite", {
-        method: "POST",
-        signal: AbortSignal.timeout(TIMEOUT_MS),
-      });
+      const response = await postInvite(AbortSignal.timeout(TIMEOUT_MS));
       const body = (await response.json().catch(() => null)) as { token?: string } | null;
       if (response.ok && body?.token) setToken(body.token);
       else setFailed(true);

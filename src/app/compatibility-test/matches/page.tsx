@@ -4,8 +4,8 @@ import { CtestShell } from "@/features/demo-b2c/components/CtestShell";
 import { MatchesView } from "@/features/demo-b2c/components/MatchesView";
 import { ReshareLink } from "@/features/demo-b2c/components/ReshareLink";
 import { demoB2cContent } from "@/features/demo-b2c/content";
-import { loadMyPairs, type MyPairsOutcome } from "@/lib/server/myPairs";
-import { readSessionId } from "@/lib/server/session";
+import { loadMyPairs, type MyPairsOutcome } from "@/features/demo-b2c/api/server/myPairs";
+import { readSessionId } from "@/features/demo-b2c/api/server/session";
 
 const MATCHES_PATH = "/compatibility-test/matches";
 const QUIZ_PATH = "/compatibility-test";

@@ -1,4 +1,4 @@
-import { loadBank } from "@/lib/server/bank";
+import { loadBank } from "@/features/demo-b2c/api/server/bank";
 
 /**
  * The questions, same-origin. Deliberately uncached at the route level: the

@@ -1,4 +1,4 @@
-import { weftFetch, type WeftErrorCode } from "@/lib/server/weftApi";
+import { weftFetch, type WeftErrorCode } from "@/lib/api/weftApi";
 import type { AnswersRequest, AnswersResponse } from "@/features/demo-b2c/types/contracts";
 
 /** What the browser is allowed to see: never the session id. */

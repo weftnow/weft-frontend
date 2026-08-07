@@ -3,7 +3,7 @@ import { CompatibilityTest } from "@/features/demo-b2c/components/CompatibilityT
 import { CompatibilityNotice } from "@/features/demo-b2c/components/CompatibilityNotice";
 import { demoB2cContent } from "@/features/demo-b2c/content";
 import { toQuizQuestions } from "@/features/demo-b2c/schemas/compatibilityQuestions";
-import { loadInvite } from "@/lib/server/invite";
+import { loadInvite } from "@/features/demo-b2c/api/server/invite";
 
 export const metadata: Metadata = {
   title: "Weft: You've been invited",

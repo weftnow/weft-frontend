@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { postAnswers } from "@/features/demo-b2c/api/client/submitAnswers";
 import { demoB2cContent } from "@/features/demo-b2c/content";
 import { WeaveLoader } from "@/components/ui/WeaveLoader";
 import { PremiumButton } from "@/components/ui/PremiumButton";
@@ -163,16 +164,14 @@ export function CompatibilityTest({
     // would let a second click POST a second pair into existence.
     let leaving = false;
     try {
-      const response = await fetch("/api/answers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: AbortSignal.timeout(SUBMIT_TIMEOUT_MS),
-        body: JSON.stringify({
+      const response = await postAnswers(
+        {
           ...nextDetails,
           answers: toBackendAnswers(answers, questions),
           ...(invite ? { invite_token: invite.token } : {}),
-        }),
-      });
+        },
+        AbortSignal.timeout(SUBMIT_TIMEOUT_MS),
+      );
       const body = (await response.json().catch(() => null)) as
         | { share_token?: string; pair_id?: string; error?: string }
         | null;

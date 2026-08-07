@@ -1,4 +1,4 @@
-import { weftFetch } from "@/lib/server/weftApi";
+import { weftFetch } from "@/lib/api/weftApi";
 
 /**
  * Minting a second link for a session is supported and cheap: invites are not

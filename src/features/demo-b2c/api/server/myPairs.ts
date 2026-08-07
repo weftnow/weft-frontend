@@ -1,5 +1,5 @@
-import { isPairResult } from "@/lib/server/pair";
-import { weftFetch } from "@/lib/server/weftApi";
+import { isPairResult } from "@/features/demo-b2c/api/server/pair";
+import { weftFetch } from "@/lib/api/weftApi";
 import type { PairSummary } from "@/features/demo-b2c/types/contracts";
 
 /**

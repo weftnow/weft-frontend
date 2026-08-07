@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CompatibilityTest } from "@/features/demo-b2c/components/CompatibilityTest";
 import { toQuizQuestions } from "@/features/demo-b2c/schemas/compatibilityQuestions";
-import { loadBank } from "@/lib/server/bank";
+import { loadBank } from "@/features/demo-b2c/api/server/bank";
 
 export const metadata: Metadata = {
   title: "Weft: Compatibility Test",

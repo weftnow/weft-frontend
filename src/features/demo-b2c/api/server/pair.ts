@@ -1,4 +1,4 @@
-import { weftFetch } from "@/lib/server/weftApi";
+import { weftFetch } from "@/lib/api/weftApi";
 import type { PairPerson, PairResult, ValueEntry } from "@/features/demo-b2c/types/contracts";
 
 export type PairOutcome =

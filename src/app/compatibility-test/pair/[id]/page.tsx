@@ -3,7 +3,7 @@ import { CompatibilityNotice } from "@/features/demo-b2c/components/Compatibilit
 import { PairResultView } from "@/features/demo-b2c/components/PairResultView";
 import { demoB2cContent } from "@/features/demo-b2c/content";
 import { readShareParam } from "@/features/demo-b2c/model/links";
-import { loadPair } from "@/lib/server/pair";
+import { loadPair } from "@/features/demo-b2c/api/server/pair";
 
 export const metadata: Metadata = {
   title: "Weft: Your compatibility",

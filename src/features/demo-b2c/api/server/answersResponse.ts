@@ -1,4 +1,4 @@
-import type { SubmitOutcome } from "@/lib/server/submitAnswers";
+import type { SubmitOutcome } from "@/features/demo-b2c/api/server/submitAnswers";
 
 /**
  * The wiring `POST` in `app/api/answers/route.ts` needs, pulled out because

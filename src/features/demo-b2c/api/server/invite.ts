@@ -1,5 +1,5 @@
 import { isBankQuestion } from "@/features/demo-b2c/schemas/compatibilityQuestions";
-import { weftFetch } from "@/lib/server/weftApi";
+import { weftFetch } from "@/lib/api/weftApi";
 import type { InviteResponse } from "@/features/demo-b2c/types/contracts";
 
 /**

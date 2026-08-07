@@ -1,6 +1,6 @@
-import { respondToSubmission } from "@/lib/server/answersResponse";
-import { setSessionCookie } from "@/lib/server/session";
-import { submitAnswers } from "@/lib/server/submitAnswers";
+import { respondToSubmission } from "@/features/demo-b2c/api/server/answersResponse";
+import { setSessionCookie } from "@/features/demo-b2c/api/server/session";
+import { submitAnswers } from "@/features/demo-b2c/api/server/submitAnswers";
 
 /**
  * The one write in the whole flow: it creates a session upstream (and, with an

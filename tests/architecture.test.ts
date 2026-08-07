@@ -50,3 +50,26 @@ test("demo b2c owns its feature-specific source", () => {
   );
   expect(existsSync(resolve(projectRoot, "src/lib/weftTypes.ts"))).toBe(false);
 });
+
+test("demo b2c owns feature API operations while transport stays shared", () => {
+  expect(existsSync(resolve(projectRoot, "src/lib/api/weftApi.ts"))).toBe(
+    true,
+  );
+  expect(
+    existsSync(
+      resolve(
+        projectRoot,
+        "src/features/demo-b2c/api/server/submitAnswers.ts",
+      ),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(
+        projectRoot,
+        "src/features/demo-b2c/api/client/submitAnswers.ts",
+      ),
+    ),
+  ).toBe(true);
+  expect(existsSync(resolve(projectRoot, "src/lib/server"))).toBe(false);
+});

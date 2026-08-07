@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { resetBankCache } from "@/lib/server/bank";
+import { resetBankCache } from "@/features/demo-b2c/api/server/bank";
 import { GET } from "./route";
 
 test("GET falls back to the bundled bank when WEFT_API_URL is unset", async () => {

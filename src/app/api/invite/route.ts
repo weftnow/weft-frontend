@@ -1,5 +1,5 @@
-import { mintInvite, type MintOutcome } from "@/lib/server/mintInvite";
-import { readSessionId } from "@/lib/server/session";
+import { mintInvite, type MintOutcome } from "@/features/demo-b2c/api/server/mintInvite";
+import { readSessionId } from "@/features/demo-b2c/api/server/session";
 
 /**
  * Outcome -> HTTP, kept separate from POST so it can be tested without a
