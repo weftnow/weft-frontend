@@ -73,3 +73,36 @@ test("demo b2c owns feature API operations while transport stays shared", () => 
   ).toBe(true);
   expect(existsSync(resolve(projectRoot, "src/lib/server"))).toBe(false);
 });
+
+test("attendee questionnaire owns a feature-based route and api boundary", () => {
+  expect(
+    existsSync(resolve(projectRoot, "src/app/questionnaire/page.tsx")),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(
+        projectRoot,
+        "src/features/questionnaire/components/Questionnaire.tsx",
+      ),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(
+        projectRoot,
+        "src/features/questionnaire/api/questionnaire.api.ts",
+      ),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(
+        projectRoot,
+        "src/features/questionnaire/hooks/useQuestionnaire.ts",
+      ),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(resolve(projectRoot, "src/app/api/questionnaire")),
+  ).toBe(false);
+});
