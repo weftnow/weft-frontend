@@ -21,6 +21,19 @@ declare module "bun:test" {
   export function afterEach(body: TestBody): void;
   export function beforeEach(body: TestBody): void;
   export function describe(name: string, body: TestBody): void;
-  export function expect(actual: unknown): Matchers;
-  export function test(name: string, body: TestBody): void;
+  export function expect(actual: unknown, message?: string): Matchers;
+  export function test(name: string, body: TestBody, timeout?: number): void;
 }
+
+declare const Bun: {
+  spawn(options: {
+    cmd: string[];
+    cwd: string;
+    stderr: "pipe";
+    stdout: "pipe";
+  }): {
+    stderr: ReadableStream<Uint8Array>;
+    stdout: ReadableStream<Uint8Array>;
+    exited: Promise<number>;
+  };
+};

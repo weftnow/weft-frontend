@@ -1,0 +1,34 @@
+import Link from "next/link";
+import { demoB2cContent } from "@/features/demo-b2c/content";
+import { ShareLink } from "@/features/demo-b2c/components/ShareLink";
+import { PremiumButton } from "@/components/ui/PremiumButton";
+import { ThreadCross } from "./ThreadCross";
+
+/** The page's only ask, after the result has been given whole. */
+export function ShareClose({ shareToken }: { shareToken: string | null }) {
+  const copy = demoB2cContent.pair;
+
+  return (
+    <section className="ctest-result-share">
+      <div className="ctest-result-share-copy">
+        <span aria-hidden className="ctest-result-share-threads">
+          <ThreadCross />
+        </span>
+        <div>
+          <h2 className="ctest-sub-prompt">{copy.shareHeadline}</h2>
+          <p className="ctest-body">{copy.shareSub}</p>
+        </div>
+      </div>
+      {shareToken ? (
+        <ShareLink token={shareToken} />
+      ) : (
+        <PremiumButton href="/match" tone="ember">
+          {copy.restart}
+        </PremiumButton>
+      )}
+      <Link className="ctest-result-matches-link" href="/match/matches">
+        {copy.matchesLink}
+      </Link>
+    </section>
+  );
+}
