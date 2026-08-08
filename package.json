@@ -10,7 +10,6 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.101.4",
     "motion": "^12.42.2",
     "next": "16.2.11",
     "react": "19.2.4",

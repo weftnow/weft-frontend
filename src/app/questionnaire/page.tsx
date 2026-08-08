@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Questionnaire } from "@/features/questionnaire/components/Questionnaire";
+import { QuestionnaireNotice } from "@/features/questionnaire/components/QuestionnaireNotice";
 
 export const metadata: Metadata = {
   title: "Attendee questionnaire | Weft",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function QuestionnairePage() {
-  return <Questionnaire />;
+  return <QuestionnaireNotice kind="missingLink" language="en" />;
 }

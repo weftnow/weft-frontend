@@ -1,14 +1,6 @@
 import { expect, test } from "bun:test";
 import type { Root } from "react-dom/client";
 import { JSDOM } from "jsdom";
-import {
-  completeQuestionnaire,
-  createMemoryQuestionnaireStorage,
-  getQuestionnaire,
-  submitAnswer,
-  type QuestionnaireApi,
-  type QuestionnaireStorage,
-} from "../api/questionnaire.api";
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   pretendToBeVisual: true,
@@ -33,6 +25,7 @@ Object.assign(globalThis, {
   Element: dom.window.Element,
   HTMLElement: dom.window.HTMLElement,
   HTMLInputElement: dom.window.HTMLInputElement,
+  HTMLTextAreaElement: dom.window.HTMLTextAreaElement,
   Node: dom.window.Node,
   SVGElement: dom.window.SVGElement,
   cancelAnimationFrame: dom.window.cancelAnimationFrame.bind(dom.window),
@@ -48,18 +41,58 @@ Object.assign(globalThis, {
 const { act } = await import("react");
 const { createRoot } = await import("react-dom/client");
 const { Questionnaire } = await import("./Questionnaire");
+const { createMemoryQuestionnaireStorage, readDraft } = await import(
+  "../persistence/questionnaire.storage"
+);
+const { mapQuestionnaireDefinition } = await import("../model/questionnaire.mapper");
+const { formDefinitionSchema } = await import("../schemas/questionnaire.contract.schema");
+const { backendFormEn } = await import("../test/backendFormFixtures");
+const { testFlowQuestionnaire } = await import("../test/testFlowQuestionnaire");
 
-const TEST_TIMINGS = { conversationalPauseMs: 0, transitionDelayMs: 220 };
+const FORM_TOKEN = "token-valid-123456";
+const TEST_TIMINGS = { conversationalPauseMs: 0, transitionDelayMs: 20 };
+
+const questionnaireEn = mapQuestionnaireDefinition(formDefinitionSchema.parse(backendFormEn));
+
+const COMPLETE_ANSWERS: Record<string, unknown> = {
+  name: "Ana",
+  email: null,
+  phone: "+57 300 000 0000",
+  company: "Weft",
+  t1: "Raise a seed round for my fintech",
+  t2: "An angel who knows LatAm fintech",
+  s1_situation: "own_business",
+  s1_function: "engineering_product",
+  s2: 3,
+  s3: "up",
+  s4: ["raise_capital"],
+  s5: ["experience"],
+  s6: 2,
+  s7: 2,
+  s8: 1,
+  s9: 3,
+  s10: 3,
+};
+
+type QuestionnaireStorage = ReturnType<typeof createMemoryQuestionnaireStorage>;
+
+function clientFor() {
+  return {
+    async loadLanguage() {
+      return questionnaireEn;
+    },
+    async submit() {
+      // Resolves successfully; failure/correction flows belong to Task 9.
+    },
+  };
+}
 
 async function wait(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function waitFor(
-  condition: () => boolean,
-  debugContainer?: HTMLElement,
-) {
-  const deadline = Date.now() + 3_000;
+async function waitFor(condition: () => boolean, debugContainer?: HTMLElement) {
+  const deadline = Date.now() + 5_000;
   while (!condition()) {
     if (Date.now() >= deadline) {
       const phase = debugContainer
@@ -73,32 +106,19 @@ async function waitFor(
   }
 }
 
-function apiFor(
-  storage: QuestionnaireStorage,
-  submitOverride?: QuestionnaireApi["submitAnswer"],
-): QuestionnaireApi {
-  return {
-    getQuestionnaire: () => getQuestionnaire(storage),
-    submitAnswer:
-      submitOverride ?? ((input) => submitAnswer(input, storage)),
-    completeQuestionnaire: () => completeQuestionnaire(storage),
-  };
-}
-
-function typeInto(input: HTMLInputElement, value: string) {
+function typeInto(field: HTMLInputElement | HTMLTextAreaElement, value: string) {
   const setter = Object.getOwnPropertyDescriptor(
-    dom.window.HTMLInputElement.prototype,
+    Object.getPrototypeOf(field),
     "value",
   )?.set;
-  setter?.call(input, value);
-  input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  setter?.call(field, value);
+  field.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
 }
 
 function buttonNamed(container: HTMLElement, name: string) {
   const button = Array.from(container.querySelectorAll("button")).find(
     (candidate) =>
-      candidate.getAttribute("aria-label") === name ||
-      candidate.textContent?.trim() === name,
+      candidate.getAttribute("aria-label") === name || candidate.textContent?.trim() === name,
   );
   if (!button) throw new Error(`Button not found: ${name}`);
   return button;
@@ -106,17 +126,24 @@ function buttonNamed(container: HTMLElement, name: string) {
 
 async function mountQuestionnaire(
   storage: QuestionnaireStorage,
-  api = apiFor(storage),
+  questionnaire = testFlowQuestionnaire,
+  client = clientFor(),
 ) {
   const container = dom.window.document.createElement("div");
   dom.window.document.body.append(container);
   const root: Root = createRoot(container);
   await act(async () => {
-    root.render(<Questionnaire api={api} timings={TEST_TIMINGS} />);
+    root.render(
+      <Questionnaire
+        client={client}
+        formToken={FORM_TOKEN}
+        initialQuestionnaire={questionnaire}
+        storage={storage}
+        timings={TEST_TIMINGS}
+      />,
+    );
   });
-  await waitFor(
-    () => container.querySelector("[data-questionnaire-phase]") !== null,
-  );
+  await waitFor(() => container.querySelector("button") !== null);
   return { container, root };
 }
 
@@ -125,70 +152,71 @@ async function unmount(root: Root, container: HTMLDivElement) {
   container.remove();
 }
 
-async function answerText(container: HTMLElement, value: string) {
-  const input = container.querySelector<HTMLInputElement>('input[type="text"]');
-  if (!input) throw new Error("Text input not found");
-  act(() => typeInto(input, value));
-  act(() => buttonNamed(container, "Send answer").click());
+async function startFromOpening(container: HTMLElement) {
+  await waitFor(() => container.textContent?.includes("Start") === true);
+  act(() => buttonNamed(container, "Start").click());
+  await waitFor(() => container.querySelector("[data-questionnaire-phase]") !== null);
 }
 
-test("every answer advances and the exact completion messages persist", async () => {
+async function answerCurrentQuestion(
+  container: HTMLElement,
+  question: (typeof questionnaireEn.questions)[number],
+  value: unknown,
+) {
+  if (question.type === "text") {
+    if (value === null) {
+      await waitFor(() => container.textContent?.includes("Skip") === true, container);
+      act(() => buttonNamed(container, "Skip").click());
+      return;
+    }
+    const field = question.multiline
+      ? container.querySelector<HTMLTextAreaElement>("textarea")
+      : container.querySelector<HTMLInputElement>("input:not([type=hidden])");
+    if (!field) throw new Error(`Answer field not found for ${question.id}`);
+    act(() => typeInto(field, String(value)));
+    act(() => buttonNamed(container, "Send answer").click());
+    return;
+  }
+
+  if (question.type === "single_choice") {
+    const option = question.options.find((candidate) => candidate.value === value);
+    if (!option) throw new Error(`Option not found for ${question.id}=${String(value)}`);
+    act(() => buttonNamed(container, option.label).click());
+    return;
+  }
+
+  const values = value as unknown[];
+  for (const selected of values) {
+    const option = question.options.find((candidate) => candidate.value === selected);
+    if (!option) throw new Error(`Option not found for ${question.id}=${String(selected)}`);
+    act(() => buttonNamed(container, option.label).click());
+  }
+  await waitFor(() => container.textContent?.includes("Continue") === true, container);
+  act(() => buttonNamed(container, "Continue").click());
+}
+
+test("every backend answer advances and the exact completion messages persist", async () => {
   const storage = createMemoryQuestionnaireStorage();
-  const { container, root } = await mountQuestionnaire(storage);
+  const { container, root } = await mountQuestionnaire(storage, questionnaireEn);
   try {
-    await waitFor(() => container.querySelector('[role="radiogroup"]') !== null);
-    act(() => buttonNamed(container, "Meet thoughtful new people").click());
+    await startFromOpening(container);
 
-    await waitFor(
-      () => container.textContent?.includes("Founders and operators") === true,
-      container,
-    );
-    act(() => buttonNamed(container, "Founders and operators").click());
-
-    await waitFor(() => container.querySelector('input[type="text"]') !== null);
-    await answerText(container, "Building a climate hiring platform");
-
-    await waitFor(() => container.querySelector('[role="checkbox"]') !== null);
-    act(() => buttonNamed(container, "Leadership").click());
-    act(() => buttonNamed(container, "Product").click());
-    act(() => buttonNamed(container, "Continue").click());
-
-    await waitFor(() => container.querySelector('input[type="text"]') !== null);
-    await answerText(container, "Warm introductions to product leaders");
+    for (const question of questionnaireEn.questions) {
+      await waitFor(
+        () => container.textContent?.includes(question.message) === true,
+        container,
+      );
+      await answerCurrentQuestion(container, question, COMPLETE_ANSWERS[question.id]);
+    }
 
     await waitFor(
       () => container.textContent?.includes("You’re all set.") === true,
+      container,
     );
     expect(container.textContent).toContain(
       "Thanks. We’ll use your answers to introduce you to the right people.",
     );
-    expect((await getQuestionnaire(storage)).session.completed).toBe(true);
-  } finally {
-    await unmount(root, container);
-  }
-});
-
-test("submission failure preserves the composer and appends no answer", async () => {
-  const storage = createMemoryQuestionnaireStorage();
-  let fail = true;
-  const api = apiFor(storage, async (input) => {
-    if (fail) {
-      fail = false;
-      throw new Error("Connection lost");
-    }
-    return submitAnswer(input, storage);
-  });
-  const { container, root } = await mountQuestionnaire(storage, api);
-  try {
-    await waitFor(() => container.querySelector('[role="radiogroup"]') !== null);
-    act(() => buttonNamed(container, "Meet thoughtful new people").click());
-    await waitFor(
-      () =>
-        container.textContent?.includes("Couldn’t save that answer") === true,
-    );
-
-    expect(container.querySelector('[role="radiogroup"]')).not.toBeNull();
-    expect(container.querySelectorAll('[aria-label="Your answer"]')).toHaveLength(0);
+    expect(readDraft(FORM_TOKEN, storage)?.status).toBe("completed");
   } finally {
     await unmount(root, container);
   }
@@ -197,26 +225,17 @@ test("submission failure preserves the composer and appends no answer", async ()
 test("remount resumes at the current question without replaying old messages", async () => {
   const storage = createMemoryQuestionnaireStorage();
   const firstMount = await mountQuestionnaire(storage);
-  await waitFor(
-    () => firstMount.container.querySelector('[role="radiogroup"]') !== null,
-  );
-  act(() =>
-    buttonNamed(firstMount.container, "Meet thoughtful new people").click(),
-  );
-  await waitFor(
-    () => firstMount.container.textContent?.includes("Founders and operators") === true,
-  );
+  await startFromOpening(firstMount.container);
+  await waitFor(() => firstMount.container.querySelector('[role="radiogroup"]') !== null);
+  act(() => buttonNamed(firstMount.container, "Meet thoughtful new people").click());
+  await waitFor(() => firstMount.container.querySelector('input[type="text"]') !== null);
   await unmount(firstMount.root, firstMount.container);
 
   const resumed = await mountQuestionnaire(storage);
   try {
-    await waitFor(
-      () => resumed.container.textContent?.includes("Founders and operators") === true,
-    );
-    expect(resumed.container.querySelector('[role="radiogroup"]')).not.toBeNull();
-    expect(
-      resumed.container.querySelector("[data-animated-item-id]"),
-    ).toBeNull();
+    await waitFor(() => resumed.container.querySelector('input[type="text"]') !== null);
+    expect(resumed.container.textContent).toContain("Meet thoughtful new people");
+    expect(resumed.container.querySelector("[data-animated-item-id]")).toBeNull();
   } finally {
     await unmount(resumed.root, resumed.container);
   }

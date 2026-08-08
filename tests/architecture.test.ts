@@ -90,7 +90,7 @@ test("attendee questionnaire owns a feature-based route and api boundary", () =>
     existsSync(
       resolve(
         projectRoot,
-        "src/features/questionnaire/api/questionnaire.api.ts",
+        "src/features/questionnaire/api/server/questionnaire.gateway.ts",
       ),
     ),
   ).toBe(true);
@@ -98,7 +98,7 @@ test("attendee questionnaire owns a feature-based route and api boundary", () =>
     existsSync(
       resolve(
         projectRoot,
-        "src/features/questionnaire/hooks/useQuestionnaire.ts",
+        "src/features/questionnaire/hooks/useQuestionnaireController.ts",
       ),
     ),
   ).toBe(true);

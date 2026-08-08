@@ -38,6 +38,10 @@ export type QuestionnaireViewResult = {
     currentQuestionIndex: number;
     completed: boolean;
   };
+  // The question a composer should render: the correction target while one
+  // is active, otherwise the next unanswered question, or null once every
+  // question is answered (nothing left to render until completion settles).
+  activeQuestionId: string | null;
 };
 
 export function createQuestionnaireState(
@@ -229,6 +233,12 @@ export function selectQuestionnaireResult(state: QuestionnaireState): Questionna
     });
   }
 
+  const activeQuestionId =
+    state.correctionQuestionId ??
+    (state.currentQuestionIndex < state.questionnaire.questions.length
+      ? state.questionnaire.questions[state.currentQuestionIndex].id
+      : null);
+
   return {
     questionnaire: state.questionnaire,
     session: {
@@ -237,5 +247,6 @@ export function selectQuestionnaireResult(state: QuestionnaireState): Questionna
       currentQuestionIndex: state.currentQuestionIndex,
       completed: state.status === "completed",
     },
+    activeQuestionId,
   };
 }

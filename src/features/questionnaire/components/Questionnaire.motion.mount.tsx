@@ -1,12 +1,5 @@
 import { expect, test } from "bun:test";
 import { JSDOM } from "jsdom";
-import {
-  completeQuestionnaire,
-  createMemoryQuestionnaireStorage,
-  getQuestionnaire,
-  submitAnswer,
-  type QuestionnaireApi,
-} from "../api/questionnaire.api";
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   pretendToBeVisual: true,
@@ -46,6 +39,19 @@ Object.assign(globalThis, {
 const { act } = await import("react");
 const { createRoot } = await import("react-dom/client");
 const { Questionnaire } = await import("./Questionnaire");
+const { createMemoryQuestionnaireStorage } = await import("../persistence/questionnaire.storage");
+const { testFlowQuestionnaire } = await import("../test/testFlowQuestionnaire");
+
+const FORM_TOKEN = "token-valid-123456";
+
+function clientFor() {
+  return {
+    async loadLanguage() {
+      return testFlowQuestionnaire;
+    },
+    async submit() {},
+  };
+}
 
 async function wait(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
@@ -59,15 +65,18 @@ async function waitFor(condition: () => boolean) {
   }
 }
 
+function buttonNamed(container: HTMLElement, name: string) {
+  const button = Array.from(container.querySelectorAll("button")).find(
+    (candidate) => candidate.textContent?.trim() === name,
+  );
+  if (!button) throw new Error(`Button not found: ${name}`);
+  return button;
+}
+
 test(
   "answer controls stay absent until both opening messages finish typing",
   async () => {
     const storage = createMemoryQuestionnaireStorage();
-    const api: QuestionnaireApi = {
-      getQuestionnaire: () => getQuestionnaire(storage),
-      submitAnswer: (input) => submitAnswer(input, storage),
-      completeQuestionnaire: () => completeQuestionnaire(storage),
-    };
     const container = dom.window.document.createElement("div");
     dom.window.document.body.append(container);
     const root = createRoot(container);
@@ -76,11 +85,17 @@ test(
       await act(async () => {
         root.render(
           <Questionnaire
-            api={api}
+            client={clientFor()}
+            formToken={FORM_TOKEN}
+            initialQuestionnaire={testFlowQuestionnaire}
+            storage={storage}
             timings={{ conversationalPauseMs: 0, transitionDelayMs: 0 }}
           />,
         );
       });
+
+      await waitFor(() => container.textContent?.includes("Start") === true);
+      act(() => buttonNamed(container, "Start").click());
       await waitFor(
         () => container.querySelector("[data-questionnaire-phase]") !== null,
       );
@@ -92,9 +107,7 @@ test(
       ).toBe("weft_typing");
       expect(container.querySelector('[role="radiogroup"]')).toBeNull();
 
-      await waitFor(
-        () => container.querySelector('[role="radiogroup"]') !== null,
-      );
+      await waitFor(() => container.querySelector('[role="radiogroup"]') !== null);
       expect(
         container
           .querySelector("[data-questionnaire-phase]")
