@@ -1,0 +1,64 @@
+.circularTimer {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 7.5rem;
+  height: 7.5rem;
+}
+
+.ring {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.track {
+  fill: none;
+  stroke: var(--color-bone);
+}
+
+.progress {
+  fill: none;
+  stroke: var(--color-ember);
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(-90deg);
+}
+
+/* Progress only animates smoothly while the countdown is actually
+   ticking — a one-second linear sweep between each tick's dash-offset
+   update, so the ring reads as continuous motion rather than a jump. */
+.progressRunning {
+  transition: stroke-dashoffset 1s linear;
+}
+
+.readout {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  text-align: center;
+}
+
+.time {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ash);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressRunning {
+    transition-duration: 0.01ms;
+  }
+}
