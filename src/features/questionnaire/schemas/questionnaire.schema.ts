@@ -159,6 +159,23 @@ export const questionnaireResultSchema = z.object({
   isNewSession: z.boolean(),
 });
 
+const draftBaseSchema = z.object({
+  schemaVersion: z.literal(1),
+  formVersion: nonEmptyString,
+  language: languageSchema,
+  updatedAt: z.string().datetime(),
+});
+
+export const draftRecordSchema = z.discriminatedUnion("status", [
+  draftBaseSchema.extend({
+    status: z.literal("draft"),
+    answers: z.record(z.string(), answerValueSchema),
+    currentQuestionIndex: z.number().int().nonnegative(),
+    submissionId: z.string().uuid(),
+  }),
+  draftBaseSchema.extend({ status: z.literal("completed") }),
+]);
+
 type Question = z.infer<typeof questionSchema>;
 
 function parseTextAnswer(value: unknown, required: boolean): string | null {

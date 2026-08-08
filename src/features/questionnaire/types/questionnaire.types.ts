@@ -1,8 +1,10 @@
 import type { z } from "zod";
+import type { Language } from "../schemas/questionnaire.contract.schema";
 import type {
   answerScalarSchema,
   answerValueSchema,
   conversationItemSchema,
+  draftRecordSchema,
   optionSchema,
   questionnaireResultSchema,
   questionnaireSchema,
@@ -10,6 +12,8 @@ import type {
   sessionSchema,
   submitAnswerInputSchema,
 } from "../schemas/questionnaire.schema";
+
+export type { Language };
 
 export type Option = z.infer<typeof optionSchema>;
 export type Question = z.infer<typeof questionSchema>;
@@ -41,3 +45,5 @@ export type QuestionnaireClientErrorData = {
   code: QuestionnaireErrorCode;
   field?: string;
 };
+
+export type DraftRecord = z.infer<typeof draftRecordSchema>;
