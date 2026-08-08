@@ -1,8 +1,11 @@
 import { expect, test } from "bun:test";
 import type { Root } from "react-dom/client";
 import { JSDOM } from "jsdom";
+import { questionnaireMessages } from "../i18n/questionnaire.messages";
 import type { AnswerValue, Question } from "../types/questionnaire.types";
 import { QuestionComposer } from "./QuestionComposer";
+
+const messages = questionnaireMessages.en;
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   pretendToBeVisual: true,
@@ -81,6 +84,7 @@ async function withComposer(
       <QuestionComposer
         disabled={false}
         error={null}
+        messages={messages}
         onSubmit={(value) => {
           submissions.push(value);
         }}
@@ -213,4 +217,82 @@ test("hybrid Other reveals a required inline input", async () => {
       expect(submissions).toEqual(["People working on public-interest AI"]);
     },
   );
+});
+
+const numericSingleQuestion: Question = {
+  id: "s2",
+  type: "single_choice",
+  message: "How long have you been in this?",
+  required: true,
+  options: [
+    { id: "s2:1", label: "Just starting (under 2 years)", value: 1 },
+    { id: "s2:2", label: "2–5 years", value: 2 },
+    { id: "s2:3", label: "5–10 years", value: 3 },
+    { id: "s2:4", label: "10–15 years", value: 4 },
+    { id: "s2:5", label: "15+ years", value: 5 },
+  ],
+};
+
+const optionalEmailQuestion: Question = {
+  id: "email",
+  type: "text",
+  message: "Email",
+  required: false,
+  multiline: false,
+  inputFormat: "email",
+  maxLength: 254,
+};
+
+const longTextQuestion: Question = {
+  id: "t1",
+  type: "text",
+  message: "What do you want to accomplish today? Be specific.",
+  required: true,
+  multiline: true,
+  inputFormat: "text",
+  maxLength: 1_000,
+};
+
+const optionalOffersQuestion: Question = {
+  id: "s5",
+  type: "multiple_choice",
+  message: "So what can you bring?",
+  required: false,
+  minSelections: 0,
+  options: [
+    { id: "s5:experience", label: "Experience in my field", value: "experience" },
+    { id: "s5:intros", label: "Intros to the right people", value: "intros" },
+  ],
+};
+
+test("numeric single choice emits the original number", async () => {
+  await withComposer(numericSingleQuestion, async (container, submissions) => {
+    await act(async () => buttonNamed(container, "5–10 years").click());
+    await waitFor(() => submissions.length === 1);
+    expect(submissions).toEqual([3]);
+  });
+});
+
+test("optional short text exposes Skip and email semantics", async () => {
+  await withComposer(optionalEmailQuestion, async (container, submissions) => {
+    const input = container.querySelector<HTMLInputElement>('input[type="email"]');
+    expect(input?.autocomplete).toBe("email");
+    expect(input?.maxLength).toBe(254);
+    await act(async () => buttonNamed(container, "Skip").click());
+    expect(submissions).toEqual([null]);
+  });
+});
+
+test("long text uses a bounded textarea", async () => {
+  await withComposer(longTextQuestion, async (container) => {
+    const textarea = container.querySelector<HTMLTextAreaElement>("textarea");
+    expect(textarea?.maxLength).toBe(1000);
+  });
+});
+
+test("optional multi choice may continue with zero selections", async () => {
+  await withComposer(optionalOffersQuestion, async (container, submissions) => {
+    await act(async () => buttonNamed(container, "Continue").click());
+    expect(submissions).toEqual([[]]);
+  });
 });

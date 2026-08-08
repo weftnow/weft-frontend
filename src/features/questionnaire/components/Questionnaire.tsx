@@ -8,6 +8,7 @@ import {
   questionnaireApi,
   type QuestionnaireApi,
 } from "../api/questionnaire.api";
+import { questionnaireMessages } from "../i18n/questionnaire.messages";
 import { useQuestionnaire } from "../hooks/useQuestionnaire";
 import type {
   AnswerValue,
@@ -271,6 +272,7 @@ function QuestionnaireFlow({
         <QuestionComposer
           disabled={isSubmitting}
           error={submissionError}
+          messages={questionnaireMessages.en}
           onSubmit={submitCurrentAnswer}
           question={activeQuestion}
         />

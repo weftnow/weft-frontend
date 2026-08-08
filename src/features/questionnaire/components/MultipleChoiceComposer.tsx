@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import type { QuestionnaireMessages } from "../i18n/questionnaire.messages";
 import type { AnswerScalar, Question } from "../types/questionnaire.types";
 
 type MultipleQuestion = Extract<Question, { type: "multiple_choice" }>;
@@ -10,11 +11,13 @@ export function MultipleChoiceComposer({
   question,
   disabled,
   error,
+  messages,
   onSubmit,
 }: {
   question: MultipleQuestion;
   disabled: boolean;
   error: string | null;
+  messages: QuestionnaireMessages;
   onSubmit: (value: AnswerScalar[]) => Promise<void> | void;
 }) {
   const [selected, setSelected] = useState<AnswerScalar[]>([]);
@@ -107,7 +110,7 @@ export function MultipleChoiceComposer({
             transition={{ duration: reducedMotion ? 0 : 0.18 }}
             type="button"
           >
-            Continue
+            {messages.continue}
             <svg aria-hidden="true" fill="none" height="17" viewBox="0 0 24 24" width="17">
               <path d="M5 12h13m-5-5 5 5-5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
             </svg>
