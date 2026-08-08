@@ -1,11 +1,19 @@
 import { z } from "zod";
+import { languageSchema } from "./questionnaire.contract.schema";
 
 const nonEmptyString = z.string().trim().min(1);
+
+export const answerScalarSchema = z.union([z.string(), z.number().int()]);
+export const answerValueSchema = z.union([
+  answerScalarSchema,
+  z.array(answerScalarSchema),
+  z.null(),
+]);
 
 export const optionSchema = z.object({
   id: nonEmptyString,
   label: nonEmptyString,
-  value: nonEmptyString,
+  value: answerScalarSchema,
 });
 
 const uniqueOptions = (options: z.infer<typeof optionSchema>[]) => {
@@ -18,8 +26,11 @@ const textQuestionSchema = z.object({
   id: nonEmptyString,
   type: z.literal("text"),
   message: nonEmptyString,
-  placeholder: z.string().trim().min(1).optional(),
-  required: z.boolean().optional(),
+  placeholder: nonEmptyString.optional(),
+  required: z.boolean(),
+  multiline: z.boolean(),
+  inputFormat: z.enum(["text", "name", "email", "tel", "organization"]),
+  maxLength: z.number().int().positive(),
 });
 
 const singleChoiceQuestionSchema = z
@@ -89,7 +100,10 @@ export const questionSchema = z.discriminatedUnion("type", [
 export const questionnaireSchema = z
   .object({
     id: nonEmptyString,
-    version: z.number().int().positive(),
+    version: nonEmptyString,
+    language: languageSchema,
+    eventName: nonEmptyString,
+    acceptingSubmissions: z.boolean(),
     intro: z.object({
       eyebrow: nonEmptyString,
       title: nonEmptyString,
@@ -107,11 +121,6 @@ export const questionnaireSchema = z
       path: ["questions"],
     },
   );
-
-export const answerValueSchema = z.union([
-  z.string(),
-  z.array(z.string()),
-]);
 
 export const submitAnswerInputSchema = z.object({
   questionId: nonEmptyString,
@@ -136,7 +145,7 @@ export const conversationItemSchema = z.discriminatedUnion("type", [
 
 export const sessionSchema = z.object({
   questionnaireId: nonEmptyString,
-  questionnaireVersion: z.number().int().positive(),
+  questionnaireVersion: nonEmptyString,
   conversation: z.array(conversationItemSchema),
   answers: z.record(z.string(), answerValueSchema),
   currentQuestionIndex: z.number().int().nonnegative(),
@@ -150,9 +159,28 @@ export const questionnaireResultSchema = z.object({
   isNewSession: z.boolean(),
 });
 
+const draftBaseSchema = z.object({
+  schemaVersion: z.literal(1),
+  formVersion: nonEmptyString,
+  language: languageSchema,
+  updatedAt: z.string().datetime(),
+});
+
+export const draftRecordSchema = z.discriminatedUnion("status", [
+  draftBaseSchema.extend({
+    status: z.literal("draft"),
+    answers: z.record(z.string(), answerValueSchema),
+    currentQuestionIndex: z.number().int().nonnegative(),
+    submissionId: z.string().uuid(),
+  }),
+  draftBaseSchema.extend({ status: z.literal("completed") }),
+]);
+
 type Question = z.infer<typeof questionSchema>;
 
-function parseTextAnswer(value: unknown, required: boolean) {
+function parseTextAnswer(value: unknown, required: boolean): string | null {
+  if (value === null && !required) return null;
+
   const parsed = z.string().safeParse(value);
   if (!parsed.success) {
     throw new Error("This answer must be text");
@@ -166,18 +194,27 @@ function parseTextAnswer(value: unknown, required: boolean) {
   return trimmed;
 }
 
+function parseScalarAnswer(value: unknown) {
+  const parsed = answerScalarSchema.safeParse(value);
+  if (!parsed.success) {
+    throw new Error("This answer must be text or a number");
+  }
+  return parsed.data;
+}
+
 export function parseAnswerForQuestion(
   question: Question,
   value: unknown,
-): string | string[] {
+): z.infer<typeof answerValueSchema> {
+  const required = question.required ?? false;
+
   if (question.type === "text") {
-    return parseTextAnswer(value, question.required ?? false);
+    return parseTextAnswer(value, required);
   }
 
-  const allowed = new Set(question.options.map((option) => option.value));
-
   if (question.type === "multiple_choice") {
-    const parsed = z.array(z.string()).safeParse(value);
+    const allowed = new Set(question.options.map((option) => option.value));
+    const parsed = z.array(answerScalarSchema).safeParse(value);
     if (!parsed.success) {
       throw new Error("Choose one or more listed options");
     }
@@ -190,7 +227,7 @@ export function parseAnswerForQuestion(
       throw new Error("Every selection must belong to this question");
     }
 
-    const minimum = question.minSelections ?? (question.required ? 1 : 0);
+    const minimum = question.minSelections ?? (required ? 1 : 0);
     const maximum = question.maxSelections ?? question.options.length;
     if (selected.length < minimum || selected.length > maximum) {
       throw new Error(`Choose between ${minimum} and ${maximum} options`);
@@ -199,14 +236,21 @@ export function parseAnswerForQuestion(
     return selected;
   }
 
-  const answer = parseTextAnswer(value, question.required ?? false);
-  if (question.type === "single_choice" && !allowed.has(answer)) {
-    throw new Error("Choose one of the listed options");
+  if (question.type === "single_choice") {
+    if (value === null && !required) return null;
+    const allowed = new Set(question.options.map((option) => option.value));
+    const scalar = parseScalarAnswer(value);
+    if (!allowed.has(scalar)) {
+      throw new Error("Choose one of the listed options");
+    }
+    return scalar;
   }
 
-  if (question.type === "hybrid" && answer.length === 0) {
+  // hybrid
+  if (value === null && !required) return null;
+  const answer = parseTextAnswer(value, required);
+  if (answer !== null && answer.length === 0) {
     throw new Error("Choose an option or tell us your own answer");
   }
-
   return answer;
 }

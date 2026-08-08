@@ -1,7 +1,10 @@
 import type { z } from "zod";
+import type { Language } from "../schemas/questionnaire.contract.schema";
 import type {
+  answerScalarSchema,
   answerValueSchema,
   conversationItemSchema,
+  draftRecordSchema,
   optionSchema,
   questionnaireResultSchema,
   questionnaireSchema,
@@ -10,12 +13,15 @@ import type {
   submitAnswerInputSchema,
 } from "../schemas/questionnaire.schema";
 
+export type { Language };
+
 export type Option = z.infer<typeof optionSchema>;
 export type Question = z.infer<typeof questionSchema>;
 export type Questionnaire = z.infer<typeof questionnaireSchema>;
 export type ConversationItem = z.infer<typeof conversationItemSchema>;
 export type QuestionnaireSession = z.infer<typeof sessionSchema>;
 export type QuestionnaireResult = z.infer<typeof questionnaireResultSchema>;
+export type AnswerScalar = z.infer<typeof answerScalarSchema>;
 export type AnswerValue = z.infer<typeof answerValueSchema>;
 export type SubmitAnswerInput = z.infer<typeof submitAnswerInputSchema>;
 
@@ -25,3 +31,19 @@ export type ConversationPhase =
   | "submitting_answer"
   | "transitioning"
   | "completed";
+
+export type QuestionnaireErrorCode =
+  | "invalidLink"
+  | "notFound"
+  | "notAccepting"
+  | "validation"
+  | "versionConflict"
+  | "idempotencyConflict"
+  | "unavailable";
+
+export type QuestionnaireClientErrorData = {
+  code: QuestionnaireErrorCode;
+  field?: string;
+};
+
+export type DraftRecord = z.infer<typeof draftRecordSchema>;

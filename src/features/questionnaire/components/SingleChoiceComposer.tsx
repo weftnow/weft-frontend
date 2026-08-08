@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import type { Question } from "../types/questionnaire.types";
+import type { AnswerScalar, Question } from "../types/questionnaire.types";
 
 type SingleQuestion = Extract<Question, { type: "single_choice" }>;
 
@@ -15,9 +15,9 @@ export function SingleChoiceComposer({
   question: SingleQuestion;
   disabled: boolean;
   error: string | null;
-  onSubmit: (value: string) => Promise<void> | void;
+  onSubmit: (value: AnswerScalar) => Promise<void> | void;
 }) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<AnswerScalar | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const firstOptionRef = useRef<HTMLButtonElement>(null);
   const reducedMotion = useReducedMotion() ?? false;
@@ -26,7 +26,7 @@ export function SingleChoiceComposer({
     firstOptionRef.current?.focus({ preventScroll: true });
   }, []);
 
-  const choose = async (value: string) => {
+  const choose = async (value: AnswerScalar) => {
     if (disabled || submitting) return;
     setSelected(value);
     setSubmitting(true);

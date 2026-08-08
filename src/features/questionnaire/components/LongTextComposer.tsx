@@ -5,24 +5,16 @@ import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import type { QuestionnaireMessages } from "../i18n/questionnaire.messages";
 import type { AnswerValue, Question } from "../types/questionnaire.types";
 
-type TextQuestion = Extract<Question, { type: "text" }>;
+type LongTextQuestion = Extract<Question, { type: "text" }>;
 
-const INPUT_ATTRIBUTES = {
-  text: { type: "text", inputMode: "text", autoComplete: "off" },
-  name: { type: "text", inputMode: "text", autoComplete: "name" },
-  email: { type: "email", inputMode: "email", autoComplete: "email" },
-  tel: { type: "tel", inputMode: "tel", autoComplete: "tel" },
-  organization: { type: "text", inputMode: "text", autoComplete: "organization" },
-} as const;
-
-export function TextComposer({
+export function LongTextComposer({
   question,
   disabled,
   error,
   messages,
   onSubmit,
 }: {
-  question: TextQuestion;
+  question: LongTextQuestion;
   disabled: boolean;
   error: string | null;
   messages: QuestionnaireMessages;
@@ -30,11 +22,10 @@ export function TextComposer({
 }) {
   const [value, setValue] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const attributes = INPUT_ATTRIBUTES[question.inputFormat];
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus({ preventScroll: true });
+    textareaRef.current?.focus({ preventScroll: true });
   }, []);
 
   const submit = async (event?: FormEvent) => {
@@ -46,7 +37,7 @@ export function TextComposer({
       await onSubmit(answer);
     } catch {
       setSubmitting(false);
-      requestAnimationFrame(() => inputRef.current?.focus());
+      requestAnimationFrame(() => textareaRef.current?.focus());
     }
   };
 
@@ -64,7 +55,7 @@ export function TextComposer({
     <motion.form
       animate={{ opacity: 1, y: 0 }}
       className="mx-auto w-full max-w-[40rem]"
-      data-composer="text"
+      data-composer="long-text"
       initial={{ opacity: 0, y: 6 }}
       onSubmit={submit}
       transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
@@ -72,23 +63,23 @@ export function TextComposer({
       <label className="sr-only" htmlFor={`answer-${question.id}`}>
         {question.message}
       </label>
-      <div className="flex min-h-16 items-center gap-2 rounded-[1.35rem] border border-ink/12 bg-white/74 p-2 pl-5 shadow-[0_10px_35px_rgb(18_18_18/4%)] focus-within:border-ember/55">
-        <input
-          {...attributes}
+      <div className="flex items-end gap-2 rounded-[1.35rem] border border-ink/12 bg-white/74 p-2 pl-5 shadow-[0_10px_35px_rgb(18_18_18/4%)] focus-within:border-ember/55">
+        <textarea
           aria-describedby={error ? `error-${question.id}` : undefined}
-          className="min-w-0 flex-1 bg-transparent text-base text-ink outline-none placeholder:text-ink/38"
+          className="min-h-[4.5rem] w-full flex-1 resize-none bg-transparent py-3 text-base text-ink outline-none placeholder:text-ink/38"
           disabled={disabled || submitting}
           id={`answer-${question.id}`}
           maxLength={question.maxLength}
           onChange={(event) => setValue(event.target.value)}
-          onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
-            if (event.key === "Enter") {
+          onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
+            if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
               event.preventDefault();
               void submit();
             }
           }}
           placeholder={question.placeholder ?? "Type your answer…"}
-          ref={inputRef}
+          ref={textareaRef}
+          rows={4}
           value={value}
         />
         <button

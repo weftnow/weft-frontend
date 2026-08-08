@@ -2,11 +2,11 @@ import { expect, test } from "bun:test";
 import { fileURLToPath } from "node:url";
 
 test(
-  "questionnaire query binding passes in an isolated DOM",
+  "questionnaire controller interactions pass in an isolated DOM",
   async () => {
     const projectRoot = fileURLToPath(new URL("../../../..", import.meta.url));
     const mountedSuite = fileURLToPath(
-      new URL("./useQuestionnaire.mount.tsx", import.meta.url),
+      new URL("./useQuestionnaireController.mount.tsx", import.meta.url),
     );
     const subprocess = Bun.spawn({
       cmd: [process.execPath, "test", mountedSuite],
@@ -19,7 +19,6 @@ test(
       new Response(subprocess.stderr).text(),
       subprocess.exited,
     ]);
-
     expect(exitCode, `${stdout}\n${stderr}`).toBe(0);
   },
   20_000,
