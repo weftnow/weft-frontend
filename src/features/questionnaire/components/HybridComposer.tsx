@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import type { Question } from "../types/questionnaire.types";
+import type { AnswerScalar, Question } from "../types/questionnaire.types";
 
 type HybridQuestion = Extract<Question, { type: "hybrid" }>;
 const OTHER_VALUE = "__weft_other__";
@@ -16,9 +16,9 @@ export function HybridComposer({
   question: HybridQuestion;
   disabled: boolean;
   error: string | null;
-  onSubmit: (value: string) => Promise<void> | void;
+  onSubmit: (value: AnswerScalar) => Promise<void> | void;
 }) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<AnswerScalar | null>(null);
   const [otherValue, setOtherValue] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const firstOptionRef = useRef<HTMLButtonElement>(null);
@@ -38,7 +38,7 @@ export function HybridComposer({
     }
   }, [otherSelected]);
 
-  const choose = async (value: string) => {
+  const choose = async (value: AnswerScalar) => {
     if (disabled || submitting) return;
     setSelected(value);
     if (value === OTHER_VALUE) return;

@@ -13,4 +13,7 @@ test("mock networking questionnaire is valid and exercises all composer types", 
     "You’re all set.",
     "Thanks. We’ll use your answers to introduce you to the right people.",
   ]);
+  expect(mockQuestionnaire.language).toBe("en");
+  expect(mockQuestionnaire.eventName).toBe("Weft networking night");
+  expect(mockQuestionnaire.acceptingSubmissions).toBe(true);
 });

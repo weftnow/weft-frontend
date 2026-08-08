@@ -90,7 +90,7 @@ test("corrupt or version-incompatible storage restarts safely", async () => {
   const wrongVersion = createMemoryQuestionnaireStorage(
     JSON.stringify({
       questionnaireId: "weft-networking-night",
-      questionnaireVersion: 999,
+      questionnaireVersion: "v999",
       conversation: [],
       answers: {},
       currentQuestionIndex: 0,

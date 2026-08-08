@@ -1,4 +1,5 @@
 import { mockQuestionnaire } from "../data/mockQuestionnaire";
+import { messagesFor } from "../i18n/questionnaire.messages";
 import {
   parseAnswerForQuestion,
   questionnaireResultSchema,
@@ -197,23 +198,28 @@ function result(
   });
 }
 
-function displayAnswer(question: Question, value: AnswerValue) {
+function displayAnswer(
+  questionnaire: Questionnaire,
+  question: Question,
+  value: AnswerValue,
+) {
+  if (value === null) return messagesFor(questionnaire.language).skipped;
+
   if (Array.isArray(value)) {
     const labels = new Map(
       question.type === "text"
         ? []
         : question.options.map((option) => [option.value, option.label]),
     );
-    return value.map((item) => labels.get(item) ?? item).join(" · ");
+    return value.map((item) => labels.get(item) ?? String(item)).join(" · ");
   }
 
   if (question.type !== "text") {
-    return (
-      question.options.find((option) => option.value === value)?.label ?? value
-    );
+    const label = question.options.find((option) => option.value === value)?.label;
+    return label ?? String(value);
   }
 
-  return value;
+  return String(value);
 }
 
 export async function getQuestionnaire(
@@ -260,7 +266,7 @@ export async function submitAnswer(
         type: "answer",
         questionId: question.id,
         value: answer,
-        display: displayAnswer(question, answer),
+        display: displayAnswer(questionnaire, question, answer),
       },
       ...(nextQuestion
         ? [

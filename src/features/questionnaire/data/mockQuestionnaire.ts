@@ -2,7 +2,10 @@ import type { Questionnaire } from "../types/questionnaire.types";
 
 export const mockQuestionnaire = {
   id: "weft-networking-night",
-  version: 1,
+  version: "fixture-v1",
+  language: "en",
+  eventName: "Weft networking night",
+  acceptingSubmissions: true,
   intro: {
     eyebrow: "Weft questionnaire",
     title: "Let’s get to know you",
@@ -78,6 +81,9 @@ export const mockQuestionnaire = {
       message: "What are you currently working on?",
       placeholder: "A project, challenge, or idea…",
       required: true,
+      multiline: false,
+      inputFormat: "text",
+      maxLength: 500,
     },
     {
       id: "relevant-topics",
@@ -115,6 +121,9 @@ export const mockQuestionnaire = {
       message: "What could you genuinely help someone else with?",
       placeholder: "Something you know, have done, or can unlock…",
       required: true,
+      multiline: false,
+      inputFormat: "text",
+      maxLength: 500,
     },
   ],
 } satisfies Questionnaire;

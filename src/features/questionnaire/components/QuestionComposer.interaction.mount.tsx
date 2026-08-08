@@ -111,6 +111,9 @@ test("text Enter trims and submits once", async () => {
       type: "text",
       message: "What are you building?",
       required: true,
+      multiline: false,
+      inputFormat: "text",
+      maxLength: 200,
     },
     async (container, submissions) => {
       const input = container.querySelector<HTMLInputElement>('input[type="text"]');

@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import type { Question } from "../types/questionnaire.types";
+import type { AnswerScalar, Question } from "../types/questionnaire.types";
 
 type MultipleQuestion = Extract<Question, { type: "multiple_choice" }>;
 
@@ -15,9 +15,9 @@ export function MultipleChoiceComposer({
   question: MultipleQuestion;
   disabled: boolean;
   error: string | null;
-  onSubmit: (value: string[]) => Promise<void> | void;
+  onSubmit: (value: AnswerScalar[]) => Promise<void> | void;
 }) {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<AnswerScalar[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const firstOptionRef = useRef<HTMLButtonElement>(null);
   const reducedMotion = useReducedMotion() ?? false;
@@ -29,7 +29,7 @@ export function MultipleChoiceComposer({
     firstOptionRef.current?.focus({ preventScroll: true });
   }, []);
 
-  const toggle = (value: string) => {
+  const toggle = (value: AnswerScalar) => {
     if (disabled || submitting) return;
     setSelected((current) => {
       if (current.includes(value)) {

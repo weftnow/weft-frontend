@@ -26,6 +26,9 @@ test("question discriminants render only their relevant composer", () => {
     type: "text",
     message: "What are you building?",
     required: true,
+    multiline: false,
+    inputFormat: "text",
+    maxLength: 200,
   });
   const singleHtml = render({
     id: "reason",
