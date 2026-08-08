@@ -8,10 +8,6 @@ export type QuestionDisplayProps = {
   round: FastQuestionRound;
 };
 
-function presentQuestion(question: string): string {
-  return question.replaceAll("'", "’");
-}
-
 export function QuestionDisplay({ round }: QuestionDisplayProps) {
   const reducedMotion = Boolean(useReducedMotion());
 
@@ -23,7 +19,7 @@ export function QuestionDisplay({ round }: QuestionDisplayProps) {
       key={round.id}
       transition={{ duration: reducedMotion ? 0.01 : 0.2, ease: "easeOut" }}
     >
-      {presentQuestion(round.question)}
+      {round.question}
     </motion.h1>
   );
 }

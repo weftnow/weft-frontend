@@ -13,7 +13,7 @@ const session = createMockFastQuestionsSession(
 test("keeps the question as the primary heading", () => {
   const html = renderToStaticMarkup(<QuestionDisplay round={session.rounds[0]} />);
   expect(html).toContain("<h1");
-  expect(html).toContain("What’s one thing you’re working on right now?");
+  expect(html).toContain("What&#x27;s one thing you&#x27;re working on right now?");
 });
 
 test("marks exactly one active participant and preserves full names", () => {
