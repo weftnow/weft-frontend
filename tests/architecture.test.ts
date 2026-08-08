@@ -102,7 +102,20 @@ test("attendee questionnaire owns a feature-based route and api boundary", () =>
       ),
     ),
   ).toBe(true);
+  // The B2B event form is same-origin proxied through narrowly scoped route
+  // handlers (never a generic passthrough), so this directory existing is
+  // intentional — unlike demo-b2c, which never needs its own routes.
   expect(
-    existsSync(resolve(projectRoot, "src/app/api/questionnaire")),
-  ).toBe(false);
+    existsSync(
+      resolve(projectRoot, "src/app/api/questionnaire/[formToken]/route.ts"),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(
+        projectRoot,
+        "src/app/api/questionnaire/[formToken]/submit/route.ts",
+      ),
+    ),
+  ).toBe(true);
 });
