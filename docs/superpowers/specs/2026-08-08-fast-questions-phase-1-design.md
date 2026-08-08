@@ -65,6 +65,11 @@ in tests and available for local development while the backend contract is
 being simplified. Production behavior must not silently fall back to mock
 state when the upstream service is misconfigured.
 
+For practical local testing, the mock adapter accepts a server-only
+`WEFT_FAST_QUESTIONS_DEV_SECONDS` override in development and test. Setting it
+to `5` gives every mock round a five-second participant duration. Production
+ignores the override, and no development controls appear in the interface.
+
 TanStack Query is added as the only new runtime dependency because it is named
 in the requested stack but is not currently present in `package.json`. Its
 provider is mounted at the narrow conversation feature boundary rather than at
