@@ -124,6 +124,30 @@ test("field validation correction retains all other answers", () => {
   expect(corrected.correctionQuestionId).toBeNull();
 });
 
+test("versionReset clears in-progress answers and starts a new submission id", () => {
+  const started = questionnaireReducer(
+    createQuestionnaireState(questionnaireEn, { submissionId: "sub-6" }),
+    { type: "started" },
+  );
+  const answered = questionnaireReducer(started, {
+    type: "answerAccepted",
+    questionId: "name",
+    value: "Ana",
+  });
+  const questionnaireV2 = { ...questionnaireEn, version: "v2" };
+  const reset = questionnaireReducer(answered, {
+    type: "versionReset",
+    questionnaire: questionnaireV2,
+    submissionId: "sub-7",
+  });
+  expect(reset.status).toBe("opening");
+  expect(reset.answers).toEqual({});
+  expect(reset.currentQuestionIndex).toBe(0);
+  expect(reset.submissionId).toBe("sub-7");
+  expect(reset.questionnaire.version).toBe("v2");
+  expect(reset.resetReason).toBe("versionChanged");
+});
+
 test("selectQuestionnaireResult surfaces the welcome message and active question", () => {
   const state = questionnaireReducer(
     createQuestionnaireState(questionnaireEn, { submissionId: "sub-4" }),

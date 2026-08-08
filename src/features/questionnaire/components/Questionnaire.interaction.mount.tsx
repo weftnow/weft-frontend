@@ -46,13 +46,15 @@ const { createMemoryQuestionnaireStorage, readDraft } = await import(
 );
 const { mapQuestionnaireDefinition } = await import("../model/questionnaire.mapper");
 const { formDefinitionSchema } = await import("../schemas/questionnaire.contract.schema");
-const { backendFormEn } = await import("../test/backendFormFixtures");
+const { backendFormEn, backendFormEs } = await import("../test/backendFormFixtures");
 const { testFlowQuestionnaire } = await import("../test/testFlowQuestionnaire");
+const { questionnaireMessages } = await import("../i18n/questionnaire.messages");
 
 const FORM_TOKEN = "token-valid-123456";
 const TEST_TIMINGS = { conversationalPauseMs: 0, transitionDelayMs: 20 };
 
 const questionnaireEn = mapQuestionnaireDefinition(formDefinitionSchema.parse(backendFormEn));
+const questionnaireEs = mapQuestionnaireDefinition(formDefinitionSchema.parse(backendFormEs));
 
 const COMPLETE_ANSWERS: Record<string, unknown> = {
   name: "Ana",
@@ -75,14 +77,31 @@ const COMPLETE_ANSWERS: Record<string, unknown> = {
 };
 
 type QuestionnaireStorage = ReturnType<typeof createMemoryQuestionnaireStorage>;
+type BackendQuestionnaire = typeof questionnaireEn;
+type Labels = { skip: string; sendAnswer: string; continueLabel: string; start: string };
+
+function labelsFor(language: "en" | "es"): Labels {
+  const messages = questionnaireMessages[language];
+  return {
+    skip: messages.skip,
+    sendAnswer: messages.sendAnswer,
+    continueLabel: messages.continue,
+    start: messages.start,
+  };
+}
 
 function clientFor() {
+  const loadLanguageCalls: string[] = [];
+  const submitCalls: { submissionId: string; body: unknown }[] = [];
   return {
-    async loadLanguage() {
-      return questionnaireEn;
+    loadLanguageCalls,
+    submitCalls,
+    async loadLanguage(_formToken: string, language: "en" | "es") {
+      loadLanguageCalls.push(language);
+      return language === "es" ? questionnaireEs : questionnaireEn;
     },
-    async submit() {
-      // Resolves successfully; failure/correction flows belong to Task 9.
+    async submit(_formToken: string, submissionId: string, body: unknown) {
+      submitCalls.push({ submissionId, body });
     },
   };
 }
@@ -107,10 +126,7 @@ async function waitFor(condition: () => boolean, debugContainer?: HTMLElement) {
 }
 
 function typeInto(field: HTMLInputElement | HTMLTextAreaElement, value: string) {
-  const setter = Object.getOwnPropertyDescriptor(
-    Object.getPrototypeOf(field),
-    "value",
-  )?.set;
+  const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(field), "value")?.set;
   setter?.call(field, value);
   field.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
 }
@@ -126,7 +142,7 @@ function buttonNamed(container: HTMLElement, name: string) {
 
 async function mountQuestionnaire(
   storage: QuestionnaireStorage,
-  questionnaire = testFlowQuestionnaire,
+  questionnaire: BackendQuestionnaire = testFlowQuestionnaire,
   client = clientFor(),
 ) {
   const container = dom.window.document.createElement("div");
@@ -143,8 +159,8 @@ async function mountQuestionnaire(
       />,
     );
   });
-  await waitFor(() => container.querySelector("button") !== null);
-  return { container, root };
+  await waitFor(() => container.querySelector(".questionnaire-shell") !== null);
+  return { container, root, client };
 }
 
 async function unmount(root: Root, container: HTMLDivElement) {
@@ -152,21 +168,22 @@ async function unmount(root: Root, container: HTMLDivElement) {
   container.remove();
 }
 
-async function startFromOpening(container: HTMLElement) {
-  await waitFor(() => container.textContent?.includes("Start") === true);
-  act(() => buttonNamed(container, "Start").click());
+async function startFromOpening(container: HTMLElement, startLabel: string) {
+  await waitFor(() => container.textContent?.includes(startLabel) === true);
+  act(() => buttonNamed(container, startLabel).click());
   await waitFor(() => container.querySelector("[data-questionnaire-phase]") !== null);
 }
 
 async function answerCurrentQuestion(
   container: HTMLElement,
-  question: (typeof questionnaireEn.questions)[number],
+  question: BackendQuestionnaire["questions"][number],
   value: unknown,
+  labels: Labels,
 ) {
   if (question.type === "text") {
     if (value === null) {
-      await waitFor(() => container.textContent?.includes("Skip") === true, container);
-      act(() => buttonNamed(container, "Skip").click());
+      await waitFor(() => container.textContent?.includes(labels.skip) === true, container);
+      act(() => buttonNamed(container, labels.skip).click());
       return;
     }
     const field = question.multiline
@@ -174,7 +191,7 @@ async function answerCurrentQuestion(
       : container.querySelector<HTMLInputElement>("input:not([type=hidden])");
     if (!field) throw new Error(`Answer field not found for ${question.id}`);
     act(() => typeInto(field, String(value)));
-    act(() => buttonNamed(container, "Send answer").click());
+    act(() => buttonNamed(container, labels.sendAnswer).click());
     return;
   }
 
@@ -191,41 +208,89 @@ async function answerCurrentQuestion(
     if (!option) throw new Error(`Option not found for ${question.id}=${String(selected)}`);
     act(() => buttonNamed(container, option.label).click());
   }
-  await waitFor(() => container.textContent?.includes("Continue") === true, container);
-  act(() => buttonNamed(container, "Continue").click());
+  await waitFor(() => container.textContent?.includes(labels.continueLabel) === true, container);
+  act(() => buttonNamed(container, labels.continueLabel).click());
 }
 
-test("every backend answer advances and the exact completion messages persist", async () => {
-  const storage = createMemoryQuestionnaireStorage();
-  const { container, root } = await mountQuestionnaire(storage, questionnaireEn);
-  try {
-    await startFromOpening(container);
+async function runFullJourney(
+  container: HTMLElement,
+  questionnaire: BackendQuestionnaire,
+  labels: Labels,
+) {
+  for (const question of questionnaire.questions) {
+    await waitFor(() => container.textContent?.includes(question.message) === true, container);
+    await answerCurrentQuestion(container, question, COMPLETE_ANSWERS[question.id], labels);
+  }
+}
 
-    for (const question of questionnaireEn.questions) {
+test(
+  "every backend answer advances and the exact completion messages persist (English)",
+  async () => {
+    const storage = createMemoryQuestionnaireStorage();
+    const client = clientFor();
+    const { container, root } = await mountQuestionnaire(storage, questionnaireEn, client);
+    try {
+      const labels = labelsFor("en");
+      await startFromOpening(container, labels.start);
+      expect(client.loadLanguageCalls).toEqual([]);
+
+      await runFullJourney(container, questionnaireEn, labels);
+
       await waitFor(
-        () => container.textContent?.includes(question.message) === true,
+        () => container.textContent?.includes("You’re all set.") === true,
         container,
       );
-      await answerCurrentQuestion(container, question, COMPLETE_ANSWERS[question.id]);
+      expect(container.textContent).toContain(
+        "Thanks. We’ll use your answers to introduce you to the right people.",
+      );
+      expect(readDraft(FORM_TOKEN, storage)?.status).toBe("completed");
+      // Exactly one final network write for the whole 17-question journey.
+      expect(client.submitCalls).toHaveLength(1);
+      expect(client.loadLanguageCalls).toEqual([]);
+      // The language picker never reappears once the conversation starts.
+      expect(container.querySelector('[role="radiogroup"][aria-label="Language"]')).toBeNull();
+    } finally {
+      await unmount(root, container);
     }
+  },
+  15_000,
+);
 
-    await waitFor(
-      () => container.textContent?.includes("You’re all set.") === true,
-      container,
-    );
-    expect(container.textContent).toContain(
-      "Thanks. We’ll use your answers to introduce you to the right people.",
-    );
-    expect(readDraft(FORM_TOKEN, storage)?.status).toBe("completed");
-  } finally {
-    await unmount(root, container);
-  }
-});
+test(
+  "every backend answer advances and the exact completion messages persist (Spanish)",
+  async () => {
+    const storage = createMemoryQuestionnaireStorage();
+    const client = clientFor();
+    const { container, root } = await mountQuestionnaire(storage, questionnaireEs, client);
+    try {
+      const labels = labelsFor("es");
+      await startFromOpening(container, labels.start);
+      expect(client.loadLanguageCalls).toEqual([]);
+
+      await runFullJourney(container, questionnaireEs, labels);
+
+      await waitFor(
+        () => container.textContent?.includes("Todo listo.") === true,
+        container,
+      );
+      expect(container.textContent).toContain(
+        "Gracias. Usaremos tus respuestas para presentarte a las personas indicadas.",
+      );
+      expect(readDraft(FORM_TOKEN, storage)?.status).toBe("completed");
+      expect(client.submitCalls).toHaveLength(1);
+      expect(client.loadLanguageCalls).toEqual([]);
+    } finally {
+      await unmount(root, container);
+    }
+  },
+  15_000,
+);
 
 test("remount resumes at the current question without replaying old messages", async () => {
   const storage = createMemoryQuestionnaireStorage();
   const firstMount = await mountQuestionnaire(storage);
-  await startFromOpening(firstMount.container);
+  const labels = labelsFor("en");
+  await startFromOpening(firstMount.container, labels.start);
   await waitFor(() => firstMount.container.querySelector('[role="radiogroup"]') !== null);
   act(() => buttonNamed(firstMount.container, "Meet thoughtful new people").click());
   await waitFor(() => firstMount.container.querySelector('input[type="text"]') !== null);
@@ -240,3 +305,94 @@ test("remount resumes at the current question without replaying old messages", a
     await unmount(resumed.root, resumed.container);
   }
 });
+
+test("refresh after a numeric choice and a skipped optional answer resumes correctly and never stores the attendee token", async () => {
+  const storage = createMemoryQuestionnaireStorage();
+  const labels = labelsFor("en");
+  const firstMount = await mountQuestionnaire(storage, questionnaireEn, clientFor());
+  await startFromOpening(firstMount.container, labels.start);
+
+  // name, then skip the optional email, through to the numeric s2 choice.
+  const upToS2 = questionnaireEn.questions.slice(
+    0,
+    questionnaireEn.questions.findIndex((q) => q.id === "s2") + 1,
+  );
+  for (const question of upToS2) {
+    await waitFor(
+      () => firstMount.container.textContent?.includes(question.message) === true,
+      firstMount.container,
+    );
+    await answerCurrentQuestion(
+      firstMount.container,
+      question,
+      COMPLETE_ANSWERS[question.id],
+      labels,
+    );
+  }
+
+  await waitFor(
+    () => firstMount.container.textContent?.includes("5–10 years") === true,
+    firstMount.container,
+  );
+  const nextQuestion = questionnaireEn.questions[upToS2.length];
+  await waitFor(
+    () => firstMount.container.textContent?.includes(nextQuestion.message) === true,
+    firstMount.container,
+  );
+
+  const draftSoFar = readDraft(FORM_TOKEN, storage);
+  expect(draftSoFar?.status).toBe("draft");
+  const serializedDraft = JSON.stringify(draftSoFar);
+  expect(serializedDraft).not.toContain("attendee_token");
+  expect(serializedDraft).not.toContain("attendee-secret");
+
+  await unmount(firstMount.root, firstMount.container);
+
+  const resumed = await mountQuestionnaire(storage, questionnaireEn, clientFor());
+  try {
+    await waitFor(
+      () => resumed.container.textContent?.includes(nextQuestion.message) === true,
+      resumed.container,
+    );
+    // Numeric option displays through its localized label, not the raw "3".
+    expect(resumed.container.textContent).toContain("5–10 years");
+    expect(resumed.container.querySelector("[data-animated-item-id]")).toBeNull();
+  } finally {
+    await unmount(resumed.root, resumed.container);
+  }
+});
+
+test(
+  "a completed record only ever stores schema metadata, and remount restores it without resubmitting",
+  async () => {
+    const storage = createMemoryQuestionnaireStorage();
+    const client = clientFor();
+    const labels = labelsFor("en");
+    const { container, root } = await mountQuestionnaire(storage, questionnaireEn, client);
+    await startFromOpening(container, labels.start);
+    await runFullJourney(container, questionnaireEn, labels);
+    await waitFor(
+      () => container.textContent?.includes("You’re all set.") === true,
+      container,
+    );
+
+    const completed = readDraft(FORM_TOKEN, storage);
+    expect(completed?.status).toBe("completed");
+    expect(completed && Object.keys(completed).sort()).toEqual(
+      ["formVersion", "language", "schemaVersion", "status", "updatedAt"].sort(),
+    );
+    await unmount(root, container);
+
+    const remounted = await mountQuestionnaire(storage, questionnaireEn, client);
+    try {
+      await waitFor(
+        () => remounted.container.textContent?.includes("You’re all set.") === true,
+        remounted.container,
+      );
+      expect(client.submitCalls).toHaveLength(1);
+    } finally {
+      await unmount(remounted.root, remounted.container);
+    }
+  },
+  15_000,
+);

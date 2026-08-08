@@ -46,6 +46,17 @@ const FORM_TOKEN = "token-valid-123456";
 const questionnaireEn = mapQuestionnaireDefinition(formDefinitionSchema.parse(backendFormEn));
 const questionnaireEs = mapQuestionnaireDefinition(formDefinitionSchema.parse(backendFormEs));
 
+const spanishDraft = {
+  schemaVersion: 1 as const,
+  formVersion: "v1",
+  language: "es" as const,
+  updatedAt: new Date().toISOString(),
+  status: "draft" as const,
+  answers: {},
+  currentQuestionIndex: 0,
+  submissionId: "91acb4f0-77e4-4d7b-9ed9-cb70a44696dc",
+};
+
 const COMPLETE_ANSWERS: Record<string, unknown> = {
   name: "Ana",
   email: null,
@@ -162,14 +173,19 @@ async function mountController({
 
 async function mountFullyAnsweredController(
   client: ReturnType<typeof fakeClient>,
-  seedDraft?: unknown,
+  seedDraft?: { language: "en" | "es" },
 ) {
   const storage = seedDraft ? storageWith(seedDraft) : createMemoryQuestionnaireStorage();
-  const harness = await mountController({ initialQuestionnaire: questionnaireEn, client, storage });
+  // When resuming a seeded draft, mount with the definition already in that
+  // draft's language — this test isolates version-conflict recovery, not the
+  // separate hydration-time language-mismatch path Task 8 already covers.
+  const initialQuestionnaire =
+    seedDraft?.language === "es" ? questionnaireEs : questionnaireEn;
+  const harness = await mountController({ initialQuestionnaire, client, storage });
   await waitFor(() => harness.current.view === "opening" || harness.current.view === "conversation");
 
   if (harness.current.view === "opening") {
-    await act(async () => harness.current.start("en"));
+    await act(async () => harness.current.start(initialQuestionnaire.language));
   }
 
   for (const question of harness.current.result!.questionnaire.questions) {
@@ -208,16 +224,6 @@ test("Spanish selection loads once before starting and persists language", async
 });
 
 test("resumed Spanish draft bypasses opening without flashing English", async () => {
-  const spanishDraft = {
-    schemaVersion: 1,
-    formVersion: "v1",
-    language: "es",
-    updatedAt: new Date().toISOString(),
-    status: "draft",
-    answers: {},
-    currentQuestionIndex: 0,
-    submissionId: "91acb4f0-77e4-4d7b-9ed9-cb70a44696dc",
-  };
   const storage = storageWith(spanishDraft);
   const client = fakeClient({ es: questionnaireEs });
   const harness = await mountController({
@@ -228,6 +234,29 @@ test("resumed Spanish draft bypasses opening without flashing English", async ()
   await waitFor(() => harness.current.view === "conversation");
   expect(harness.current.result?.questionnaire.language).toBe("es");
   expect(client.loadLanguageCalls).toEqual(["es"]);
+  await harness.unmount();
+});
+
+test("version conflict reloads the selected language and resets incomplete state", async () => {
+  const questionnaireEsV2 = { ...questionnaireEs, version: "v2" };
+  const client = fakeClient({
+    submitError: { code: "versionConflict" },
+    es: questionnaireEsV2,
+  });
+  const harness = await mountFullyAnsweredController(client, spanishDraft);
+
+  let threw = false;
+  try {
+    await act(async () => harness.current.completeQuestionnaire());
+  } catch {
+    threw = true;
+  }
+  expect(threw).toBe(true);
+
+  await waitFor(() => harness.current.view === "opening");
+  expect(client.loadLanguageCalls).toEqual(["es"]);
+  expect(harness.current.result?.questionnaire.version).toBe("v2");
+  expect(harness.current.result?.session.answers).toEqual({});
   await harness.unmount();
 });
 
