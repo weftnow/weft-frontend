@@ -12,7 +12,7 @@ export const fastQuestionRoundSchema = z.object({
   question: z.string().trim().min(1).max(220),
   participantDurationSeconds: z.number().int().min(1).max(600),
 });
-const timestampSchema = z.string().datetime({ offset: true });
+const timestampSchema = z.iso.datetime({ offset: true });
 
 export const fastQuestionsSessionSchema = z
   .object({
