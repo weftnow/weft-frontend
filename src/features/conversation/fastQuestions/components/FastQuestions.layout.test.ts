@@ -26,6 +26,16 @@ test("adds a tighter compact-height contract for 320px mobile viewports", () => 
 
   expect(compactRule).toBeDefined();
   expect(compactRule).toMatch(/\.frame\s*\{[\s\S]*?gap:\s*0\.3rem/);
-  expect(compactRule).toMatch(/\.avatarFrame\s*\{[\s\S]*?width:\s*2\.5rem/);
+  expect(compactRule).toMatch(/\.avatarFrame\s*\{[\s\S]*?--avatar-size:\s*2\.5rem/);
   expect(compactRule).toMatch(/\.timer\s*\{[\s\S]*?width:\s*clamp\(8\.5rem/);
+});
+
+test("locks every participant portrait into a clipped square frame", () => {
+  const avatarRule = styles.match(/^\.avatarFrame\s*\{[\s\S]*?^\}/m)?.[0];
+
+  expect(avatarRule).toBeDefined();
+  expect(avatarRule).toMatch(/--avatar-size:\s*clamp\(3rem/);
+  expect(avatarRule).toMatch(/width:\s*var\(--avatar-size\)/);
+  expect(avatarRule).toMatch(/height:\s*var\(--avatar-size\)/);
+  expect(avatarRule).toMatch(/overflow:\s*hidden/);
 });

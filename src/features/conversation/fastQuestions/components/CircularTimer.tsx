@@ -5,6 +5,7 @@ const CENTER = VIEWBOX_SIZE / 2;
 const RADIUS = 114;
 const STROKE_WIDTH = 3;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const ENDPOINT_MARKER_RADIUS = 5;
 
 export type CircularTimerProps = {
   /** Total length of the round, in seconds. */
@@ -42,6 +43,9 @@ export function CircularTimer({
   const roundedProgress = Number(progress.toFixed(4));
   const dashOffset = CIRCUMFERENCE * (1 - roundedProgress);
   const secondsRemaining = Math.ceil(clampedRemaining / 1_000);
+  const endpointAngle = -Math.PI / 2 + 2 * Math.PI * roundedProgress;
+  const endpointX = CENTER + RADIUS * Math.cos(endpointAngle);
+  const endpointY = CENTER + RADIUS * Math.sin(endpointAngle);
 
   return (
     <div
@@ -66,6 +70,13 @@ export function CircularTimer({
           strokeDasharray={CIRCUMFERENCE}
           strokeDashoffset={dashOffset}
           strokeWidth={STROKE_WIDTH}
+        />
+        <circle
+          className={styles.endpoint}
+          cx={endpointX}
+          cy={endpointY}
+          data-progress-marker="true"
+          r={ENDPOINT_MARKER_RADIUS}
         />
       </svg>
       <div className={styles.readout}>

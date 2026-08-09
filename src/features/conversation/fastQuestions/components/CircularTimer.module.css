@@ -33,6 +33,10 @@
   transition: stroke-dashoffset 1s linear;
 }
 
+.endpoint {
+  fill: var(--color-ember);
+}
+
 .readout {
   position: absolute;
   display: flex;

@@ -19,6 +19,15 @@ test("renders accessible non-live proportional progress", () => {
   expect(html).toContain('data-progress="0.5"');
 });
 
+test("renders an ember marker at the countdown arc endpoint", () => {
+  const html = renderToStaticMarkup(
+    <CircularTimer durationSeconds={60} remainingMilliseconds={30_000} running />,
+  );
+
+  expect(html).toContain('data-progress-marker="true"');
+  expect(styles).toMatch(/\.endpoint\s*\{[\s\S]*?fill:\s*var\(--color-ember\)/);
+});
+
 test("fills its responsive parent as the countdown surface", () => {
   expect(styles).toMatch(
     /\.circularTimer\s*\{(?=[^}]*display:\s*grid;)(?=[^}]*width:\s*100%;)(?=[^}]*height:\s*100%;)[^}]*\}/s,

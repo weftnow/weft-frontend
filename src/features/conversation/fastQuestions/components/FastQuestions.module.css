@@ -90,7 +90,7 @@
 }
 
 .participantList[data-count="6"] .avatarFrame {
-  width: clamp(2.75rem, 11.5vw, 3.75rem);
+  --avatar-size: clamp(2.75rem, 11.5vw, 3.75rem);
 }
 
 .participant {
@@ -102,13 +102,16 @@
 }
 
 .avatarFrame {
+  --avatar-size: clamp(3rem, 13vw, 4.5rem);
   position: relative;
   display: grid;
-  width: clamp(3rem, 13vw, 4.5rem);
-  aspect-ratio: 1;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  min-height: 0;
   place-items: center;
   border: 2px solid rgb(18 18 18 / 16%);
   border-radius: 50%;
+  overflow: hidden;
 }
 
 .participant[data-active="true"] .avatarFrame {
@@ -255,12 +258,12 @@
   .frame { gap: 0.55rem; }
   .timer { width: clamp(10.5rem, 42vh, 13rem); }
   .question { font-size: clamp(1.75rem, 6.7vw, 2.55rem); }
-  .avatarFrame { width: clamp(2.75rem, 11.5vw, 3.75rem); }
+  .avatarFrame { --avatar-size: clamp(2.75rem, 11.5vw, 3.75rem); }
 }
 
 @media (max-height: 600px) {
   .frame { gap: 0.3rem; }
-  .avatarFrame { width: 2.5rem; }
+  .avatarFrame { --avatar-size: 2.5rem; }
   .timer { width: clamp(8.5rem, 30vh, 9.5rem); }
 }
 
