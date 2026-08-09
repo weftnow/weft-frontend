@@ -18,3 +18,14 @@ test("supports reduced motion and six participants without scrolling", () => {
   expect(styles).toMatch(/\[data-count="6"\]/);
   expect(styles).not.toMatch(/overflow-x:\s*scroll/);
 });
+
+test("adds a tighter compact-height contract for 320px mobile viewports", () => {
+  const compactRule = styles.match(
+    /@media\s*\(max-height:\s*600px\)[\s\S]*?(?=\n@media|$)/,
+  )?.[0];
+
+  expect(compactRule).toBeDefined();
+  expect(compactRule).toMatch(/\.frame\s*\{[\s\S]*?gap:\s*0\.3rem/);
+  expect(compactRule).toMatch(/\.avatarFrame\s*\{[\s\S]*?width:\s*2\.5rem/);
+  expect(compactRule).toMatch(/\.timer\s*\{[\s\S]*?width:\s*clamp\(8\.5rem/);
+});

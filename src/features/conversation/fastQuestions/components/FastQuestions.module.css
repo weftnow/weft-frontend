@@ -258,6 +258,12 @@
   .avatarFrame { width: clamp(2.75rem, 11.5vw, 3.75rem); }
 }
 
+@media (max-height: 600px) {
+  .frame { gap: 0.3rem; }
+  .avatarFrame { width: 2.5rem; }
+  .timer { width: clamp(8.5rem, 30vh, 9.5rem); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shell *,
   .shell *::before,
