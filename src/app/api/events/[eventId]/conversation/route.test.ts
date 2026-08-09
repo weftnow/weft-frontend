@@ -24,17 +24,18 @@ test("maps a source-configuration failure to a stable 503 instead of mock state"
   const originalNodeEnv = process.env.NODE_ENV;
   const originalSource = process.env.WEFT_CONVERSATION_SOURCE;
   try {
-    process.env.NODE_ENV = "production";
-    process.env.WEFT_CONVERSATION_SOURCE = "other";
+    Reflect.set(process.env, "NODE_ENV", "production");
+    Reflect.set(process.env, "WEFT_CONVERSATION_SOURCE", "other");
     const response = await GET(new Request("http://localhost"), {
       params: Promise.resolve({ eventId }),
     });
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({ code: "conversation_not_configured" });
   } finally {
-    if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
-    else process.env.NODE_ENV = originalNodeEnv;
-    if (originalSource === undefined) delete process.env.WEFT_CONVERSATION_SOURCE;
-    else process.env.WEFT_CONVERSATION_SOURCE = originalSource;
+    if (originalNodeEnv === undefined) Reflect.deleteProperty(process.env, "NODE_ENV");
+    else Reflect.set(process.env, "NODE_ENV", originalNodeEnv);
+    if (originalSource === undefined)
+      Reflect.deleteProperty(process.env, "WEFT_CONVERSATION_SOURCE");
+    else Reflect.set(process.env, "WEFT_CONVERSATION_SOURCE", originalSource);
   }
 });
