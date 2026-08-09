@@ -15,7 +15,7 @@ const rounds = [
 function overrideFor(environment: MockEnvironment): number | null {
   if (environment.NODE_ENV === "production") return null;
   const value = Number(environment.WEFT_FAST_QUESTIONS_DEV_SECONDS);
-  return Number.isInteger(value) && value >= 1 && value <= 10 ? value : null;
+  return Number.isInteger(value) && value >= 1 && value <= 60 ? value : null;
 }
 
 export function createMockFastQuestionsSession(

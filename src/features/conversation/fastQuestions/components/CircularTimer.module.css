@@ -26,9 +26,10 @@
   transform: rotate(-90deg);
 }
 
-/* Progress only animates smoothly while the countdown is actually
-   ticking — a one-second linear sweep between each tick's dash-offset
-   update, so the ring reads as continuous motion rather than a jump. */
+/* Progress only animates smoothly while the countdown is actively
+   running — a one-second linear sweep between each tick's dash-offset
+   update, so the ring reads as continuous motion rather than a jump.
+   Duration must match RING_SWEEP_MS in CircularTimer.tsx. */
 .progressRunning {
   transition: stroke-dashoffset 1s linear;
 }
