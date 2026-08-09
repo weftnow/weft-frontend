@@ -3,6 +3,7 @@ declare module "bun:test" {
 
   type Matchers = {
     toBe(expected: unknown): void;
+    toBeDefined(): void;
     toBeGreaterThan(expected: number): void;
     toBeGreaterThanOrEqual(expected: number): void;
     toBeLessThan(expected: number): void;
