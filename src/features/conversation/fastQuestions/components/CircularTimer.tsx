@@ -7,6 +7,15 @@ const STROKE_WIDTH = 3;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 const ENDPOINT_MARKER_RADIUS = 5;
 
+/**
+ * Duration of the ring/marker's closing sweep, in milliseconds. Must match
+ * the `1s` transition durations on `.progressRunning` / `.endpointMotionRunning`
+ * in CircularTimer.module.css. Callers that advance the round on expiry
+ * should wait at least this long so the sweep visibly reaches the top
+ * before the view swaps to the next participant.
+ */
+export const RING_SWEEP_MS = 1_000;
+
 export type CircularTimerProps = {
   /** Total length of the round, in seconds. */
   durationSeconds: number;

@@ -7,7 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { fastQuestionsQueryKey, useFastQuestions } from "../hooks/useFastQuestions";
 import { useCountdown } from "../hooks/useCountdown";
 import type { FastQuestionsApi } from "../types/fastQuestions.types";
-import { CircularTimer } from "./CircularTimer";
+import { CircularTimer, RING_SWEEP_MS } from "./CircularTimer";
 import { FastQuestionsCompletion } from "./FastQuestionsCompletion";
 import { FastQuestionsNotice } from "./FastQuestionsNotice";
 import { FastQuestionsProvider } from "./FastQuestionsProvider";
@@ -61,8 +61,12 @@ export function FastQuestionsExperience({
   const timerEndsAt = session?.status === "active" ? session.timerEndsAt : null;
   const remainingMilliseconds = useCountdown(timerEndsAt);
   const expiredDeadlineRef = useRef<string | null>(null);
+  const expirySettleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reducedMotion = Boolean(useReducedMotion());
 
+  // On expiry, wait for the ring's closing sweep (RING_SWEEP_MS) to finish
+  // before advancing the session — otherwise the view swaps to the next
+  // participant while the endpoint marker is still mid-flight to the top.
   useEffect(() => {
     if (
       !timerEndsAt ||
@@ -70,8 +74,18 @@ export function FastQuestionsExperience({
       expiredDeadlineRef.current === timerEndsAt
     ) return;
     expiredDeadlineRef.current = timerEndsAt;
-    void queryClient.invalidateQueries({ queryKey: fastQuestionsQueryKey(eventId) });
-  }, [eventId, queryClient, remainingMilliseconds, timerEndsAt]);
+    expirySettleTimeoutRef.current = setTimeout(() => {
+      expirySettleTimeoutRef.current = null;
+      void queryClient.invalidateQueries({ queryKey: fastQuestionsQueryKey(eventId) });
+    }, reducedMotion ? 0 : RING_SWEEP_MS);
+  }, [eventId, queryClient, remainingMilliseconds, timerEndsAt, reducedMotion]);
+
+  useEffect(
+    () => () => {
+      if (expirySettleTimeoutRef.current !== null) clearTimeout(expirySettleTimeoutRef.current);
+    },
+    [],
+  );
 
   if (error) return <FastQuestionsNotice onRetry={retry} status="error" />;
   if (!session || isLoading) return <FastQuestionsNotice status="loading" />;
@@ -117,7 +131,7 @@ export function FastQuestionsExperience({
             <CircularTimer
               durationSeconds={round.participantDurationSeconds}
               remainingMilliseconds={remainingMilliseconds}
-              running={remainingMilliseconds > 0}
+              running={Boolean(timerEndsAt)}
             />
           </div>
           <ParticipantList
