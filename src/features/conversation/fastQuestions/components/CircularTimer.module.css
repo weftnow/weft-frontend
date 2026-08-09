@@ -37,6 +37,15 @@
   fill: var(--color-ember);
 }
 
+.endpointMotion {
+  transform-box: view-box;
+  transform-origin: center;
+}
+
+.endpointMotionRunning {
+  transition: transform 1s linear;
+}
+
 .readout {
   position: absolute;
   display: flex;
@@ -63,6 +72,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .progressRunning {
+    transition-duration: 0.01ms;
+  }
+
+  .endpointMotionRunning {
     transition-duration: 0.01ms;
   }
 }

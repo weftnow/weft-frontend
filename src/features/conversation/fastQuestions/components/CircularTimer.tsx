@@ -43,9 +43,6 @@ export function CircularTimer({
   const roundedProgress = Number(progress.toFixed(4));
   const dashOffset = CIRCUMFERENCE * (1 - roundedProgress);
   const secondsRemaining = Math.ceil(clampedRemaining / 1_000);
-  const endpointAngle = -Math.PI / 2 + 2 * Math.PI * roundedProgress;
-  const endpointX = CENTER + RADIUS * Math.cos(endpointAngle);
-  const endpointY = CENTER + RADIUS * Math.sin(endpointAngle);
 
   return (
     <div
@@ -71,13 +68,23 @@ export function CircularTimer({
           strokeDashoffset={dashOffset}
           strokeWidth={STROKE_WIDTH}
         />
-        <circle
-          className={styles.endpoint}
-          cx={endpointX}
-          cy={endpointY}
-          data-progress-marker="true"
-          r={ENDPOINT_MARKER_RADIUS}
-        />
+        <g
+          className={
+            running
+              ? `${styles.endpointMotion} ${styles.endpointMotionRunning}`
+              : styles.endpointMotion
+          }
+          data-progress-marker-motion="true"
+          style={{ transform: `rotate(${roundedProgress * 360}deg)` }}
+        >
+          <circle
+            className={styles.endpoint}
+            cx={CENTER}
+            cy={CENTER - RADIUS}
+            data-progress-marker="true"
+            r={ENDPOINT_MARKER_RADIUS}
+          />
+        </g>
       </svg>
       <div className={styles.readout}>
         <span className={styles.time}>{formatTime(remainingMilliseconds)}</span>
