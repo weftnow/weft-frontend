@@ -1,6 +1,12 @@
 import { expect, test } from "bun:test";
+import { readFile } from "node:fs/promises";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CircularTimer } from "./CircularTimer";
+
+const styles = await readFile(
+  new URL("./CircularTimer.module.css", import.meta.url),
+  "utf8",
+);
 
 test("renders accessible non-live proportional progress", () => {
   const html = renderToStaticMarkup(
@@ -11,4 +17,10 @@ test("renders accessible non-live proportional progress", () => {
   expect(html).toContain('role="timer"');
   expect(html).not.toContain("aria-live");
   expect(html).toContain('data-progress="0.5"');
+});
+
+test("fills its responsive parent as the countdown surface", () => {
+  expect(styles).toMatch(
+    /\.circularTimer\s*\{(?=[^}]*display:\s*grid;)(?=[^}]*width:\s*100%;)(?=[^}]*height:\s*100%;)[^}]*\}/s,
+  );
 });

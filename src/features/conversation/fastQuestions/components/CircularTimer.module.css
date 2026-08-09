@@ -1,9 +1,9 @@
 .circularTimer {
   position: relative;
-  display: inline-grid;
+  display: grid;
   place-items: center;
-  width: 7.5rem;
-  height: 7.5rem;
+  width: 100%;
+  height: 100%;
 }
 
 .ring {
