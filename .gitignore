@@ -5,6 +5,7 @@
 /.pnp
 .pnp.*
 /.worktrees
+/.superpowers
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

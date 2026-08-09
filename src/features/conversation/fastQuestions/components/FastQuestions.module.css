@@ -1,0 +1,279 @@
+.shell {
+  isolation: isolate;
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 50% 20%, rgb(244 81 30 / 3.5%), transparent 24rem),
+    var(--color-bone);
+  color: var(--color-ink);
+}
+
+.frame {
+  display: flex;
+  width: min(100%, 32rem);
+  min-height: 100svh;
+  margin: 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.85rem, 2.5vh, 1.5rem);
+  padding:
+    max(1rem, env(safe-area-inset-top))
+    clamp(1rem, 4vw, 1.5rem)
+    max(1rem, env(safe-area-inset-bottom));
+}
+
+.mark,
+.completionMark,
+.noticeMark {
+  width: clamp(2.125rem, 9vw, 2.625rem);
+  height: clamp(2.125rem, 9vw, 2.625rem);
+}
+
+.phaseLabel,
+.progressLabel,
+.progressCount {
+  margin: 0;
+  color: rgb(18 18 18 / 55%);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.roundLabel {
+  margin: 0;
+  color: var(--color-ember);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.question {
+  max-width: 29rem;
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 3.35rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.activeParticipantLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.activeParticipantLabel::before {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-ember);
+  content: "";
+}
+
+.timer {
+  width: clamp(12rem, 58vw, 16.5rem);
+  aspect-ratio: 1;
+}
+
+.participantList {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(var(--participant-count), minmax(0, 1fr));
+  gap: clamp(0.25rem, 1.7vw, 0.7rem);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.participantList[data-count="6"] .avatarFrame {
+  --avatar-size: clamp(2.75rem, 11.5vw, 3.75rem);
+}
+
+.participant {
+  display: grid;
+  min-width: 0;
+  justify-items: center;
+  gap: 0.4rem;
+  color: rgb(18 18 18 / 56%);
+}
+
+.avatarFrame {
+  --avatar-size: clamp(3rem, 13vw, 4.5rem);
+  position: relative;
+  display: grid;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  min-height: 0;
+  place-items: center;
+  border: 2px solid rgb(18 18 18 / 16%);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.participant[data-active="true"] .avatarFrame {
+  border-color: var(--color-ember);
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.activityDot {
+  position: absolute;
+  right: -0.05rem;
+  bottom: 0.05rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 1px solid var(--color-bone);
+  border-radius: 50%;
+  background: var(--color-ember);
+}
+
+.participantName {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  font-size: clamp(0.75rem, 2.7vw, 0.9rem);
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.participant[data-active="true"] .participantName {
+  color: var(--color-ember);
+}
+
+.guidance {
+  display: grid;
+  grid-template-columns: 1.4rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
+  color: rgb(18 18 18 / 55%);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.guidanceIcon {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--color-ember);
+}
+
+.roundProgress {
+  display: grid;
+  width: 100%;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  border-top: 1px solid rgb(18 18 18 / 10%);
+  padding-top: 0.85rem;
+}
+
+.progressBars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+}
+
+.progressBar {
+  display: block;
+  height: 0.28rem;
+  border-radius: 999px;
+  background: rgb(18 18 18 / 12%);
+}
+
+.progressBar[aria-current="step"] {
+  background: var(--color-ember);
+}
+
+.completion,
+.notice {
+  display: flex;
+  width: min(100%, 29rem);
+  min-height: 100svh;
+  margin: 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding:
+    max(1rem, env(safe-area-inset-top))
+    clamp(1rem, 4vw, 1.5rem)
+    max(1rem, env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+.completion h1,
+.notice p {
+  max-width: 20rem;
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 3.35rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.completion p,
+.notice p {
+  color: rgb(18 18 18 / 55%);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.continueButton,
+.retryButton {
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-ink);
+  padding: 0.65rem 1.2rem;
+  color: var(--color-bone);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.continueButton:focus-visible,
+.retryButton:focus-visible {
+  outline: 3px solid var(--color-signal);
+  outline-offset: 3px;
+}
+
+@supports (height: 100dvh) {
+  .shell,
+  .frame { min-height: 100dvh; }
+}
+
+@media (max-height: 740px) {
+  .frame { gap: 0.55rem; }
+  .timer { width: clamp(10.5rem, 42vh, 13rem); }
+  .question { font-size: clamp(1.75rem, 6.7vw, 2.55rem); }
+  .avatarFrame { --avatar-size: clamp(2.75rem, 11.5vw, 3.75rem); }
+}
+
+@media (max-height: 600px) {
+  .frame { gap: 0.3rem; }
+  .avatarFrame { --avatar-size: 2.5rem; }
+  .timer { width: clamp(8.5rem, 30vh, 9.5rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell *,
+  .shell *::before,
+  .shell *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
