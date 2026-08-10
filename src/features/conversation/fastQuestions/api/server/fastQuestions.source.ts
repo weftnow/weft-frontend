@@ -1,6 +1,11 @@
 import type { MockFastQuestionsStore } from "./mockFastQuestions.store";
 
-export type ConversationSource = "mock";
+/**
+ * `backend` talks to weft-b2b-backend; `mock` keeps development and tests
+ * free of a running backend. Both satisfy the same store shape, so nothing
+ * above this seam knows which one it is talking to.
+ */
+export type ConversationSource = "mock" | "backend";
 
 export type ConversationEnvironment = {
   NODE_ENV?: string;
@@ -29,9 +34,12 @@ export class ConversationSourceError extends Error {
  * failure rather than a silent fallback to simulated data.
  */
 export function conversationSource(environment: ConversationEnvironment): ConversationSource {
-  if (environment.NODE_ENV !== "production") return "mock";
+  // An explicit choice always wins, in any environment — that is what lets a
+  // developer point at a locally running backend.
+  if (environment.WEFT_CONVERSATION_SOURCE === "backend") return "backend";
   if (environment.WEFT_CONVERSATION_SOURCE === "mock") return "mock";
   if (environment.WEFT_CONVERSATION_SOURCE === undefined) {
+    if (environment.NODE_ENV !== "production") return "mock";
     throw new ConversationSourceError("Conversation source is not configured");
   }
   throw new ConversationSourceError(
@@ -53,6 +61,10 @@ export async function getFastQuestionsRepository(
   if (source === "mock") {
     const { mockFastQuestionsRepository } = await import("./mockFastQuestions.repository");
     return mockFastQuestionsRepository;
+  }
+  if (source === "backend") {
+    const { backendFastQuestionsRepository } = await import("./backendFastQuestions.repository");
+    return backendFastQuestionsRepository;
   }
   throw new ConversationSourceError("Conversation source is not configured");
 }
