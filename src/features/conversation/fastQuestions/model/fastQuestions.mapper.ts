@@ -59,9 +59,18 @@ export function mapIcebreakerState(
   const timerEndsAt = active ? dto.turn_ends_at : null;
   // Read rather than derived: with a reading gap the start is later than
   // "end minus duration", and only the server knows where it actually is.
-  // Null on a session created before the backend carried this instant, which
-  // reads as "already started" — the behaviour those sessions had.
-  const timerStartedAt = active ? (dto.turn_starts_at ?? timerEndsAt) : null;
+  //
+  // Null on a session created before the backend carried this instant. Those
+  // sessions must behave exactly as they did before this feature shipped:
+  // "end minus duration" sits in the past, so the ring sweeps immediately.
+  // Falling back to the end instant instead would put the start in the
+  // future for the whole turn and freeze the ring the entire time.
+  const duration = dto.participant_duration_seconds;
+  const legacyStart =
+    timerEndsAt && duration
+      ? new Date(Date.parse(timerEndsAt) - duration * 1_000).toISOString()
+      : timerEndsAt;
+  const timerStartedAt = active ? (dto.turn_starts_at ?? legacyStart) : null;
 
   return {
     eventId,

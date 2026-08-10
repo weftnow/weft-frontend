@@ -4,7 +4,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { JSDOM } from "jsdom";
 import { createMockFastQuestionsSession } from "../data/mockFastQuestions";
 import { fastQuestionsQueryKey } from "../hooks/useFastQuestions";
+import { mapIcebreakerState } from "../model/fastQuestions.mapper";
 import { fastQuestionsSessionSchema } from "../schemas/fastQuestions.schema";
+import type { IcebreakerStateDto } from "../schemas/icebreaker.contract.schema";
 import type { FastQuestionsApi, FastQuestionsSession } from "../types/fastQuestions.types";
 import { FastQuestionsExperience } from "./FastQuestions";
 import { FastQuestionsCompletion } from "./FastQuestionsCompletion";
@@ -88,6 +90,51 @@ test("the ring sweeps once the reading gap has closed", () => {
     status: "active",
     timerStartedAt: new Date(Date.now() - 1_000).toISOString(),
     timerEndsAt: new Date(Date.now() + 29_000).toISOString(),
+  });
+  const timer = container.querySelector('[role="timer"]');
+  const sweepMarker = timer?.querySelector('[data-progress-marker-motion="true"]');
+  expect(sweepMarker?.hasAttribute("class")).toBe(true);
+});
+
+test("the ring sweeps for a legacy session the mapper had to backfill a start for", () => {
+  // A session created before the backend carried turn_starts_at arrives with
+  // it null. The mapper must derive a past instant (end minus duration), not
+  // fall back to the end instant — that would read as "still in the gap" and
+  // freeze the ring for the whole turn. Goes through the real mapper so a
+  // regression back to the end-instant fallback is caught here too.
+  const dto: IcebreakerStateDto = {
+    session_id: "5b9c2f3e-0a1d-4b6e-9c3a-7f2e1d4a8b6c",
+    status: "running",
+    language: "en",
+    phase: 1,
+    round: 1,
+    total_rounds: 3,
+    question: { code: "Q001", text: "One" },
+    rounds: [
+      { code: "Q001", text: "One", participant_duration_seconds: 30 },
+      { code: "Q031", text: "Two", participant_duration_seconds: 45 },
+      { code: "Q066", text: "Three", participant_duration_seconds: 60 },
+    ],
+    challenge: null,
+    current_participant: { attendee_id: "11111111-1111-4111-8111-111111111111", name: "Ana" },
+    participant_order: [
+      { attendee_id: "11111111-1111-4111-8111-111111111111", name: "Ana" },
+      { attendee_id: "22222222-2222-4222-8222-222222222222", name: "Bruno" },
+      { attendee_id: "33333333-3333-4333-8333-333333333333", name: "Carla" },
+    ],
+    viewer: { attendee_id: "11111111-1111-4111-8111-111111111111", name: "Ana" },
+    turn_index: 0,
+    participant_duration_seconds: 30,
+    turn_starts_at: null,
+    turn_ends_at: new Date(Date.now() + 29_000).toISOString(),
+    closing_line: null,
+  };
+  const mapped = mapIcebreakerState(EVENT_ID, dto);
+
+  const { container } = renderFastQuestionsSession({
+    status: "active",
+    timerStartedAt: mapped.timerStartedAt,
+    timerEndsAt: mapped.timerEndsAt,
   });
   const timer = container.querySelector('[role="timer"]');
   const sweepMarker = timer?.querySelector('[data-progress-marker-motion="true"]');

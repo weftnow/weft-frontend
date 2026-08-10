@@ -90,11 +90,22 @@ test("prefers the wire value even when it disagrees with the derivation", () => 
   expect(session.timerStartedAt).toBe("2026-08-09T20:15:00.000Z");
 });
 
-test("falls back to the end instant when the wire has no start", () => {
+test("derives the legacy start from end minus duration when the wire has no start", () => {
   // Null means a session created before the backend carried turn_starts_at.
-  // Those sessions should read as "already started" rather than idle.
-  const session = mapIcebreakerState(EVENT_ID, dto({ turn_starts_at: null }));
-  expect(session.timerStartedAt).toBe(session.timerEndsAt);
+  // Those sessions must behave exactly as they did before this feature: the
+  // start sits in the past (end minus the round's duration), so the ring
+  // sweeps immediately rather than freezing for the whole turn — which is
+  // what falling back to the end instant would do.
+  const session = mapIcebreakerState(
+    EVENT_ID,
+    dto({
+      turn_starts_at: null,
+      turn_ends_at: "2026-08-09T20:15:30.000Z",
+      participant_duration_seconds: 30,
+    }),
+  );
+  expect(session.timerStartedAt).toBe("2026-08-09T20:15:00.000Z");
+  expect(session.timerStartedAt).not.toBe(session.timerEndsAt);
 });
 
 test("carries the whole deck with its per-round durations", () => {
