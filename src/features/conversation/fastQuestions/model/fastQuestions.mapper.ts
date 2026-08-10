@@ -57,11 +57,11 @@ export function mapIcebreakerState(
   // The UI schema rejects an inactive session that still carries timestamps,
   // and the backend leaves the last deadline in place across a transition.
   const timerEndsAt = active ? dto.turn_ends_at : null;
-  const duration = dto.participant_duration_seconds;
-  const timerStartedAt =
-    timerEndsAt && duration
-      ? new Date(new Date(timerEndsAt).getTime() - duration * 1000).toISOString()
-      : null;
+  // Read rather than derived: with a reading gap the start is later than
+  // "end minus duration", and only the server knows where it actually is.
+  // Null on a session created before the backend carried this instant, which
+  // reads as "already started" — the behaviour those sessions had.
+  const timerStartedAt = active ? (dto.turn_starts_at ?? timerEndsAt) : null;
 
   return {
     eventId,

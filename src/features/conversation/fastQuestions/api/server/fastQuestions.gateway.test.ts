@@ -45,6 +45,7 @@ function payload(overrides: Record<string, unknown> = {}) {
     viewer: { attendee_id: VIEWER, name: "Ana" },
     turn_index: 0,
     participant_duration_seconds: 30,
+    turn_starts_at: "2026-08-09T20:15:00.000Z",
     turn_ends_at: "2026-08-09T20:15:30.000Z",
     closing_line: null,
     ...overrides,

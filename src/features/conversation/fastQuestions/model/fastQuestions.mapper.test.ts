@@ -32,6 +32,7 @@ function dto(overrides: Partial<IcebreakerStateDto> = {}): IcebreakerStateDto {
     viewer: { attendee_id: VIEWER, name: "Ana" },
     turn_index: 0,
     participant_duration_seconds: 30,
+    turn_starts_at: "2026-08-09T20:15:00.000Z",
     turn_ends_at: "2026-08-09T20:15:30.000Z",
     closing_line: null,
     ...overrides,
@@ -55,13 +56,19 @@ test("renames running to active and rebases the round to zero", () => {
   expect(session.participantIndex).toBe(1);
 });
 
-test("derives the timer start from the deadline and the round's duration", () => {
+test("reads the timer start from the wire rather than deriving it", () => {
+  // Derivation was only ever right because no gap existed. With a reading gap
+  // turn_starts_at is later than turn_ends_at minus the duration.
   const session = mapIcebreakerState(
     EVENT_ID,
-    dto({ turn_ends_at: "2026-08-09T20:15:30.000Z", participant_duration_seconds: 30 }),
+    dto({
+      turn_starts_at: "2026-08-09T20:15:08.000Z",
+      turn_ends_at: "2026-08-09T20:15:38.000Z",
+      participant_duration_seconds: 30,
+    }),
   );
-  expect(session.timerEndsAt).toBe("2026-08-09T20:15:30.000Z");
-  expect(session.timerStartedAt).toBe("2026-08-09T20:15:00.000Z");
+  expect(session.timerStartedAt).toBe("2026-08-09T20:15:08.000Z");
+  expect(session.timerEndsAt).toBe("2026-08-09T20:15:38.000Z");
 });
 
 test("carries the whole deck with its per-round durations", () => {

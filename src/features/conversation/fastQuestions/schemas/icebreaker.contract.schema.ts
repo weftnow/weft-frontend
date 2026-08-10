@@ -39,6 +39,7 @@ export const icebreakerStateDtoSchema = z.object({
   viewer: participantDto,
   turn_index: z.number().int().min(0),
   participant_duration_seconds: z.number().int().positive().nullable(),
+  turn_starts_at: z.iso.datetime({ offset: true }).nullable(),
   turn_ends_at: z.iso.datetime({ offset: true }).nullable(),
   closing_line: z.string().nullable(),
 });

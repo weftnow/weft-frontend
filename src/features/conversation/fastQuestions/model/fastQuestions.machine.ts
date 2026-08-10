@@ -1,6 +1,11 @@
 import { fastQuestionsSessionSchema } from "../schemas/fastQuestions.schema";
 import type { AdvanceParticipantInput, FastQuestionsSession } from "../types/fastQuestions.types";
 
+// Mirrors READING_SECONDS in the backend's app/icebreaker/timing.py. The mock
+// and the backend are two implementations of one state machine; they drift the
+// moment they disagree.
+const READING_MILLISECONDS = 8_000;
+
 function schedule(
   session: FastQuestionsSession,
   roundIndex: number,
@@ -23,7 +28,12 @@ function step(session: FastQuestionsSession, startsAt: number): FastQuestionsSes
     return schedule(session, session.roundIndex, session.participantIndex + 1, startsAt);
   }
   if (session.roundIndex + 1 < session.rounds.length) {
-    return schedule(session, session.roundIndex + 1, 0, startsAt);
+    return schedule(
+      session,
+      session.roundIndex + 1,
+      0,
+      startsAt + READING_MILLISECONDS,
+    );
   }
   return fastQuestionsSessionSchema.parse({
     ...session,
@@ -36,7 +46,9 @@ function step(session: FastQuestionsSession, startsAt: number): FastQuestionsSes
 }
 
 export function startSessionAt(session: FastQuestionsSession, now: number) {
-  return session.status === "waiting" ? schedule(session, 0, 0, now) : session;
+  return session.status === "waiting"
+    ? schedule(session, 0, 0, now + READING_MILLISECONDS)
+    : session;
 }
 
 export function advanceSessionAt(session: FastQuestionsSession, now: number) {
