@@ -14,6 +14,7 @@ import {
 const trimmedName = z.string().trim().min(1).max(200);
 const email = z.string().trim().email().max(320);
 const role = z.enum(ORGANIZER_ROLES);
+const roleOtherText = z.string().trim().min(1).max(200);
 const language = z.enum(ORGANIZER_LANGUAGES);
 const timezone = z.string().trim().min(1).max(64).refine((value) => {
   try {
@@ -30,11 +31,20 @@ export const registrationRequestSchema = z.object({
   contact_name: trimmedName,
   organization_name: trimmedName,
   role,
+  role_other: roleOtherText.nullable(),
   email,
   password: z.string().min(8).max(72),
   timezone,
   default_language: language,
-}).strict();
+}).strict()
+  .refine(
+    (value) => value.role !== "other" || value.role_other !== null,
+    { message: "role_other is required when role is other", path: ["role_other"] },
+  )
+  .refine(
+    (value) => value.role === "other" || value.role_other === null,
+    { message: "role_other must be omitted unless role is other", path: ["role_other"] },
+  );
 
 export const loginRequestSchema = z.object({
   email,
@@ -64,6 +74,16 @@ export function validateRegistrationStep(
   return result.success ? undefined : step;
 }
 
+export function validateRoleStep(
+  draft: RegistrationDraft,
+): "role" | "roleOther" | undefined {
+  if (!role.safeParse(draft.role).success) return "role";
+  if (draft.role === "other" && !roleOtherText.safeParse(draft.roleOther).success) {
+    return "roleOther";
+  }
+  return undefined;
+}
+
 export function toRegisterRequest(
   draft: RegistrationDraft,
   selectedLanguage: OrganizerLanguage,
@@ -73,6 +93,7 @@ export function toRegisterRequest(
     contact_name: draft.contactName,
     organization_name: draft.organizationName,
     role: draft.role,
+    role_other: draft.role === "other" ? draft.roleOther.trim() : null,
     email: draft.email,
     password: draft.password,
     timezone,

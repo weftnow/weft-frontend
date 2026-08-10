@@ -176,6 +176,7 @@ test("completed registration sends language, canonical role, timezone, and no Wh
       contact_name: "Ana Restrepo",
       organization_name: "Weft Events",
       role: "founder",
+      role_other: null,
       email: "ana@example.com",
       password: "longenough",
       timezone: "America/Bogota",
@@ -199,16 +200,44 @@ test("duplicate email returns to email with a login link", async () => {
   });
 });
 
-test("Other is a terminal role value and reveals no text field", async () => {
+test("Other reveals a required role_other field and blocks submission until filled", async () => {
   await withFlow(client, async (container) => {
     await enter(container, "Ana");
     await enter(container, "Weft");
     await act(async () => buttonNamed(container, "Other").click());
-    expect(container.querySelectorAll("input")).toHaveLength(0);
     expect(
       container.querySelector('[data-registration-question] [role="radio"][aria-checked="true"]')
         ?.textContent,
     ).toContain("Other");
+    expect(container.querySelectorAll("input")).toHaveLength(1);
+
+    await act(async () => buttonNamed(container, "Continue").click());
+    expect(container.textContent).toContain("Tell us your role.");
+    expect(container.textContent).toContain("What's your role?");
+
+    const roleOtherInput = container.querySelector<HTMLInputElement>("input");
+    if (!roleOtherInput) throw new Error("role_other input not found");
+    await act(async () => setInput(roleOtherInput, "Volunteer coordinator"));
+    await act(async () => buttonNamed(container, "Continue").click());
+    expect(container.textContent).toContain("What's your work email?");
+  });
+});
+
+test("completing registration with Other sends the trimmed role_other text", async () => {
+  registrations.length = 0;
+  await withFlow(client, async (container) => {
+    await enter(container, "Ana Restrepo");
+    await enter(container, "Weft Events");
+    await act(async () => buttonNamed(container, "Other").click());
+    const roleOtherInput = container.querySelector<HTMLInputElement>("input");
+    if (!roleOtherInput) throw new Error("role_other input not found");
+    await act(async () => setInput(roleOtherInput, "  Volunteer coordinator  "));
+    await act(async () => buttonNamed(container, "Continue").click());
+    await enter(container, "ana@example.com");
+    await enter(container, "longenough");
+    await waitFor(() => registrations.length === 1);
+    expect(registrations[0].role).toBe("other");
+    expect(registrations[0].role_other).toBe("Volunteer coordinator");
   });
 });
 

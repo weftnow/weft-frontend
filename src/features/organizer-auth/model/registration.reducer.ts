@@ -8,7 +8,10 @@ import {
 
 export type DraftField = keyof RegistrationDraft;
 export type TextDraftField = Exclude<DraftField, "role">;
-export type RegistrationFieldErrorCode = RegisterStep | "emailAlreadyRegistered";
+export type RegistrationFieldErrorCode =
+  | RegisterStep
+  | "roleOther"
+  | "emailAlreadyRegistered";
 
 export type RegistrationState = {
   stepIndex: number;
@@ -47,6 +50,7 @@ export function createRegistrationState(
       contactName: "",
       organizationName: "",
       role: null,
+      roleOther: "",
       email: "",
       password: "",
     },

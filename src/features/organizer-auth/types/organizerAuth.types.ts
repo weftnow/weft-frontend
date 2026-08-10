@@ -22,6 +22,7 @@ export type RegisterStep = (typeof REGISTER_STEPS)[number];
 
 export const ORGANIZER_AUTH_FIELDS = [
   ...REGISTER_STEPS,
+  "role_other",
   "timezone",
   "default_language",
 ] as const;
@@ -31,6 +32,7 @@ export type RegistrationDraft = {
   contactName: string;
   organizationName: string;
   role: OrganizerRole | null;
+  roleOther: string;
   email: string;
   password: string;
 };
@@ -39,6 +41,7 @@ export type RegisterRequestDto = {
   contact_name: string;
   organization_name: string;
   role: OrganizerRole;
+  role_other: string | null;
   email: string;
   password: string;
   timezone: string;

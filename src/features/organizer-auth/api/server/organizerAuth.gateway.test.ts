@@ -9,6 +9,7 @@ const registration = {
   contact_name: "Ana Restrepo",
   organization_name: "Weft Events",
   role: "event_manager" as const,
+  role_other: null,
   email: "ana@example.com",
   password: "longenough",
   timezone: "America/Bogota",
@@ -78,6 +79,14 @@ test("register maps duplicate email and recognized validation fields", async () 
     }, { status: 422 }),
   );
   expect(invalid).toEqual({ status: "validation", field: "role" });
+
+  const invalidRoleOther = await registerOrganizer(
+    { ...registration, role: "other", role_other: "Volunteer coordinator" },
+    async () => Response.json({
+      detail: [{ loc: ["body", "role_other"], msg: "role_other is required when role is other" }],
+    }, { status: 422 }),
+  );
+  expect(invalidRoleOther).toEqual({ status: "validation", field: "role_other" });
 });
 
 test("session validation distinguishes invalid from unavailable", async () => {

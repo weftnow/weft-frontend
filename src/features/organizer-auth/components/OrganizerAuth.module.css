@@ -206,6 +206,19 @@
 .field:focus { border-color: var(--color-signal); box-shadow: 0 2px 0 rgb(0 144 222 / 16%); }
 .field[aria-invalid="true"] { border-color: var(--color-ember); }
 
+.roleOtherField {
+  display: grid;
+  width: min(34rem, 100%);
+  justify-items: center;
+  gap: 0.6rem;
+}
+
+.roleOtherField label {
+  color: rgb(18 18 18 / 66%);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
 .roleGrid {
   display: grid;
   width: min(44rem, 100%);
