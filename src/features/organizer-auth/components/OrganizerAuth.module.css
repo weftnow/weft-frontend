@@ -166,3 +166,126 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+.form {
+  display: grid;
+  width: min(58rem, 100%);
+  justify-items: center;
+  gap: 1.25rem;
+}
+
+.question {
+  display: grid;
+  width: 100%;
+  justify-items: center;
+  gap: clamp(1.4rem, 4vh, 2.5rem);
+  border: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.questionPrompt { display: block; width: 100%; }
+
+.field {
+  width: min(34rem, 100%);
+  min-height: 4.25rem;
+  border: 0;
+  border-bottom: 2px solid rgb(18 18 18 / 16%);
+  border-radius: 0;
+  background: transparent;
+  padding: 0.75rem 0.25rem;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  text-align: center;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.field::placeholder { color: rgb(18 18 18 / 34%); }
+.field:focus { border-color: var(--color-signal); box-shadow: 0 2px 0 rgb(0 144 222 / 16%); }
+.field[aria-invalid="true"] { border-color: var(--color-ember); }
+
+.roleGrid {
+  display: grid;
+  width: min(44rem, 100%);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.roleOption {
+  min-height: 4.5rem;
+  border: 1px solid rgb(18 18 18 / 11%);
+  border-radius: 1.15rem;
+  background: rgb(255 255 255 / 64%);
+  padding: 0.9rem 1rem;
+  color: var(--color-ink);
+  font-weight: 600;
+  transition: transform 150ms var(--ease-out-ui), border-color 180ms ease, background 180ms ease;
+}
+
+.roleOption[aria-checked="true"] {
+  border-color: var(--color-ember);
+  background: color-mix(in srgb, var(--color-ember) 9%, white);
+}
+
+.roleOption:active { transform: scale(0.98); }
+.roleOption:focus-visible,
+.primary:focus-visible,
+.back:focus-visible,
+.inlineLink:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: 3px;
+}
+
+.actions {
+  display: flex;
+  min-height: 3.4rem;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: rgb(18 18 18 / 55%);
+  font-size: 0.86rem;
+}
+
+.actions a,
+.inlineLink { color: var(--color-ink); text-decoration: underline; text-underline-offset: 0.25rem; }
+
+.primary {
+  min-height: 3.35rem;
+  border-radius: 999px;
+  background: var(--color-ember);
+  padding: 0.85rem 1.7rem;
+  color: var(--color-paper);
+  font-weight: 700;
+  box-shadow: var(--shadow-premium);
+}
+
+.primary:active { transform: scale(0.98); }
+.primary:disabled,
+.back:disabled { opacity: 0.5; }
+.back { min-height: 3rem; border-radius: 999px; padding: 0.7rem 1rem; color: rgb(18 18 18 / 58%); }
+
+.error {
+  max-width: 32rem;
+  margin: 0;
+  color: #c84419;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .roleOption:hover { transform: translate3d(0, -2px, 0); }
+}
+
+@media (max-width: 680px) {
+  .roleGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .actions { flex-wrap: wrap; }
+}
+
+@media (max-width: 380px) {
+  .roleGrid { grid-template-columns: 1fr; gap: 0.5rem; }
+  .roleOption { min-height: 3.7rem; }
+}
