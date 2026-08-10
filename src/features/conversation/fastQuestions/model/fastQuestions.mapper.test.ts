@@ -71,6 +71,32 @@ test("reads the timer start from the wire rather than deriving it", () => {
   expect(session.timerEndsAt).toBe("2026-08-09T20:15:38.000Z");
 });
 
+test("prefers the wire value even when it disagrees with the derivation", () => {
+  // Deliberately inconsistent: turn_ends_at - participant_duration_seconds
+  // would derive 20:15:08, but the wire says the turn actually started at
+  // 20:15:00. Both the mock machine and the backend always construct
+  // turn_ends_at as turn_starts_at + duration, so a *consistent* fixture can
+  // never tell "read" and "derive" apart — do not "fix" these numbers into
+  // agreement, that would silently re-break this test's ability to catch a
+  // regression back to derivation.
+  const session = mapIcebreakerState(
+    EVENT_ID,
+    dto({
+      turn_starts_at: "2026-08-09T20:15:00.000Z",
+      turn_ends_at: "2026-08-09T20:15:38.000Z",
+      participant_duration_seconds: 30,
+    }),
+  );
+  expect(session.timerStartedAt).toBe("2026-08-09T20:15:00.000Z");
+});
+
+test("falls back to the end instant when the wire has no start", () => {
+  // Null means a session created before the backend carried turn_starts_at.
+  // Those sessions should read as "already started" rather than idle.
+  const session = mapIcebreakerState(EVENT_ID, dto({ turn_starts_at: null }));
+  expect(session.timerStartedAt).toBe(session.timerEndsAt);
+});
+
 test("carries the whole deck with its per-round durations", () => {
   const session = mapIcebreakerState(EVENT_ID, dto());
   expect(session.rounds).toHaveLength(3);
