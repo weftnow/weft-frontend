@@ -32,6 +32,19 @@ test("transitions the ember marker in lockstep with the countdown arc", () => {
   );
 });
 
+test("clamps the visible readout to the round duration during the reading gap", () => {
+  // The caller passes turn_ends_at - now during the reading gap, which is
+  // duration + the gap length. The readout must not tick through that extra
+  // time — it has to agree with the ring (already clamped) and the
+  // aria-label, or a sighted user and a screen-reader user see different
+  // numbers for the same instant.
+  const html = renderToStaticMarkup(
+    <CircularTimer durationSeconds={30} remainingMilliseconds={38_000} running={false} />,
+  );
+  expect(html).toContain("00:30");
+  expect(html).not.toContain("00:38");
+});
+
 test("fills its responsive parent as the countdown surface", () => {
   expect(styles).toMatch(
     /\.circularTimer\s*\{(?=[^}]*display:\s*grid;)(?=[^}]*width:\s*100%;)(?=[^}]*height:\s*100%;)[^}]*\}/s,

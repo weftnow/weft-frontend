@@ -96,7 +96,7 @@ export function CircularTimer({
         </g>
       </svg>
       <div className={styles.readout}>
-        <span className={styles.time}>{formatTime(remainingMilliseconds)}</span>
+        <span className={styles.time}>{formatTime(clampedRemaining)}</span>
         <span className={styles.label}>time left</span>
       </div>
     </div>
