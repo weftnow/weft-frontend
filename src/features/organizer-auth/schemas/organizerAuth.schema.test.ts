@@ -65,6 +65,26 @@ test("step validation rejects blanks, invalid email, and short passwords", () =>
   expect(validateRegistrationStep("password", { ...draft, password: "short" })).toBeDefined();
 });
 
+test("step validation and the request schema reject passwords over bcrypt's 72-byte limit", () => {
+  const at72 = "a".repeat(72);
+  const over72 = "a".repeat(73);
+
+  expect(validateRegistrationStep("password", { ...draft, password: at72 })).toBeUndefined();
+  expect(validateRegistrationStep("password", { ...draft, password: over72 })).toBeDefined();
+
+  expect(
+    registrationRequestSchema.safeParse({
+      contact_name: "Ana",
+      organization_name: "Weft",
+      role: "event_manager",
+      email: "ana@example.com",
+      password: over72,
+      timezone: "UTC",
+      default_language: "en",
+    }).success,
+  ).toBe(false);
+});
+
 test("login requires a valid email and a non-empty password", () => {
   expect(loginRequestSchema.safeParse({ email: "ana@example.com", password: "x" }).success).toBe(true);
   expect(loginRequestSchema.safeParse({ email: "bad", password: "" }).success).toBe(false);

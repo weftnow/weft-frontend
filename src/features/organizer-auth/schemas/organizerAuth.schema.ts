@@ -31,7 +31,7 @@ export const registrationRequestSchema = z.object({
   organization_name: trimmedName,
   role,
   email,
-  password: z.string().min(8),
+  password: z.string().min(8).max(72),
   timezone,
   default_language: language,
 }).strict();
@@ -46,7 +46,7 @@ const stepSchemas = {
   organization_name: trimmedName,
   role,
   email,
-  password: z.string().min(8),
+  password: z.string().min(8).max(72),
 } as const;
 
 function stepValue(step: RegisterStep, draft: RegistrationDraft): unknown {

@@ -73,7 +73,7 @@ export function RegistrationQuestion({
           data-auth-autofocus="true"
           disabled={disabled}
           id={`organizer-${step}`}
-          maxLength={step === "password" ? undefined : step === "email" ? 320 : 200}
+          maxLength={step === "password" ? 72 : step === "email" ? 320 : 200}
           onChange={(event) => onTextChange(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {

@@ -127,6 +127,7 @@ export function RegisterFlow({
     >
       <motion.form
         className={styles.form}
+        noValidate
         ref={formRef}
         onSubmit={(event) => {
           event.preventDefault();
