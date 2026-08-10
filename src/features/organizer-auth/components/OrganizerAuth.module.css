@@ -334,3 +334,35 @@
   text-decoration: underline;
   text-underline-offset: 0.25rem;
 }
+
+.dashboardPlaceholder {
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  background: var(--color-bone);
+  padding: 2rem;
+  color: var(--color-ink);
+  text-align: center;
+}
+
+.dashboardPlaceholder h1 {
+  max-width: 22ch;
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.dashboardPlaceholder p {
+  margin: 0;
+  color: rgb(18 18 18 / 58%);
+}
+
+@supports (height: 100dvh) {
+  .dashboardPlaceholder { min-height: 100dvh; }
+}
