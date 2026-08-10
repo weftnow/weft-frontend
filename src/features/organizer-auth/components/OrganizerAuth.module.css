@@ -289,3 +289,48 @@
   .roleGrid { grid-template-columns: 1fr; gap: 0.5rem; }
   .roleOption { min-height: 3.7rem; }
 }
+
+.loginForm { width: min(34rem, 100%); gap: 1.5rem; }
+
+.loginFields {
+  display: grid;
+  width: 100%;
+  gap: 1rem;
+}
+
+.loginFields label {
+  display: grid;
+  gap: 0.45rem;
+  color: rgb(18 18 18 / 66%);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.loginField {
+  width: 100%;
+  min-height: 3.65rem;
+  border: 1px solid rgb(18 18 18 / 13%);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 68%);
+  padding: 0.9rem 1rem;
+  color: var(--color-ink);
+  font-size: 1rem;
+  outline: none;
+}
+
+.loginField:focus {
+  border-color: var(--color-signal);
+  box-shadow: 0 0 0 3px rgb(0 144 222 / 14%);
+}
+
+.accountSwitch {
+  margin: 0;
+  color: rgb(18 18 18 / 55%);
+  font-size: 0.86rem;
+}
+
+.accountSwitch a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.25rem;
+}
