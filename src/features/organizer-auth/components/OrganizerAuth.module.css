@@ -1,0 +1,168 @@
+.shell {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 100svh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  grid-template-rows: auto auto 1fr;
+  background:
+    radial-gradient(circle at 10% 18%, rgb(244 81 30 / 6%), transparent 28rem),
+    radial-gradient(circle at 90% 78%, rgb(0 144 222 / 4%), transparent 30rem),
+    var(--color-bone);
+  color: var(--color-ink);
+}
+
+.shell::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 25% 30%, rgb(18 18 18 / 1.2%) 0 0.55px, transparent 0.7px),
+    radial-gradient(circle at 70% 65%, rgb(244 81 30 / 1.8%) 0 0.5px, transparent 0.7px);
+  background-position: 0 0, 7px 9px;
+  background-size: 13px 13px, 17px 17px;
+  content: "";
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.ambientEmber,
+.ambientSignal {
+  position: absolute;
+  z-index: -1;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 999px;
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.ambientEmber { top: 8%; left: -10rem; background: rgb(244 81 30 / 7%); }
+.ambientSignal { right: -10rem; bottom: 6%; background: rgb(0 144 222 / 5%); }
+
+.header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(1rem, env(safe-area-inset-top)) clamp(1rem, 4vw, 2.5rem) 0;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.8rem;
+  color: var(--color-ink);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.languageSelector {
+  display: inline-flex;
+  gap: 0.2rem;
+  border: 1px solid rgb(18 18 18 / 10%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 58%);
+  padding: 0.22rem;
+  backdrop-filter: blur(12px);
+}
+
+.languageSelector button {
+  min-height: 2.25rem;
+  border-radius: 999px;
+  padding: 0.45rem 0.78rem;
+  color: rgb(18 18 18 / 58%);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.languageSelector button[aria-checked="true"] {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.brand:focus-visible,
+.languageSelector button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: 3px;
+}
+
+.progressWrap {
+  display: grid;
+  width: min(38rem, calc(100% - 2rem));
+  margin: clamp(1rem, 3vh, 1.75rem) auto 0;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.progressTrack {
+  height: 0.22rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(18 18 18 / 10%);
+}
+
+.progressTrack span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-ember);
+  transition: width 360ms var(--ease-out-ui);
+}
+
+.progressCount {
+  color: rgb(18 18 18 / 48%);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.stage {
+  display: grid;
+  min-height: 0;
+  place-items: center;
+  padding: clamp(1.5rem, 5vh, 4rem) 1rem max(1.5rem, env(safe-area-inset-bottom));
+}
+
+.prompt {
+  display: block;
+  max-width: min(24ch, calc(100vw - 2rem));
+  margin: 0 auto;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5.5vw, 4.7rem);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 1.04;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.promptWord { display: inline-block; white-space: nowrap; }
+.promptCharacter { display: inline-block; will-change: clip-path, opacity, transform; }
+
+@supports (height: 100dvh) {
+  .shell { min-height: 100dvh; }
+}
+
+@media (max-width: 520px) {
+  .header { align-items: flex-start; }
+  .brand span { display: none; }
+  .prompt { font-size: clamp(2rem, 10vw, 3.1rem); }
+}
+
+@media (max-height: 680px) {
+  .stage { align-items: start; padding-top: 1rem; padding-bottom: 1rem; }
+  .prompt { font-size: clamp(1.8rem, 7vh, 3rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell,
+  .shell * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
