@@ -119,3 +119,41 @@ test("attendee questionnaire owns a feature-based route and api boundary", () =>
     ),
   ).toBe(true);
 });
+
+test("organizer auth owns its feature source and app boundaries", () => {
+  expect(
+    existsSync(
+      resolve(
+        projectRoot,
+        "src/features/organizer-auth/types/organizerAuth.types.ts",
+      ),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(
+        projectRoot,
+        "src/features/organizer-auth/api/server/organizerAuth.gateway.ts",
+      ),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(
+        projectRoot,
+        "src/features/organizer-auth/components/RegisterFlow.tsx",
+      ),
+    ),
+  ).toBe(true);
+  expect(
+    existsSync(resolve(projectRoot, "src/app/organizer/register/page.tsx")),
+  ).toBe(true);
+  expect(
+    existsSync(
+      resolve(projectRoot, "src/app/api/organizer-auth/register/route.ts"),
+    ),
+  ).toBe(true);
+  expect(existsSync(resolve(projectRoot, "src/components/organizer-auth"))).toBe(
+    false,
+  );
+});
