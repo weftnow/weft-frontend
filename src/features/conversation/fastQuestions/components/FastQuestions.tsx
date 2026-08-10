@@ -59,7 +59,15 @@ export function FastQuestionsExperience({
     transitionSettleMs,
   });
   const timerEndsAt = session?.status === "active" ? session.timerEndsAt : null;
+  const timerStartedAt = session?.status === "active" ? session.timerStartedAt : null;
   const remainingMilliseconds = useCountdown(timerEndsAt);
+  // The reading gap: the question is up but this participant's clock has not
+  // started yet. Reusing useCountdown against timerStartedAt keeps this on
+  // the same ticking clock as the ring itself (a raw `Date.now()` comparison
+  // here would run during render, which React's purity rule disallows) — a
+  // positive value means we're still inside the gap, so the ring should hold
+  // full and still rather than sweep.
+  const readingGapOpen = useCountdown(timerStartedAt) > 0;
   const expiredDeadlineRef = useRef<string | null>(null);
   const expirySettleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reducedMotion = Boolean(useReducedMotion());
@@ -131,7 +139,7 @@ export function FastQuestionsExperience({
             <CircularTimer
               durationSeconds={round.participantDurationSeconds}
               remainingMilliseconds={remainingMilliseconds}
-              running={Boolean(timerEndsAt)}
+              running={Boolean(timerEndsAt) && !readingGapOpen}
             />
           </div>
           <ParticipantList
