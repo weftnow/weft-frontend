@@ -1,0 +1,23 @@
+import { cookies } from "next/headers";
+import type { NextResponse } from "next/server";
+
+export const ORGANIZER_SESSION_COOKIE = "weft_organizer_session";
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+
+export function setOrganizerSession(
+  response: NextResponse,
+  accessToken: string,
+  secure = process.env.NODE_ENV === "production",
+): void {
+  response.cookies.set(ORGANIZER_SESSION_COOKIE, accessToken, {
+    httpOnly: true,
+    secure,
+    sameSite: "lax",
+    path: "/",
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  });
+}
+
+export async function readOrganizerSession(): Promise<string | null> {
+  return (await cookies()).get(ORGANIZER_SESSION_COOKIE)?.value ?? null;
+}
