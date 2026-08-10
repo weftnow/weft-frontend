@@ -28,7 +28,7 @@ afterEach(() => {
 });
 
 test("register posts the exact DTO and parses the backend contract", async () => {
-  let captured: Request | null = null;
+  let captured!: Request;
   const outcome = await registerOrganizer(registration, async (input, init) => {
     captured = new Request(input, init);
     return Response.json({
@@ -47,9 +47,9 @@ test("register posts the exact DTO and parses the backend contract", async () =>
     }, { status: 201 });
   });
   expect(outcome).toEqual({ status: "ok", accessToken: "register-secret" });
-  expect(captured?.url).toBe("https://b2b.example.test/v1/auth/register");
-  expect(captured?.method).toBe("POST");
-  expect(await captured?.json()).toEqual(registration);
+  expect(captured.url).toBe("https://b2b.example.test/v1/auth/register");
+  expect(captured.method).toBe("POST");
+  expect(await captured.json()).toEqual(registration);
 });
 
 test("login maps invalid credentials without returning upstream detail", async () => {
