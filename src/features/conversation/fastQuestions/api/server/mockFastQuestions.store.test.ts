@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { READING_MILLISECONDS } from "../../model/fastQuestions.machine";
 import { createMockFastQuestionsStore } from "./mockFastQuestions.store";
 
 test("keeps one canonical event session and makes start idempotent", async () => {
@@ -14,8 +15,11 @@ test("returns canonical state for stale and valid advances", async () => {
   const store = createMockFastQuestionsStore();
   const eventId = "056dc3d4-b47f-4812-bdb1-f568391cd8bb";
   const started = await store.start(eventId, 1_000);
-  const stale = await store.advance(eventId, { roundIndex: 0, participantIndex: 1 }, 2_000);
-  const valid = await store.advance(eventId, { roundIndex: 0, participantIndex: 0 }, 2_000);
+  // Past the first participant's reading gap, so this exercises the
+  // stale/valid distinction rather than the separate reading-gap guard.
+  const pastGap = 1_000 + READING_MILLISECONDS + 1_000;
+  const stale = await store.advance(eventId, { roundIndex: 0, participantIndex: 1 }, pastGap);
+  const valid = await store.advance(eventId, { roundIndex: 0, participantIndex: 0 }, pastGap);
   expect(stale).toEqual(started);
   expect(valid.participantIndex).toBe(1);
 });

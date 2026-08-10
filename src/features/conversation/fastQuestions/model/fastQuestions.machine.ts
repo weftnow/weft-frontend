@@ -4,7 +4,7 @@ import type { AdvanceParticipantInput, FastQuestionsSession } from "../types/fas
 // Mirrors READING_SECONDS in the backend's app/icebreaker/timing.py. The mock
 // and the backend are two implementations of one state machine; they drift the
 // moment they disagree.
-const READING_MILLISECONDS = 8_000;
+export const READING_MILLISECONDS = 8_000;
 
 function schedule(
   session: FastQuestionsSession,
@@ -74,5 +74,11 @@ export function advanceParticipantAt(
     current.roundIndex !== expected.roundIndex ||
     current.participantIndex !== expected.participantIndex
   ) return current;
+  // Mirrors the backend guard in app/icebreaker/state.py's finish_turn: a tap
+  // during the reading gap is a no-op, since the turn it would end has not
+  // begun yet.
+  if (current.timerStartedAt !== null && now < Date.parse(current.timerStartedAt)) {
+    return current;
+  }
   return step(current, now);
 }

@@ -1,14 +1,19 @@
 import { expect, test } from "bun:test";
 import { createMockFastQuestionsSession } from "../data/mockFastQuestions";
 import { fastQuestionsSessionSchema } from "../schemas/fastQuestions.schema";
-import { advanceParticipantAt, advanceSessionAt, startSessionAt } from "./fastQuestions.machine";
+import {
+  advanceParticipantAt,
+  advanceSessionAt,
+  READING_MILLISECONDS as READING_MS,
+  startSessionAt,
+} from "./fastQuestions.machine";
 
 const EVENT_ID = "9de77386-a57f-42d6-9581-cf4a75328a87";
 const T0 = Date.parse("2026-08-08T20:00:00.000Z");
-// Mirrors READING_MILLISECONDS in fastQuestions.machine.ts: a session start
-// and each round transition (but not an in-round handover) now carries this
-// gap, so the deadlines below shift by it.
-const READING_MS = 8_000;
+// READING_MS (imported as READING_MILLISECONDS) mirrors READING_SECONDS in
+// the backend's app/icebreaker/timing.py: a session start and each round
+// transition (but not an in-round handover) carries this gap, so the
+// deadlines below shift by it.
 
 function threeParticipants() {
   const session = createMockFastQuestionsSession(EVENT_ID, { NODE_ENV: "production" });
@@ -51,17 +56,34 @@ test("catches up after backgrounding and stops before Phase 2", () => {
   expect(complete.timerEndsAt).toBeNull();
 });
 
-test("ignores stale advances and rebases a valid early advance", () => {
+test("ignores stale advances and rebases a valid early advance made after the gap closes", () => {
   const started = startSessionAt(threeParticipants(), T0);
-  expect(advanceParticipantAt(started, { roundIndex: 0, participantIndex: 1 }, T0 + 5_000))
+  // Past READING_MS (the gap), so this exercises the stale-mismatch guard
+  // rather than the reading-gap guard covered separately below.
+  const pastGap = T0 + READING_MS + 1_000;
+  expect(advanceParticipantAt(started, { roundIndex: 0, participantIndex: 1 }, pastGap))
     .toEqual(started);
   const valid = advanceParticipantAt(
     started,
     { roundIndex: 0, participantIndex: 0 },
-    T0 + 5_000,
+    pastGap,
   );
   expect(valid.participantIndex).toBe(1);
-  expect(valid.timerEndsAt).toBe("2026-08-08T20:00:35.000Z");
+  expect(valid.timerEndsAt).toBe(new Date(pastGap + 30_000).toISOString());
+});
+
+test("a Done tap during the reading gap is a no-op", () => {
+  // Mirrors the backend guard in app/icebreaker/state.py's finish_turn: the
+  // first participant's turn has not begun during the gap, so an eager tap
+  // must not consume it.
+  const started = startSessionAt(threeParticipants(), T0);
+  const duringGap = T0 + READING_MS - 1_000;
+  const tapped = advanceParticipantAt(
+    started,
+    { roundIndex: 0, participantIndex: 0 },
+    duringGap,
+  );
+  expect(tapped).toEqual(started);
 });
 
 test("a new round's first participant gets the reading gap", () => {
