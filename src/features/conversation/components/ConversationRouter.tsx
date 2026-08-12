@@ -72,7 +72,11 @@ export function ConversationRouter({
 
   if (session.phaseId === "phase_2") {
     return session.status === "complete" ? (
-      <SharedChallengeComplete closingLine={session.closingLine} language={session.language} />
+      <SharedChallengeComplete
+        closingLine={session.closingLine}
+        eventId={eventId}
+        language={session.language}
+      />
     ) : (
       <SharedChallenge session={session} />
     );
