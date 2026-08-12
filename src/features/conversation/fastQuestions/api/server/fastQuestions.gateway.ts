@@ -1,6 +1,7 @@
-import { mapIcebreakerState } from "../../model/fastQuestions.mapper";
+import { mapConversationState } from "../../../model/conversation.mapper";
+import type { ConversationSession } from "../../../types/conversation.types";
 import { icebreakerStateDtoSchema } from "../../schemas/icebreaker.contract.schema";
-import type { AdvanceParticipantInput, FastQuestionsSession } from "../../types/fastQuestions.types";
+import type { AdvanceParticipantInput } from "../../types/fastQuestions.types";
 
 const REQUEST_TIMEOUT_MS = 8_000;
 
@@ -75,14 +76,14 @@ async function readSession(
   path: string,
   init: RequestInit,
   fetchImpl: typeof fetch,
-): Promise<FastQuestionsSession> {
+): Promise<ConversationSession> {
   const body = await call(token, path, init, fetchImpl);
   const parsed = icebreakerStateDtoSchema.safeParse(body);
   if (!parsed.success) {
     console.error("fast questions gateway failed", "invalid-body");
     throw new FastQuestionsGatewayError("unavailable", "Icebreaker backend returned an unknown shape");
   }
-  return mapIcebreakerState(eventId, parsed.data);
+  return mapConversationState(eventId, parsed.data);
 }
 
 export function createFastQuestionsGateway(
@@ -101,18 +102,24 @@ export function createFastQuestionsGateway(
   }
 
   return {
-    async get(eventId: string): Promise<FastQuestionsSession> {
+    async get(eventId: string): Promise<ConversationSession> {
       return readSession(eventId, await token(eventId), "", { method: "GET" }, fetchImpl);
     },
 
-    async start(eventId: string): Promise<FastQuestionsSession> {
+    async start(eventId: string): Promise<ConversationSession> {
       return readSession(eventId, await token(eventId), "/start", { method: "POST" }, fetchImpl);
+    },
+
+    async continueToPhaseTwo(eventId: string): Promise<ConversationSession> {
+      // The endpoint is idempotent and the session row is locked, so five
+      // phones tapping Continue at once still establish one Phase 2 deadline.
+      return readSession(eventId, await token(eventId), "/continue", { method: "POST" }, fetchImpl);
     },
 
     async advance(
       eventId: string,
       expected: AdvanceParticipantInput,
-    ): Promise<FastQuestionsSession> {
+    ): Promise<ConversationSession> {
       // The backend counts rounds from 1 and uses the pair as its stale-tap
       // guard: a duplicate naming a turn already gone is a no-op rather than
       // a skipped participant. Send back exactly what the client rendered.

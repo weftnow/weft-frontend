@@ -2,12 +2,14 @@ import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { JSDOM } from "jsdom";
+import { conversationQueryKey } from "../../hooks/useConversationSession";
+import { messagesFor } from "../../i18n/conversation.messages";
+import type { ConversationApi } from "../../types/conversation.types";
 import { createMockFastQuestionsSession } from "../data/mockFastQuestions";
-import { fastQuestionsQueryKey } from "../hooks/useFastQuestions";
 import { mapIcebreakerState } from "../model/fastQuestions.mapper";
 import { fastQuestionsSessionSchema } from "../schemas/fastQuestions.schema";
 import type { IcebreakerStateDto } from "../schemas/icebreaker.contract.schema";
-import type { FastQuestionsApi, FastQuestionsSession } from "../types/fastQuestions.types";
+import type { FastQuestionsSession } from "../types/fastQuestions.types";
 import { FastQuestionsExperience } from "./FastQuestions";
 import { FastQuestionsCompletion } from "./FastQuestionsCompletion";
 import { ParticipantList } from "./ParticipantList";
@@ -17,6 +19,7 @@ import { RoundProgress } from "./RoundProgress";
 const EVENT_ID = "a8ad9264-b8ce-4ee6-bfad-8f3172a5b76c";
 
 const session = createMockFastQuestionsSession(EVENT_ID);
+const messages = messagesFor("en");
 
 test("keeps the question as the primary heading", () => {
   const html = renderToStaticMarkup(<QuestionDisplay round={session.rounds[0]} />);
@@ -26,7 +29,11 @@ test("keeps the question as the primary heading", () => {
 
 test("marks exactly one active participant and preserves full names", () => {
   const html = renderToStaticMarkup(
-    <ParticipantList activeParticipantId="antonio" participants={session.participants} />,
+    <ParticipantList
+      activeParticipantId="antonio"
+      messages={messages}
+      participants={session.participants}
+    />,
   );
   expect((html.match(/data-active="true"/g) ?? [])).toHaveLength(1);
   expect(html).toContain("Antonio, currently responding");
@@ -34,16 +41,29 @@ test("marks exactly one active participant and preserves full names", () => {
 });
 
 test("renders three round indicators and current count", () => {
-  const html = renderToStaticMarkup(<RoundProgress currentRoundIndex={1} />);
+  const html = renderToStaticMarkup(<RoundProgress currentRoundIndex={1} messages={messages} />);
   expect((html.match(/data-round-indicator/g) ?? [])).toHaveLength(3);
   expect(html).toContain("2 of 3");
 });
 
-test("completion does not introduce Phase 2 content", () => {
-  const html = renderToStaticMarkup(<FastQuestionsCompletion onContinue={() => {}} />);
-  expect(html).toContain("Fast questions complete.");
+test("the transition screen names what Phase 2 actually is", () => {
+  // The old copy set a mood and named nothing: a group tapped Continue without
+  // knowing what they were continuing into.
+  const html = renderToStaticMarkup(
+    <FastQuestionsCompletion language="en" onContinue={() => {}} />,
+  );
+  expect(html).toContain("Phase one complete.");
+  expect(html).toContain("One question about the world");
   expect(html).toContain("Continue");
-  expect(html).not.toContain("Shared Challenge");
+});
+
+test("the transition screen speaks the session's language", () => {
+  const html = renderToStaticMarkup(
+    <FastQuestionsCompletion language="es" onContinue={() => {}} />,
+  );
+  expect(html).toContain("Fase uno completada.");
+  expect(html).toContain("Una pregunta sobre el mundo");
+  expect(html).toContain("Continuar");
 });
 
 // `FastQuestionsExperience` reads its session synchronously off a pre-seeded
@@ -53,11 +73,12 @@ test("completion does not introduce Phase 2 content", () => {
 function renderFastQuestionsSession(overrides: Partial<FastQuestionsSession>) {
   const active = fastQuestionsSessionSchema.parse({ ...session, ...overrides });
   const queryClient = new QueryClient();
-  queryClient.setQueryData(fastQuestionsQueryKey(EVENT_ID), active);
-  const api: FastQuestionsApi = {
+  queryClient.setQueryData(conversationQueryKey(EVENT_ID), active);
+  const api: ConversationApi = {
     async getConversationSession() { return active; },
     async startFastQuestionsPhase() { return active; },
     async advanceParticipantTurn() { return active; },
+    async continueToPhaseTwo() { return active; },
   };
   const html = renderToStaticMarkup(
     <QueryClientProvider client={queryClient}>

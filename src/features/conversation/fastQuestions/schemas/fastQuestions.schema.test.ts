@@ -5,6 +5,7 @@ const valid = {
   eventId: "6d0c6a42-4d67-4f92-bf75-4c93056dca73",
   phaseId: "phase_1",
   type: "fast_questions",
+  language: "en",
   status: "active",
   roundIndex: 0,
   participantIndex: 0,

@@ -5,7 +5,8 @@ import { JSDOM } from "jsdom";
 import { createMockFastQuestionsSession } from "../data/mockFastQuestions";
 import { startSessionAt } from "../model/fastQuestions.machine";
 import { fastQuestionsSessionSchema } from "../schemas/fastQuestions.schema";
-import type { FastQuestionsApi, FastQuestionsSession } from "../types/fastQuestions.types";
+import type { ConversationApi } from "../../types/conversation.types";
+import type { FastQuestionsSession } from "../types/fastQuestions.types";
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   pretendToBeVisual: true,
@@ -56,7 +57,7 @@ afterEach(() => {
 const { act } = await import("react");
 const { createRoot } = await import("react-dom/client");
 const { FastQuestionsExperience } = await import("./FastQuestions");
-const { fastQuestionsQueryKey } = await import("../hooks/useFastQuestions");
+const { conversationQueryKey } = await import("../../hooks/useConversationSession");
 
 const EVENT_ID = "6071af2e-7936-4b15-bb44-e4d917337543";
 
@@ -85,8 +86,12 @@ function createActiveSession(
 
 function createProgressingApi() {
   const waiting = createMockFastQuestionsSession(EVENT_ID);
-  let session = waiting;
-  const api: FastQuestionsApi & { set(next: FastQuestionsSession): void } = {
+  let session: FastQuestionsSession = waiting;
+  const api: ConversationApi & {
+    /** Phase-1 typed, unlike the API's own union-returning read. */
+    current(): FastQuestionsSession;
+    set(next: FastQuestionsSession): void;
+  } = {
     async advanceParticipantTurn() {
       return session;
     },
@@ -95,6 +100,12 @@ function createProgressingApi() {
     },
     async startFastQuestionsPhase() {
       session = startSessionAt(waiting, Date.now());
+      return session;
+    },
+    async continueToPhaseTwo() {
+      return session;
+    },
+    current() {
       return session;
     },
     set(next) {
@@ -120,7 +131,7 @@ async function waitFor(condition: () => boolean, container: HTMLElement) {
 
 async function refetch(queryClient: QueryClient) {
   await act(async () => {
-    await queryClient.invalidateQueries({ queryKey: fastQuestionsQueryKey(EVENT_ID) });
+    await queryClient.invalidateQueries({ queryKey: conversationQueryKey(EVENT_ID) });
   });
 }
 
@@ -130,11 +141,6 @@ test("renders only canonical Phase 1 transitions without timer announcements", a
   const container = dom.window.document.createElement("div");
   dom.window.document.body.append(container);
   const root: Root = createRoot(container);
-  const continueEvents: string[] = [];
-  const onContinue = (event: Event) => {
-    continueEvents.push((event as CustomEvent<{ eventId: string }>).detail.eventId);
-  };
-  dom.window.addEventListener("weft:phase-one-continue", onContinue);
 
   try {
     await act(async () => {
@@ -150,50 +156,30 @@ test("renders only canonical Phase 1 transitions without timer announcements", a
     expect(container.textContent).toContain("Antonio’s turn");
     expect(container.querySelectorAll('[data-active="true"]')).toHaveLength(1);
 
-    const first = createActiveSession(await api.getConversationSession(EVENT_ID), 0, 1);
+    const first = createActiveSession(api.current(), 0, 1);
     api.set(first);
     await refetch(queryClient);
     await waitFor(() => container.textContent?.includes("María’s turn") === true, container);
     expect(container.textContent).toContain("Everyone gets 30 seconds to respond.");
 
-    const second = createActiveSession(await api.getConversationSession(EVENT_ID), 1, 0);
+    const second = createActiveSession(api.current(), 1, 0);
     api.set(second);
     await refetch(queryClient);
     await waitFor(() => container.textContent?.includes("Round 2 of 3") === true, container);
     expect(container.textContent).toContain("Antonio’s turn");
 
-    const currentUser = createActiveSession(await api.getConversationSession(EVENT_ID), 1, 4);
+    const currentUser = createActiveSession(api.current(), 1, 4);
     api.set(currentUser);
     await refetch(queryClient);
     await waitFor(() => container.textContent?.includes("Your turn") === true, container);
     expect(container.textContent).not.toContain("You’s turn");
     expect(container.querySelector("[data-fast-questions-announcement]")?.textContent).not.toContain("00:");
 
-    const complete = fastQuestionsSessionSchema.parse({
-      ...await api.getConversationSession(EVENT_ID),
-      status: "phase_complete",
-      roundIndex: 2,
-      participantIndex: 4,
-      timerStartedAt: null,
-      timerEndsAt: null,
-    });
-    api.set(complete);
-    await refetch(queryClient);
-    await waitFor(
-      () => container.textContent?.includes("Fast questions complete.") === true,
-      container,
-    );
-    expect(container.textContent).toContain("Fast questions complete.");
-    expect(container.textContent).not.toContain("Shared Challenge");
-    const continueButton = Array.from(container.querySelectorAll("button")).find(
-      (button) => button.textContent === "Continue",
-    );
-    if (!continueButton) throw new Error("Continue button not found");
-    await act(async () => continueButton.click());
-    expect(continueEvents).toEqual([EVENT_ID]);
+    // The phase boundary stops here: `FastQuestionsExperience` renders phase 1
+    // and nothing else, and ConversationRouter.test.tsx covers the transition
+    // screen that follows it.
   } finally {
     await act(async () => root.unmount());
-    dom.window.removeEventListener("weft:phase-one-continue", onContinue);
     container.remove();
     queryClient.clear();
   }
@@ -204,7 +190,7 @@ test("renders a retryable notice when the canonical session cannot load", async 
   const container = dom.window.document.createElement("div");
   dom.window.document.body.append(container);
   const root: Root = createRoot(container);
-  const api: FastQuestionsApi = {
+  const api: ConversationApi = {
     async advanceParticipantTurn() {
       throw new Error("not reached");
     },
@@ -212,6 +198,9 @@ test("renders a retryable notice when the canonical session cannot load", async 
       throw new Error("offline");
     },
     async startFastQuestionsPhase() {
+      throw new Error("not reached");
+    },
+    async continueToPhaseTwo() {
       throw new Error("not reached");
     },
   };

@@ -1,9 +1,10 @@
+import { conversationSessionSchema } from "../../schemas/conversation.schema";
+import type { ConversationApi, ConversationSession } from "../../types/conversation.types";
 import {
   advanceParticipantInputSchema,
   eventIdSchema,
-  fastQuestionsSessionSchema,
 } from "../schemas/fastQuestions.schema";
-import type { AdvanceParticipantInput, FastQuestionsApi, FastQuestionsSession } from "../types/fastQuestions.types";
+import type { AdvanceParticipantInput } from "../types/fastQuestions.types";
 
 const TIMEOUT_MS = 8_000;
 
@@ -19,7 +20,7 @@ export class FastQuestionsApiError extends Error {
   }
 }
 
-async function requestSession(path: string, init?: RequestInit): Promise<FastQuestionsSession> {
+async function requestSession(path: string, init?: RequestInit): Promise<ConversationSession> {
   const response = await fetch(path, {
     ...init,
     headers: { "Content-Type": "application/json", ...init?.headers },
@@ -34,10 +35,10 @@ async function requestSession(path: string, init?: RequestInit): Promise<FastQue
     throw new FastQuestionsApiError(response.status, code);
   }
 
-  return fastQuestionsSessionSchema.parse(await response.json());
+  return conversationSessionSchema.parse(await response.json());
 }
 
-export const fastQuestionsApi: FastQuestionsApi = {
+export const conversationApi: ConversationApi = {
   async getConversationSession(eventId) {
     const id = eventIdSchema.parse(eventId);
     return requestSession("/api/events/" + id + "/conversation");
@@ -53,5 +54,9 @@ export const fastQuestionsApi: FastQuestionsApi = {
       method: "POST",
       body: JSON.stringify(body),
     });
+  },
+  async continueToPhaseTwo(eventId) {
+    const id = eventIdSchema.parse(eventId);
+    return requestSession("/api/events/" + id + "/conversation/continue", { method: "POST" });
   },
 };

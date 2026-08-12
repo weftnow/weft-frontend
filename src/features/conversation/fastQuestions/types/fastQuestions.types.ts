@@ -16,11 +16,3 @@ export type FastQuestionsViewState =
   | "participant_transition"
   | "round_transition"
   | "phase_complete";
-export type FastQuestionsApi = {
-  getConversationSession(eventId: string): Promise<FastQuestionsSession>;
-  startFastQuestionsPhase(eventId: string): Promise<FastQuestionsSession>;
-  advanceParticipantTurn(
-    eventId: string,
-    expected: AdvanceParticipantInput,
-  ): Promise<FastQuestionsSession>;
-};

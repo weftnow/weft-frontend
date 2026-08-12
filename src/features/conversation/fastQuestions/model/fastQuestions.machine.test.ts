@@ -1,9 +1,11 @@
 import { expect, test } from "bun:test";
 import { createMockFastQuestionsSession } from "../data/mockFastQuestions";
 import { fastQuestionsSessionSchema } from "../schemas/fastQuestions.schema";
+import { SHARED_CHALLENGE_SECONDS } from "../../sharedChallenge/model/sharedChallenge.timing";
 import {
   advanceParticipantAt,
   advanceSessionAt,
+  continueToPhaseTwoAt,
   READING_MILLISECONDS as READING_MS,
   startSessionAt,
 } from "./fastQuestions.machine";
@@ -104,4 +106,53 @@ test("a new round's first participant gets the reading gap", () => {
   const handover = Date.parse(current.timerStartedAt!);
   const previousEnd = Date.parse(started.timerEndsAt!);
   expect(handover).toBeGreaterThan(previousEnd);
+});
+
+function phaseOneComplete() {
+  const session = threeParticipants();
+  return fastQuestionsSessionSchema.parse({
+    ...session,
+    status: "phase_complete",
+    roundIndex: 2,
+    participantIndex: session.participants.length - 1,
+    timerStartedAt: null,
+    timerEndsAt: null,
+  });
+}
+
+test("Continue moves a completed phase one into a seven-minute discussion", () => {
+  const phaseTwo = continueToPhaseTwoAt(phaseOneComplete(), T0);
+  if (phaseTwo.phaseId !== "phase_2") throw new Error("expected a phase two session");
+  expect(phaseTwo.status).toBe("active");
+  expect(phaseTwo.challenge.length).toBeGreaterThan(0);
+  expect(Date.parse(phaseTwo.timerEndsAt ?? "")).toBe(T0 + SHARED_CHALLENGE_SECONDS * 1_000);
+  // No individual turn to protect, so there is no reading gap to open.
+  expect(phaseTwo.timerStartedAt).toBeNull();
+});
+
+test("Continue is a no-op before phase one is complete and after phase two began", () => {
+  const waiting = threeParticipants();
+  expect(continueToPhaseTwoAt(waiting, T0)).toEqual(waiting);
+
+  const first = continueToPhaseTwoAt(phaseOneComplete(), T0);
+  expect(continueToPhaseTwoAt(first, T0 + 5_000)).toEqual(first);
+});
+
+test("the discussion expires into a finished session carrying the closing line", () => {
+  const phaseTwo = continueToPhaseTwoAt(phaseOneComplete(), T0);
+
+  expect(advanceSessionAt(phaseTwo, T0 + 60_000)).toEqual(phaseTwo);
+
+  const after = advanceSessionAt(phaseTwo, T0 + SHARED_CHALLENGE_SECONDS * 1_000 + 1);
+  if (after.phaseId !== "phase_2") throw new Error("expected a phase two session");
+  expect(after.status).toBe("complete");
+  expect(after.timerEndsAt).toBeNull();
+  expect(after.closingLine).toContain("swap contacts");
+});
+
+test("phase one controls do nothing once the discussion has started", () => {
+  const phaseTwo = continueToPhaseTwoAt(phaseOneComplete(), T0);
+  expect(startSessionAt(phaseTwo, T0 + 1_000)).toEqual(phaseTwo);
+  expect(advanceParticipantAt(phaseTwo, { roundIndex: 2, participantIndex: 2 }, T0 + 1_000))
+    .toEqual(phaseTwo);
 });

@@ -1,3 +1,4 @@
+import { conversationLanguage } from "../../i18n/conversation.messages";
 import type { IcebreakerStateDto } from "../schemas/icebreaker.contract.schema";
 import type { FastQuestionsSession, Participant } from "../types/fastQuestions.types";
 
@@ -9,8 +10,8 @@ import type { FastQuestionsSession, Participant } from "../types/fastQuestions.t
  *
  * - the backend counts rounds from 1 and calls the live state `running`;
  *   the UI counts from 0 and calls it `active`;
- * - the backend models the whole icebreaker (two phases); Fast Questions is
- *   phase 1 only, so anything past it collapses to `phase_complete`.
+ * - the backend models the whole icebreaker (two phases); this mapper handles
+ *   phase 1 only, and `mapConversationState` is what decides that.
  */
 
 // The backend knows names, not faces. Cycling a fixed set keyed by position
@@ -28,11 +29,12 @@ const AVATARS = [
 const MAX_ROUND_INDEX = 2;
 
 /**
- * Fast Questions has no screen for a phase-2 or finished session, so both read
- * as "the phase is over" rather than surfacing a status the UI cannot render.
+ * Only ever called for a phase-1 payload: `mapConversationState` sends phase 2
+ * to the shared-challenge mapper before this runs. Collapsing phase 2 here is
+ * what used to send a group that reloaded mid-discussion back to the
+ * transition screen they had already passed.
  */
 function mapStatus(dto: IcebreakerStateDto): FastQuestionsSession["status"] {
-  if (dto.phase !== 1 || dto.status === "finished") return "phase_complete";
   if (dto.status === "running") return "active";
   if (dto.status === "waiting") return "waiting";
   return "phase_complete";
@@ -76,6 +78,7 @@ export function mapIcebreakerState(
     eventId,
     phaseId: "phase_1",
     type: "fast_questions",
+    language: conversationLanguage(dto.language),
     status,
     roundIndex: Math.min(Math.max(dto.round - 1, 0), MAX_ROUND_INDEX),
     participantIndex: dto.turn_index,

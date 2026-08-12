@@ -1,27 +1,34 @@
+import type { ConversationSession } from "../../../types/conversation.types";
 import { createMockFastQuestionsSession } from "../../data/mockFastQuestions";
-import { advanceParticipantAt, advanceSessionAt, startSessionAt } from "../../model/fastQuestions.machine";
-import type { AdvanceParticipantInput, FastQuestionsSession } from "../../types/fastQuestions.types";
+import {
+  advanceParticipantAt,
+  advanceSessionAt,
+  continueToPhaseTwoAt,
+  startSessionAt,
+} from "../../model/fastQuestions.machine";
+import type { AdvanceParticipantInput } from "../../types/fastQuestions.types";
 
 export type MockFastQuestionsStore = {
-  get(eventId: string, now?: number): Promise<FastQuestionsSession>;
-  start(eventId: string, now?: number): Promise<FastQuestionsSession>;
+  get(eventId: string, now?: number): Promise<ConversationSession>;
+  start(eventId: string, now?: number): Promise<ConversationSession>;
   advance(
     eventId: string,
     expected: AdvanceParticipantInput,
     now?: number,
-  ): Promise<FastQuestionsSession>;
+  ): Promise<ConversationSession>;
+  continueToPhaseTwo(eventId: string, now?: number): Promise<ConversationSession>;
 };
 
 export function createMockFastQuestionsStore(): MockFastQuestionsStore {
-  const sessions = new Map<string, FastQuestionsSession>();
+  const sessions = new Map<string, ConversationSession>();
 
-  function read(eventId: string): FastQuestionsSession {
+  function read(eventId: string): ConversationSession {
     const existing = sessions.get(eventId);
     if (existing) return existing;
     return createMockFastQuestionsSession(eventId);
   }
 
-  function persist(eventId: string, session: FastQuestionsSession): FastQuestionsSession {
+  function persist(eventId: string, session: ConversationSession): ConversationSession {
     sessions.set(eventId, session);
     return session;
   }
@@ -35,6 +42,9 @@ export function createMockFastQuestionsStore(): MockFastQuestionsStore {
     },
     async advance(eventId, expected, now = Date.now()) {
       return persist(eventId, advanceParticipantAt(read(eventId), expected, now));
+    },
+    async continueToPhaseTwo(eventId, now = Date.now()) {
+      return persist(eventId, continueToPhaseTwoAt(read(eventId), now));
     },
   };
 }

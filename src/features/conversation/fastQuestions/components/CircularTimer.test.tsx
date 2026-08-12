@@ -1,7 +1,10 @@
 import { expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import { renderToStaticMarkup } from "react-dom/server";
+import { messagesFor } from "../../i18n/conversation.messages";
 import { CircularTimer } from "./CircularTimer";
+
+const messages = messagesFor("en");
 
 const styles = await readFile(
   new URL("./CircularTimer.module.css", import.meta.url),
@@ -10,7 +13,7 @@ const styles = await readFile(
 
 test("renders accessible non-live proportional progress", () => {
   const html = renderToStaticMarkup(
-    <CircularTimer durationSeconds={60} remainingMilliseconds={30_000} running />,
+    <CircularTimer durationSeconds={60} messages={messages} remainingMilliseconds={30_000} running />,
   );
   expect(html).toContain("00:30");
   expect(html).toContain("time left");
@@ -21,7 +24,7 @@ test("renders accessible non-live proportional progress", () => {
 
 test("transitions the ember marker in lockstep with the countdown arc", () => {
   const html = renderToStaticMarkup(
-    <CircularTimer durationSeconds={60} remainingMilliseconds={30_000} running />,
+    <CircularTimer durationSeconds={60} messages={messages} remainingMilliseconds={30_000} running />,
   );
 
   expect(html).toContain('data-progress-marker="true"');
@@ -39,7 +42,7 @@ test("clamps the visible readout to the round duration during the reading gap", 
   // aria-label, or a sighted user and a screen-reader user see different
   // numbers for the same instant.
   const html = renderToStaticMarkup(
-    <CircularTimer durationSeconds={30} remainingMilliseconds={38_000} running={false} />,
+    <CircularTimer durationSeconds={30} messages={messages} remainingMilliseconds={38_000} running={false} />,
   );
   expect(html).toContain("00:30");
   expect(html).not.toContain("00:38");

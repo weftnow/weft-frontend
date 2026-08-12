@@ -19,6 +19,7 @@ export const fastQuestionsSessionSchema = z
     eventId: eventIdSchema,
     phaseId: z.literal("phase_1"),
     type: z.literal("fast_questions"),
+    language: z.enum(["en", "es"]),
     status: z.enum(["waiting", "active", "phase_complete"]),
     roundIndex: z.number().int().min(0).max(2),
     participantIndex: z.number().int().min(0),

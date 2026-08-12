@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import type { ConversationMessages } from "../../i18n/conversation.messages";
 import type { Participant } from "../types/fastQuestions.types";
 import { ParticipantAvatar } from "./ParticipantAvatar";
 import styles from "./FastQuestions.module.css";
@@ -6,12 +7,17 @@ import styles from "./FastQuestions.module.css";
 export type ParticipantListProps = {
   participants: Participant[];
   activeParticipantId: string;
+  messages: Pick<ConversationMessages, "participantActivity" | "participants">;
 };
 
-export function ParticipantList({ participants, activeParticipantId }: ParticipantListProps) {
+export function ParticipantList({
+  activeParticipantId,
+  messages,
+  participants,
+}: ParticipantListProps) {
   return (
     <ol
-      aria-label="Participants"
+      aria-label={messages.participants}
       className={styles.participantList}
       data-count={participants.length}
       style={{ "--participant-count": participants.length } as CSSProperties}
@@ -20,6 +26,7 @@ export function ParticipantList({ participants, activeParticipantId }: Participa
         <ParticipantAvatar
           active={participant.id === activeParticipantId}
           key={participant.id}
+          messages={messages}
           participant={participant}
         />
       ))}

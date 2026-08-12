@@ -1,7 +1,8 @@
 import { afterEach, expect, test } from "bun:test";
 import type { Root } from "react-dom/client";
 import { JSDOM } from "jsdom";
-import type { FastQuestionsApi, FastQuestionsSession } from "../types/fastQuestions.types";
+import type { ConversationApi } from "../../types/conversation.types";
+import type { FastQuestionsSession } from "../types/fastQuestions.types";
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   pretendToBeVisual: true,
@@ -77,7 +78,7 @@ function createTestQueryClient() {
 }
 
 /** Waiting → records exactly one start call → active. */
-function createFakeApi(): FastQuestionsApi & { startCalls: string[] } {
+function createFakeApi(): ConversationApi & { startCalls: string[] } {
   const waitingSession = createMockFastQuestionsSession(EVENT_ID);
   const activeSession = startSessionAt(waitingSession, Date.now());
   const startCalls: string[] = [];
@@ -96,10 +97,13 @@ function createFakeApi(): FastQuestionsApi & { startCalls: string[] } {
     async advanceParticipantTurn() {
       throw new Error("advanceParticipantTurn should not be called in this test");
     },
+    async continueToPhaseTwo() {
+      throw new Error("continueToPhaseTwo should not be called in this test");
+    },
   };
 }
 
-function Probe({ api }: { api: FastQuestionsApi }) {
+function Probe({ api }: { api: ConversationApi }) {
   const { session, viewState } = useFastQuestions(EVENT_ID, {
     api,
     transitionSettleMs: 0,

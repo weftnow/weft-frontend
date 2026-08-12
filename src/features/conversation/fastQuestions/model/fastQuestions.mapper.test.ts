@@ -135,17 +135,23 @@ test("keeps a waiting session free of timestamps", () => {
   expect(session.timerEndsAt).toBeNull();
 });
 
-test("treats phase two and finished as the end of fast questions", () => {
-  // Fast Questions is phase 1 only; anything past it reads as complete rather
-  // than leaking a status the UI has no screen for.
+test("treats a phase-one payload it can no longer render as complete", () => {
+  // Phase 2 never reaches this mapper any more — mapConversationState routes it
+  // away — so the only end-of-phase status left to map is phase_complete. A
+  // phase-1 `finished` cannot happen; it maps to complete rather than crashing.
   for (const state of [
-    dto({ phase: 2, status: "running", question: null }),
+    dto({ status: "phase_complete", question: null }),
     dto({ status: "finished", question: null }),
   ]) {
     const session = mapIcebreakerState(EVENT_ID, state);
     expect(session.status).toBe("phase_complete");
     expect(session.timerEndsAt).toBeNull();
   }
+});
+
+test("narrows a regional language tag the same way the backend does", () => {
+  expect(mapIcebreakerState(EVENT_ID, dto({ language: "es-MX" })).language).toBe("es");
+  expect(mapIcebreakerState(EVENT_ID, dto({ language: "en" })).language).toBe("en");
 });
 
 test("gives every participant a distinct, stable avatar", () => {
