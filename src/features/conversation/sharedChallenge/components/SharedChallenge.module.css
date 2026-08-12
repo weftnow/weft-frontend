@@ -89,6 +89,23 @@
   .timer { width: clamp(8.5rem, 30vh, 9.5rem); }
 }
 
+.feedbackLink {
+  min-height: 2.75rem;
+  border-radius: 999px;
+  background: var(--color-ink);
+  padding: 0.8rem 1.4rem;
+  color: var(--color-bone);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.feedbackLink:focus-visible {
+  outline: 3px solid var(--color-signal);
+  outline-offset: 3px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shell *,
   .shell *::before,

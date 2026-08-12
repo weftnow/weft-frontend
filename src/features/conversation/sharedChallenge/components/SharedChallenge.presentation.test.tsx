@@ -53,6 +53,7 @@ test("the complete screen shows the backend's closing line", () => {
   const html = renderToStaticMarkup(
     <SharedChallengeComplete
       closingLine="¡Tiempo! Antes de separarse — intercambien contactos con quien quieran volver a ver."
+      eventId={EVENT_ID}
       language="es"
     />,
   );
@@ -61,12 +62,26 @@ test("the complete screen shows the backend's closing line", () => {
 
 test("the complete screen still says something when the closing line is missing", () => {
   const english = renderToStaticMarkup(
-    <SharedChallengeComplete closingLine={null} language="en" />,
+    <SharedChallengeComplete closingLine={null} eventId={EVENT_ID} language="en" />,
   );
   expect(english).toContain("swap contacts");
 
   const spanish = renderToStaticMarkup(
-    <SharedChallengeComplete closingLine={null} language="es" />,
+    <SharedChallengeComplete closingLine={null} eventId={EVENT_ID} language="es" />,
   );
   expect(spanish).toContain("intercambien contactos");
+});
+
+test("the complete screen hands off to feedback, carrying the language", () => {
+  const english = renderToStaticMarkup(
+    <SharedChallengeComplete closingLine={null} eventId={EVENT_ID} language="en" />,
+  );
+  expect(english).toContain(`href="/e/${EVENT_ID}/feedback?lang=en"`);
+  expect(english).toContain("Before you go");
+
+  const spanish = renderToStaticMarkup(
+    <SharedChallengeComplete closingLine={null} eventId={EVENT_ID} language="es" />,
+  );
+  expect(spanish).toContain(`href="/e/${EVENT_ID}/feedback?lang=es"`);
+  expect(spanish).toContain("Antes de irte");
 });
