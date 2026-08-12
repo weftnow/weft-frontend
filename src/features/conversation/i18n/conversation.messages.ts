@@ -76,7 +76,7 @@ export const conversationMessages = {
       "Time! Before you split — swap contacts with anyone you want to see again.",
   },
   es: {
-    loading: "Preparando su conversación…",
+    loading: "Preparando tu conversación…",
     invalidLink: "Este enlace del evento no es válido.",
     syncError: "No pudimos sincronizar la conversación.",
     retry: "Intentar de nuevo",
