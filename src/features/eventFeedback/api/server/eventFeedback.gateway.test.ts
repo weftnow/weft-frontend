@@ -35,19 +35,54 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
+const ANSWERS = {
+  recommendScore: 4,
+  rating: 5,
+  improvement: "More time.",
+  meetAgain: [] as string[],
+};
+
 test("the cookie name matches the backend's per-event name", () => {
   expect(attendeeCookieName(EVENT_ID)).toBe("weft_attendee_8f14e45fea0c4d6b9f1c2b3a4c5d6e7f");
 });
 
-test("reads the submitted status from the backend", async () => {
+test("an unsubmitted guest gets the status and their tablemates", async () => {
+  const seen: string[] = [];
+  const api = gateway(async (url) => {
+    const path = String(url);
+    seen.push(path);
+    if (path.endsWith("/event-feedback")) return json({ submitted: false });
+    return json({ tablemates: [{ display_name: "Ana" }, { display_name: "Beto" }] });
+  });
+
+  expect(await api.status(EVENT_ID)).toEqual({
+    submitted: false,
+    tablemates: [{ displayName: "Ana" }, { displayName: "Beto" }],
+  });
+  expect(seen).toEqual([
+    `http://backend.test/a/${TOKEN}/event-feedback`,
+    `http://backend.test/a/${TOKEN}`,
+  ]);
+});
+
+test("a guest who already submitted costs no extra request", async () => {
   const seen: string[] = [];
   const api = gateway(async (url) => {
     seen.push(String(url));
     return json({ submitted: true });
   });
 
-  expect(await api.status(EVENT_ID)).toEqual({ submitted: true });
-  expect(seen[0]).toBe(`http://backend.test/a/${TOKEN}/event-feedback`);
+  expect(await api.status(EVENT_ID)).toEqual({ submitted: true, tablemates: [] });
+  expect(seen).toHaveLength(1);
+});
+
+test("an unpublished group hides the question rather than failing the screen", async () => {
+  const api = gateway(async (url) => {
+    if (String(url).endsWith("/event-feedback")) return json({ submitted: false });
+    return new Response(null, { status: 204 });
+  });
+
+  expect(await api.status(EVENT_ID)).toEqual({ submitted: false, tablemates: [] });
 });
 
 test("sends the answers under the backend's snake_case names", async () => {
@@ -57,17 +92,55 @@ test("sends the answers under the backend's snake_case names", async () => {
     return json({ status: "recorded" }, 201);
   });
 
-  await api.submit(EVENT_ID, { recommendScore: 9, rating: 4, improvement: "More time." });
+  await api.submit(EVENT_ID, ANSWERS);
 
-  expect(body).toEqual({ recommend_score: 9, rating: 4, improvement: "More time." });
+  expect(body).toEqual({ recommend_score: 4, rating: 5, improvement: "More time." });
+});
+
+test("meet-again lands before the one-shot write, so a retry cannot strand it", async () => {
+  const calls: string[] = [];
+  const api = gateway(async (url, init) => {
+    const path = String(url);
+    if (path.endsWith("/feedback")) {
+      calls.push(`meet:${JSON.parse(String(init?.body)).to_display_name}`);
+      return json({ status: "recorded" }, 201);
+    }
+    calls.push("event-feedback");
+    return json({ status: "recorded" }, 201);
+  });
+
+  await api.submit(EVENT_ID, { ...ANSWERS, meetAgain: ["Ana", "Beto"] });
+
+  expect(calls).toEqual(["meet:Ana", "meet:Beto", "event-feedback"]);
+});
+
+test("a meet-again name already recorded is the desired end state, not a failure", async () => {
+  const api = gateway(async (url) => {
+    if (String(url).endsWith("/event-feedback")) return json({ status: "recorded" }, 201);
+    return json({ detail: "feedback already recorded" }, 409);
+  });
+
+  await api.submit(EVENT_ID, { ...ANSWERS, meetAgain: ["Ana"] });
+});
+
+test("a name no longer at the table does not sink the whole submission", async () => {
+  let recorded = false;
+  const api = gateway(async (url) => {
+    if (String(url).endsWith("/event-feedback")) {
+      recorded = true;
+      return json({ status: "recorded" }, 201);
+    }
+    return json({ detail: "that person is not at your table" }, 404);
+  });
+
+  await api.submit(EVENT_ID, { ...ANSWERS, meetAgain: ["Ghost"] });
+  expect(recorded).toBe(true);
 });
 
 test("a duplicate submission is reported as already submitted, not as a failure", async () => {
   const api = gateway(async () => json({ detail: "event feedback already recorded" }, 409));
 
-  const error = await api
-    .submit(EVENT_ID, { recommendScore: 5, rating: 3, improvement: "x" })
-    .catch((caught: unknown) => caught);
+  const error = await api.submit(EVENT_ID, ANSWERS).catch((caught: unknown) => caught);
 
   expect((error as Error).name).toBe("EventFeedbackGatewayError");
   expect((error as EventFeedbackGatewayError).code).toBe("already_submitted");
@@ -96,9 +169,7 @@ test("an unusable token reads the same whether it is rejected or unknown", async
 
 test("a rejected body is invalid, not unavailable", async () => {
   const api = gateway(async () => json({ detail: [] }, 422));
-  const error = await api
-    .submit(EVENT_ID, { recommendScore: 5, rating: 3, improvement: "x" })
-    .catch((caught: unknown) => caught);
+  const error = await api.submit(EVENT_ID, ANSWERS).catch((caught: unknown) => caught);
   expect((error as EventFeedbackGatewayError).code).toBe("invalid");
 });
 

@@ -44,6 +44,8 @@ export const eventFeedbackApi: EventFeedbackApi = {
     if (!response.ok) return { unavailable: true };
 
     const parsed = eventFeedbackStatusSchema.safeParse(await response.json().catch(() => null));
+    // A failed read costs the meet-again question its list of names, but the
+    // rest of the form still works — better than a blocked screen.
     return parsed.success ? parsed.data : { unavailable: true };
   },
 

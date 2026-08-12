@@ -32,13 +32,16 @@ export function EventFeedbackScreen({
   const [screen, setScreen] = useState<Screen>("form");
   const [submitting, setSubmitting] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [tablemates, setTablemates] = useState<{ displayName: string }[]>([]);
   const inFlight = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
     void api.getStatus(eventId).then((result) => {
       if (cancelled) return;
-      if ("submitted" in result && result.submitted) setScreen("thanks");
+      if (!("submitted" in result)) return;
+      if (result.submitted) setScreen("thanks");
+      else setTablemates(result.tablemates);
     });
     return () => {
       cancelled = true;
@@ -93,6 +96,7 @@ export function EventFeedbackScreen({
       language={language}
       onSubmit={handleSubmit}
       submitting={submitting}
+      tablemates={tablemates}
     />
   );
 }

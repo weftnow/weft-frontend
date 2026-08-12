@@ -6,21 +6,27 @@ import { eventFeedbackMessagesFor } from "../i18n/eventFeedback.messages";
 import type { EventFeedbackSubmission } from "../schemas/eventFeedback.schema";
 import styles from "./EventFeedback.module.css";
 
-const RECOMMEND_SCORES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const RATINGS = [1, 2, 3, 4, 5];
+/** Both questions run 1-5, low to high, so the two scales read the same way. */
+const SCALE = [1, 2, 3, 4, 5];
 
 export type EventFeedbackFormProps = {
   language: ConversationLanguage;
   submitting: boolean;
   /** Set when a submission failed and the answers are still on screen. */
   failed: boolean;
+  /** Empty hides the meet-again question — an unpublished group has no names. */
+  tablemates: { displayName: string }[];
   onSubmit: (answers: EventFeedbackSubmission) => void;
 };
 
 /**
- * All three answers are required, which is a product decision made knowing it
- * costs some submissions. Send stays visibly disabled until the form is
- * complete so that "not yet" never reads as "broken".
+ * The three scored answers are required, which is a product decision made
+ * knowing it costs some submissions. Send stays visibly disabled until they are
+ * filled so that "not yet" never reads as "broken".
+ *
+ * Meet-again is deliberately not required: "nobody" is a real answer, and there
+ * is no way to distinguish it from "skipped" without asking a question nobody
+ * wants to answer twice.
  *
  * Holds its own answers so a failed send keeps what the guest typed — losing a
  * paragraph someone just wrote is the worst thing this screen can do.
@@ -30,19 +36,30 @@ export function EventFeedbackForm({
   language,
   onSubmit,
   submitting,
+  tablemates,
 }: EventFeedbackFormProps) {
   const messages = eventFeedbackMessagesFor(language);
   const headingId = useId();
   const recommendId = useId();
   const ratingId = useId();
+  const meetAgainId = useId();
   const improvementId = useId();
 
   const [recommendScore, setRecommendScore] = useState<number | null>(null);
   const [rating, setRating] = useState<number | null>(null);
   const [improvement, setImprovement] = useState("");
+  const [meetAgain, setMeetAgain] = useState<string[]>([]);
 
   const complete =
     recommendScore !== null && rating !== null && improvement.trim().length > 0;
+
+  function toggleMeetAgain(displayName: string) {
+    setMeetAgain((current) =>
+      current.includes(displayName)
+        ? current.filter((name) => name !== displayName)
+        : [...current, displayName],
+    );
+  }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -51,6 +68,7 @@ export function EventFeedbackForm({
       recommendScore: recommendScore as number,
       rating: rating as number,
       improvement: improvement.trim(),
+      meetAgain,
     });
   }
 
@@ -65,8 +83,9 @@ export function EventFeedbackForm({
           <legend className={styles.question} id={recommendId}>
             {messages.recommendQuestion}
           </legend>
+          <p className={styles.hint}>{messages.scaleHint}</p>
           <div className={styles.scale}>
-            {RECOMMEND_SCORES.map((score) => (
+            {SCALE.map((score) => (
               <button
                 aria-label={messages.recommendOption(score)}
                 aria-pressed={recommendScore === score}
@@ -89,8 +108,8 @@ export function EventFeedbackForm({
           <legend className={styles.question} id={ratingId}>
             {messages.ratingQuestion}
           </legend>
-          <div className={`${styles.scale} ${styles.ratingScale}`}>
-            {RATINGS.map((value) => (
+          <div className={styles.scale}>
+            {SCALE.map((value) => (
               <button
                 aria-label={messages.ratingOption(value)}
                 aria-pressed={rating === value}
@@ -103,7 +122,37 @@ export function EventFeedbackForm({
               </button>
             ))}
           </div>
+          <p className={styles.scaleEnds}>
+            <span>{messages.ratingLow}</span>
+            <span>{messages.ratingHigh}</span>
+          </p>
         </fieldset>
+
+        {tablemates.length > 0 ? (
+          <fieldset aria-labelledby={meetAgainId} className={styles.field}>
+            <legend className={styles.question} id={meetAgainId}>
+              {messages.meetAgainQuestion}
+            </legend>
+            <p className={styles.hint}>{messages.meetAgainHint}</p>
+            <div className={styles.people}>
+              {tablemates.map((mate) => {
+                const selected = meetAgain.includes(mate.displayName);
+                return (
+                  <button
+                    aria-label={messages.meetAgainOption(mate.displayName, selected)}
+                    aria-pressed={selected}
+                    className={styles.person}
+                    key={mate.displayName}
+                    onClick={() => toggleMeetAgain(mate.displayName)}
+                    type="button"
+                  >
+                    {mate.displayName}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        ) : null}
 
         <div className={styles.field}>
           <label className={styles.question} htmlFor={improvementId}>

@@ -65,19 +65,48 @@
   line-height: 1.35;
 }
 
-/*
- * Eleven targets do not fit one phone row at a usable size, so the scale wraps
- * to two. `auto-fit` with a 2.5rem floor keeps every target at least the
- * recommended minimum tap size on the narrowest phone we support.
- */
+/* Five targets fit one phone row comfortably at the minimum tap size. */
 .scale {
   display: grid;
   gap: 0.4rem;
-  grid-template-columns: repeat(6, minmax(2.5rem, 1fr));
+  grid-template-columns: repeat(5, minmax(2.75rem, 1fr));
 }
 
-.ratingScale {
-  grid-template-columns: repeat(5, minmax(2.75rem, 1fr));
+.hint {
+  margin: 0;
+  color: rgb(18 18 18 / 55%);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+/* Names are of unpredictable length, so they wrap rather than share a grid. */
+.people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.person {
+  min-height: 2.75rem;
+  border: 1px solid rgb(18 18 18 / 18%);
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.5rem 1rem;
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.person[aria-pressed="true"] {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-bone);
+}
+
+.person:focus-visible {
+  outline: 3px solid var(--color-signal);
+  outline-offset: 3px;
 }
 
 .option {

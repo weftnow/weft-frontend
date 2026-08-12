@@ -2,6 +2,17 @@ import type { EventFeedbackStatus, EventFeedbackSubmission } from "../../schemas
 import { EventFeedbackGatewayError, type EventFeedbackStore } from "./eventFeedback.gateway";
 
 /**
+ * Names matching the mock Fast Questions group, so the meet-again question
+ * lists the same people locally that a real session would.
+ */
+const MOCK_TABLEMATES = [
+  { displayName: "Ana" },
+  { displayName: "Beto" },
+  { displayName: "Carla" },
+  { displayName: "Diego" },
+];
+
+/**
  * In-memory stand-in so the whole ending — challenge, closing screen, feedback,
  * thanks — can be walked through locally without a backend. Mirrors the one
  * rule that matters: a second submission is refused.
@@ -14,7 +25,8 @@ export function createMockEventFeedbackStore(): EventFeedbackStore {
 
   return {
     async status(eventId: string): Promise<EventFeedbackStatus> {
-      return { submitted: submitted.has(eventId) };
+      if (submitted.has(eventId)) return { submitted: true, tablemates: [] };
+      return { submitted: false, tablemates: MOCK_TABLEMATES };
     },
 
     async submit(eventId: string, answers: EventFeedbackSubmission): Promise<void> {
