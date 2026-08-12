@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { FastQuestions } from "@/features/conversation/fastQuestions/components/FastQuestions";
+import { Conversation } from "@/features/conversation/components/Conversation";
 import { FastQuestionsNotice } from "@/features/conversation/fastQuestions/components/FastQuestionsNotice";
 import { eventIdSchema } from "@/features/conversation/fastQuestions/schemas/fastQuestions.schema";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Fast questions | Weft",
+  // The page is both phases now, not just Fast Questions.
+  title: "Your conversation | Weft",
   description: "A guided conversation for your Weft group.",
   robots: { index: false, follow: false },
 };
@@ -17,5 +18,5 @@ export default async function EventConversationPage({
 }) {
   const parsed = eventIdSchema.safeParse((await params).eventId);
   if (!parsed.success) return <FastQuestionsNotice status="invalid" />;
-  return <FastQuestions eventId={parsed.data} />;
+  return <Conversation eventId={parsed.data} />;
 }

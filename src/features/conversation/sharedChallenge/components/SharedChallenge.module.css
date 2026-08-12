@@ -1,0 +1,100 @@
+.shell {
+  isolation: isolate;
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 50% 20%, rgb(244 81 30 / 3.5%), transparent 24rem),
+    var(--color-bone);
+  color: var(--color-ink);
+}
+
+.frame,
+.completion {
+  display: flex;
+  width: min(100%, 32rem);
+  min-height: 100svh;
+  margin: 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 3vh, 1.75rem);
+  padding:
+    max(1rem, env(safe-area-inset-top))
+    clamp(1rem, 4vw, 1.5rem)
+    max(1rem, env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+.mark {
+  width: clamp(2.125rem, 9vw, 2.625rem);
+  height: clamp(2.125rem, 9vw, 2.625rem);
+}
+
+.phaseLabel {
+  margin: 0;
+  color: rgb(18 18 18 / 55%);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.challenge,
+.closingLine {
+  max-width: 29rem;
+  margin: 0;
+  font-size: clamp(1.75rem, 6.6vw, 2.75rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.timer {
+  width: clamp(11rem, 48vw, 14rem);
+  aspect-ratio: 1;
+}
+
+.guidance {
+  display: grid;
+  grid-template-columns: 1.4rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
+  margin: 0;
+  color: rgb(18 18 18 / 55%);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.guidanceIcon {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--color-ember);
+}
+
+@supports (height: 100dvh) {
+  .shell,
+  .frame,
+  .completion { min-height: 100dvh; }
+}
+
+@media (max-height: 740px) {
+  .frame { gap: 0.7rem; }
+  .timer { width: clamp(9.5rem, 34vh, 11.5rem); }
+  .challenge { font-size: clamp(1.55rem, 5.6vw, 2.15rem); }
+}
+
+@media (max-height: 600px) {
+  .frame { gap: 0.45rem; }
+  .timer { width: clamp(8.5rem, 30vh, 9.5rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell *,
+  .shell *::before,
+  .shell *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

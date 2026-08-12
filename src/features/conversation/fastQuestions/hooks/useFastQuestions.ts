@@ -2,12 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { type Query, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fastQuestionsApi as defaultApi } from "../api/fastQuestions.api";
-import type {
-  FastQuestionsApi,
-  FastQuestionsSession,
-  FastQuestionsViewState,
-} from "../types/fastQuestions.types";
+import { conversationQueryKey } from "../../hooks/useConversationSession";
+import type { ConversationApi, ConversationSession } from "../../types/conversation.types";
+import { conversationApi as defaultApi } from "../api/fastQuestions.api";
+import type { FastQuestionsSession, FastQuestionsViewState } from "../types/fastQuestions.types";
 
 const POLL_INTERVAL_MS = 1_500;
 const TRANSITION_SETTLE_MS = 360;
@@ -17,10 +15,6 @@ const SETTLING_VIEW_STATES: ReadonlySet<FastQuestionsViewState> = new Set([
   "participant_transition",
   "round_transition",
 ]);
-
-export function fastQuestionsQueryKey(eventId: string) {
-  return ["fastQuestions", eventId] as const;
-}
 
 /**
  * Maps a canonical session transition to the visual state the UI should
@@ -41,7 +35,7 @@ export function resolveViewState(
 }
 
 export type UseFastQuestionsOptions = {
-  api?: FastQuestionsApi;
+  api?: ConversationApi;
   /** Overridable only for tests; production callers should rely on the default. */
   transitionSettleMs?: number;
 };
@@ -60,16 +54,22 @@ export function useFastQuestions(
   { api = defaultApi, transitionSettleMs = TRANSITION_SETTLE_MS }: UseFastQuestionsOptions = {},
 ): UseFastQuestionsResult {
   const queryClient = useQueryClient();
-  const queryKey = fastQuestionsQueryKey(eventId);
+  const queryKey = conversationQueryKey(eventId);
 
   const query = useQuery({
     queryKey,
     queryFn: () => api.getConversationSession(eventId),
-    refetchInterval: (activeQuery: Query<FastQuestionsSession>) =>
-      activeQuery.state.data?.status === "active" ? POLL_INTERVAL_MS : false,
+    refetchInterval: (activeQuery: Query<ConversationSession>) => {
+      const data = activeQuery.state.data;
+      return data?.phaseId === "phase_1" && data.status === "active" ? POLL_INTERVAL_MS : false;
+    },
   });
 
-  const session = query.data ?? null;
+  // This hook is Phase 1 only. The router never mounts it for a phase-2
+  // session, and narrowing rather than asserting keeps that true by
+  // construction if it ever does.
+  const session: FastQuestionsSession | null =
+    query.data?.phaseId === "phase_1" ? query.data : null;
 
   const previousSessionRef = useRef<FastQuestionsSession | null>(null);
   const settleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);

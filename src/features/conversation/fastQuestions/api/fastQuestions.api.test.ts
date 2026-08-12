@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { createMockFastQuestionsSession } from "../data/mockFastQuestions";
-import { fastQuestionsApi, FastQuestionsApiError } from "./fastQuestions.api";
+import { conversationApi, FastQuestionsApiError } from "./fastQuestions.api";
 
 const originalFetch = globalThis.fetch;
 afterEach(() => {
@@ -14,7 +14,7 @@ test("loads and validates the canonical event session", async () => {
     calls.push(String(input));
     return Response.json(createMockFastQuestionsSession(eventId));
   }) as typeof fetch;
-  expect((await fastQuestionsApi.getConversationSession(eventId)).eventId).toBe(eventId);
+  expect((await conversationApi.getConversationSession(eventId)).eventId).toBe(eventId);
   expect(calls).toEqual(["/api/events/" + eventId + "/conversation"]);
 });
 
@@ -22,7 +22,7 @@ test("surfaces a stable unsuccessful-response error", async () => {
   globalThis.fetch = (async () =>
     Response.json({ code: "unavailable" }, { status: 503 })) as typeof fetch;
   try {
-    await fastQuestionsApi.getConversationSession(
+    await conversationApi.getConversationSession(
       "4c22054a-00ea-49a2-8172-c009c9e78152",
     );
     throw new Error("Expected request to fail");
@@ -38,7 +38,7 @@ test("rejects an invalid event ID before making a request", async () => {
     called = true;
     return Response.json({});
   }) as typeof fetch;
-  await expect(fastQuestionsApi.getConversationSession("not-a-uuid")).rejects.toThrow();
+  await expect(conversationApi.getConversationSession("not-a-uuid")).rejects.toThrow();
   expect(called).toBe(false);
 });
 
@@ -49,7 +49,7 @@ test("posts to start and returns the validated session", async () => {
     calls.push({ url: String(input), method: init?.method });
     return Response.json(createMockFastQuestionsSession(eventId));
   }) as typeof fetch;
-  const session = await fastQuestionsApi.startFastQuestionsPhase(eventId);
+  const session = await conversationApi.startFastQuestionsPhase(eventId);
   expect(session.eventId).toBe(eventId);
   expect(calls).toEqual([
     { url: "/api/events/" + eventId + "/conversation/start", method: "POST" },
@@ -67,7 +67,7 @@ test("posts an advance request with a validated body", async () => {
     });
     return Response.json(createMockFastQuestionsSession(eventId));
   }) as typeof fetch;
-  const session = await fastQuestionsApi.advanceParticipantTurn(eventId, {
+  const session = await conversationApi.advanceParticipantTurn(eventId, {
     roundIndex: 0,
     participantIndex: 0,
   });

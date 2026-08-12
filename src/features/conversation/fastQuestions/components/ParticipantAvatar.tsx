@@ -2,22 +2,23 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
+import type { ConversationMessages } from "../../i18n/conversation.messages";
 import type { Participant } from "../types/fastQuestions.types";
 import styles from "./FastQuestions.module.css";
 
 export type ParticipantAvatarProps = {
   participant: Participant;
   active: boolean;
+  messages: Pick<ConversationMessages, "participantActivity">;
 };
 
-export function ParticipantAvatar({ participant, active }: ParticipantAvatarProps) {
+export function ParticipantAvatar({ active, messages, participant }: ParticipantAvatarProps) {
   const reducedMotion = Boolean(useReducedMotion());
-  const activity = active ? "currently responding" : "waiting";
 
   return (
     <motion.li
       animate={{ opacity: 1, y: 0 }}
-      aria-label={`${participant.firstName}, ${activity}`}
+      aria-label={messages.participantActivity(participant.firstName, active)}
       className={styles.participant}
       data-active={active}
       initial={false}

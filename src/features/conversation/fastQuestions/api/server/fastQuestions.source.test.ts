@@ -18,3 +18,12 @@ test("allows explicit production mock and rejects unknown values", () => {
     WEFT_CONVERSATION_SOURCE: "other",
   })).toThrow("Unsupported conversation source");
 });
+
+test("an explicit backend choice wins in every environment", () => {
+  // Development has to be able to point at a locally running backend, so the
+  // explicit setting outranks the non-production default rather than being
+  // ignored outside production.
+  for (const NODE_ENV of ["development", "test", "production"]) {
+    expect(conversationSource({ NODE_ENV, WEFT_CONVERSATION_SOURCE: "backend" })).toBe("backend");
+  }
+});

@@ -1,3 +1,4 @@
+import type { ConversationMessages } from "../../i18n/conversation.messages";
 import styles from "./CircularTimer.module.css";
 
 const VIEWBOX_SIZE = 240;
@@ -23,6 +24,8 @@ export type CircularTimerProps = {
   remainingMilliseconds: number;
   /** Whether the countdown is actively ticking (drives the sweep animation). */
   running: boolean;
+  /** Only the two strings this component renders, so it stays pure presentation. */
+  messages: Pick<ConversationMessages, "secondsRemaining" | "timeLeft">;
 };
 
 // Intentionally duplicated from useCountdown's formatCountdown: this
@@ -41,6 +44,7 @@ function clamp(value: number, min: number, max: number): number {
 
 export function CircularTimer({
   durationSeconds,
+  messages,
   remainingMilliseconds,
   running,
 }: CircularTimerProps) {
@@ -55,7 +59,7 @@ export function CircularTimer({
 
   return (
     <div
-      aria-label={`${secondsRemaining} seconds remaining`}
+      aria-label={messages.secondsRemaining(secondsRemaining)}
       className={styles.circularTimer}
       data-progress={String(roundedProgress)}
       role="timer"
@@ -96,8 +100,8 @@ export function CircularTimer({
         </g>
       </svg>
       <div className={styles.readout}>
-        <span className={styles.time}>{formatTime(remainingMilliseconds)}</span>
-        <span className={styles.label}>time left</span>
+        <span className={styles.time}>{formatTime(clampedRemaining)}</span>
+        <span className={styles.label}>{messages.timeLeft}</span>
       </div>
     </div>
   );

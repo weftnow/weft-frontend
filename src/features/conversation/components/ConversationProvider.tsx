@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-function createFastQuestionsQueryClient(): QueryClient {
+function createConversationQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
@@ -14,8 +14,8 @@ function createFastQuestionsQueryClient(): QueryClient {
   });
 }
 
-export function FastQuestionsProvider({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(createFastQuestionsQueryClient);
+export function ConversationProvider({ children }: { children: ReactNode }) {
+  const [queryClient] = useState(createConversationQueryClient);
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }

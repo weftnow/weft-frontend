@@ -4,13 +4,13 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { fastQuestionsQueryKey, useFastQuestions } from "../hooks/useFastQuestions";
+import { conversationQueryKey } from "../../hooks/useConversationSession";
+import { messagesFor } from "../../i18n/conversation.messages";
+import type { ConversationApi } from "../../types/conversation.types";
+import { useFastQuestions } from "../hooks/useFastQuestions";
 import { useCountdown } from "../hooks/useCountdown";
-import type { FastQuestionsApi } from "../types/fastQuestions.types";
 import { CircularTimer, RING_SWEEP_MS } from "./CircularTimer";
-import { FastQuestionsCompletion } from "./FastQuestionsCompletion";
 import { FastQuestionsNotice } from "./FastQuestionsNotice";
-import { FastQuestionsProvider } from "./FastQuestionsProvider";
 import { ParticipantList } from "./ParticipantList";
 import { QuestionDisplay } from "./QuestionDisplay";
 import { RoundProgress } from "./RoundProgress";
@@ -21,7 +21,7 @@ export type FastQuestionsProps = {
 };
 
 type FastQuestionsExperienceProps = FastQuestionsProps & {
-  api?: FastQuestionsApi;
+  api?: ConversationApi;
   transitionSettleMs?: number;
 };
 
@@ -35,19 +35,11 @@ const visuallyHidden = {
   width: "1px",
 };
 
-function turnLabel(firstName: string, isCurrentUser: boolean) {
-  return isCurrentUser ? "Your turn" : `${firstName}’s turn`;
-}
-
-export function FastQuestions({ eventId }: FastQuestionsProps) {
-  return (
-    <FastQuestionsProvider>
-      <FastQuestionsExperience eventId={eventId} />
-    </FastQuestionsProvider>
-  );
-}
-
-/** The provider-free shell keeps the real query integration testable in an isolated DOM. */
+/**
+ * Phase 1 only. `ConversationRouter` decides when this is the right screen, so
+ * there is no phase-complete branch here — that boundary belongs to the one
+ * switch that owns all four states.
+ */
 export function FastQuestionsExperience({
   api,
   eventId,
@@ -59,7 +51,15 @@ export function FastQuestionsExperience({
     transitionSettleMs,
   });
   const timerEndsAt = session?.status === "active" ? session.timerEndsAt : null;
+  const timerStartedAt = session?.status === "active" ? session.timerStartedAt : null;
   const remainingMilliseconds = useCountdown(timerEndsAt);
+  // The reading gap: the question is up but this participant's clock has not
+  // started yet. Reusing useCountdown against timerStartedAt keeps this on
+  // the same ticking clock as the ring itself (a raw `Date.now()` comparison
+  // here would run during render, which React's purity rule disallows) — a
+  // positive value means we're still inside the gap, so the ring should hold
+  // full and still rather than sweep.
+  const readingGapOpen = useCountdown(timerStartedAt) > 0;
   const expiredDeadlineRef = useRef<string | null>(null);
   const expirySettleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reducedMotion = Boolean(useReducedMotion());
@@ -76,7 +76,7 @@ export function FastQuestionsExperience({
     expiredDeadlineRef.current = timerEndsAt;
     expirySettleTimeoutRef.current = setTimeout(() => {
       expirySettleTimeoutRef.current = null;
-      void queryClient.invalidateQueries({ queryKey: fastQuestionsQueryKey(eventId) });
+      void queryClient.invalidateQueries({ queryKey: conversationQueryKey(eventId) });
     }, reducedMotion ? 0 : RING_SWEEP_MS);
   }, [eventId, queryClient, remainingMilliseconds, timerEndsAt, reducedMotion]);
 
@@ -89,22 +89,19 @@ export function FastQuestionsExperience({
 
   if (error) return <FastQuestionsNotice onRetry={retry} status="error" />;
   if (!session || isLoading) return <FastQuestionsNotice status="loading" />;
-  if (session.status === "phase_complete") {
-    return (
-      <FastQuestionsCompletion
-        onContinue={() => {
-          window.dispatchEvent(
-            new CustomEvent("weft:phase-one-continue", { detail: { eventId } }),
-          );
-        }}
-      />
-    );
-  }
 
+  const messages = messagesFor(session.language);
   const round = session.rounds[session.roundIndex];
   const activeParticipant = session.participants[session.participantIndex];
-  const activeTurnLabel = turnLabel(activeParticipant.firstName, activeParticipant.isCurrentUser);
-  const announcement = `Round ${session.roundIndex + 1} of ${session.rounds.length}. ${activeTurnLabel}.`;
+  const activeTurnLabel = messages.turnLabel(
+    activeParticipant.firstName,
+    activeParticipant.isCurrentUser,
+  );
+  const announcement = messages.turnAnnouncement(
+    session.roundIndex + 1,
+    session.rounds.length,
+    activeTurnLabel,
+  );
   const visualKey = `${viewState ?? "loading"}-${round.id}-${activeParticipant.id}`;
   const fadeDuration = reducedMotion ? 0.01 : 0.22;
 
@@ -123,28 +120,30 @@ export function FastQuestionsExperience({
           transition={{ duration: fadeDuration, ease: "easeOut" }}
         >
           <Image alt="" aria-hidden className={styles.mark} height={42} src="/icon.svg" width={42} />
-          <p className={styles.phaseLabel}>Phase 1 · Fast questions</p>
-          <p className={styles.roundLabel}>Round {session.roundIndex + 1} of {session.rounds.length}</p>
+          <p className={styles.phaseLabel}>{messages.fastQuestionsPhaseLabel}</p>
+          <p className={styles.roundLabel}>
+            {messages.roundOf(session.roundIndex + 1, session.rounds.length)}
+          </p>
           <QuestionDisplay round={round} />
           <p className={styles.activeParticipantLabel}>{activeTurnLabel}</p>
           <div className={styles.timer}>
             <CircularTimer
               durationSeconds={round.participantDurationSeconds}
+              messages={messages}
               remainingMilliseconds={remainingMilliseconds}
-              running={Boolean(timerEndsAt)}
+              running={Boolean(timerEndsAt) && !readingGapOpen}
             />
           </div>
           <ParticipantList
             activeParticipantId={activeParticipant.id}
+            messages={messages}
             participants={session.participants}
           />
           <p className={styles.guidance}>
             <span aria-hidden className={styles.guidanceIcon}>✦</span>
-            <span>
-              Everyone gets {round.participantDurationSeconds} seconds to respond. Be honest, be concise, be you.
-            </span>
+            <span>{messages.fastQuestionsGuidance(round.participantDurationSeconds)}</span>
           </p>
-          <RoundProgress currentRoundIndex={session.roundIndex} />
+          <RoundProgress currentRoundIndex={session.roundIndex} messages={messages} />
         </motion.section>
       </AnimatePresence>
     </main>
