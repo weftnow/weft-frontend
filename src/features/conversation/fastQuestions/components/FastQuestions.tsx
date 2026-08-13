@@ -91,8 +91,16 @@ export function FastQuestionsExperience({
   if (!session || isLoading) return <FastQuestionsNotice status="loading" />;
 
   const messages = messagesFor(session.language);
+  // Both lookups are indexed by a server-provided number, so neither is
+  // guaranteed in range by anything the client controls: a deck short a round
+  // (a retired bank question) or a turn index past the end of the group would
+  // otherwise read `undefined` and white-screen the table on a property
+  // access. The error notice has a retry; a blank page does not.
   const round = session.rounds[session.roundIndex];
   const activeParticipant = session.participants[session.participantIndex];
+  if (!round || !activeParticipant) {
+    return <FastQuestionsNotice language={session.language} onRetry={retry} status="error" />;
+  }
   const activeTurnLabel = messages.turnLabel(
     activeParticipant.firstName,
     activeParticipant.isCurrentUser,

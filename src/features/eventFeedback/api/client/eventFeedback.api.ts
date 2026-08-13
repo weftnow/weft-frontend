@@ -10,10 +10,22 @@ export type EventFeedbackOutcome =
   | { status: "recorded" }
   | { status: "already_submitted" }
   | { status: "no_attendee_token" }
+  | { status: "not_configured" }
   | { status: "failed" };
 
+/**
+ * `not_configured` is deliberately not folded into `failed`. A retry fixes a
+ * dropped request; it can never fix a server that has no data source, and
+ * offering the button anyway asks a guest to keep pressing at something only a
+ * deploy can repair.
+ */
+export type EventFeedbackStatusResult =
+  | EventFeedbackStatus
+  | { unavailable: true }
+  | { notConfigured: true };
+
 export type EventFeedbackApi = {
-  getStatus(eventId: string): Promise<EventFeedbackStatus | { unavailable: true }>;
+  getStatus(eventId: string): Promise<EventFeedbackStatusResult>;
   submit(eventId: string, answers: EventFeedbackSubmission): Promise<EventFeedbackOutcome>;
 };
 
@@ -41,6 +53,12 @@ export const eventFeedbackApi: EventFeedbackApi = {
       return { unavailable: true };
     }
 
+    // Caught here rather than at submit time: without this the form renders,
+    // quietly loses its meet-again names, and only refuses once the guest has
+    // written the whole thing out.
+    if (response.status === 503 && (await codeOf(response)) === "conversation_not_configured") {
+      return { notConfigured: true };
+    }
     if (!response.ok) return { unavailable: true };
 
     const parsed = eventFeedbackStatusSchema.safeParse(await response.json().catch(() => null));
@@ -71,6 +89,9 @@ export const eventFeedbackApi: EventFeedbackApi = {
       return code === "no_attendee_token"
         ? { status: "no_attendee_token" }
         : { status: "failed" };
+    }
+    if (response.status === 503 && (await codeOf(response)) === "conversation_not_configured") {
+      return { status: "not_configured" };
     }
     return { status: "failed" };
   },

@@ -16,6 +16,7 @@ test("questionnaire schema accepts every supported question kind", () => {
     id: "networking-night",
     version: "1",
     language: "en",
+    eventId: "8f14e45f-ea0c-4d6b-9f1c-2b3a4c5d6e7f",
     eventName: "Weft networking night",
     acceptingSubmissions: true,
     intro: {
@@ -70,6 +71,7 @@ test("questionnaire schema rejects duplicate option ids and invalid selection bo
     id: "broken",
     version: "1",
     language: "en",
+    eventId: "8f14e45f-ea0c-4d6b-9f1c-2b3a4c5d6e7f",
     eventName: "Weft networking night",
     acceptingSubmissions: true,
     intro: { eyebrow: "Q", title: "T", subtitle: "S", welcome: "W" },

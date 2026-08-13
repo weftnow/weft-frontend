@@ -15,7 +15,7 @@ export type EventFeedbackScreenProps = {
   api?: EventFeedbackApi;
 };
 
-type Screen = "form" | "thanks" | "no_link";
+type Screen = "form" | "thanks" | "no_link" | "unavailable";
 
 /**
  * The status read decides which screen a returning guest lands on, so nobody
@@ -23,6 +23,10 @@ type Screen = "form" | "thanks" | "no_link";
  * read fails, the form renders anyway and a duplicate submission comes back as
  * `already_submitted`, which lands on the same thanks screen. There is no
  * polling here — the session is over.
+ *
+ * The one read failure that does block is an unconfigured server: that form is
+ * guaranteed to be refused on send, so showing it would only cost the guest the
+ * paragraph they wrote first.
  */
 export function EventFeedbackScreen({
   api = defaultApi,
@@ -39,6 +43,10 @@ export function EventFeedbackScreen({
     let cancelled = false;
     void api.getStatus(eventId).then((result) => {
       if (cancelled) return;
+      if ("notConfigured" in result) {
+        setScreen("unavailable");
+        return;
+      }
       if (!("submitted" in result)) return;
       if (result.submitted) setScreen("thanks");
       else setTablemates(result.tablemates);
@@ -67,6 +75,12 @@ export function EventFeedbackScreen({
           setScreen("no_link");
           return;
         }
+        // Retrying cannot reach a server that has no data source, so the guest
+        // is taken off the form rather than left pressing a dead button.
+        if (outcome.status === "not_configured") {
+          setScreen("unavailable");
+          return;
+        }
         setFailed(true);
       })
       .finally(() => {
@@ -77,13 +91,13 @@ export function EventFeedbackScreen({
 
   if (screen === "thanks") return <EventFeedbackThanks language={language} />;
 
-  if (screen === "no_link") {
+  if (screen === "no_link" || screen === "unavailable") {
     const messages = eventFeedbackMessagesFor(language);
     return (
       <main className={styles.shell}>
         <section className={`${styles.frame} ${styles.thanksFrame}`}>
           <p className={styles.note} role="alert">
-            {messages.noLink}
+            {screen === "no_link" ? messages.noLink : messages.unavailable}
           </p>
         </section>
       </main>

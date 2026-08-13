@@ -4,6 +4,7 @@ export const mockQuestionnaire = {
   id: "weft-networking-night",
   version: "fixture-v1",
   language: "en",
+  eventId: "8f14e45f-ea0c-4d6b-9f1c-2b3a4c5d6e7f",
   eventName: "Weft networking night",
   acceptingSubmissions: true,
   intro: {

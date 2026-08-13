@@ -10,6 +10,7 @@ export type ConversationSource = "mock" | "backend";
 export type ConversationEnvironment = {
   NODE_ENV?: string;
   WEFT_CONVERSATION_SOURCE?: string;
+  WEFT_B2B_API_URL?: string;
 };
 
 /**
@@ -32,19 +33,46 @@ export class ConversationSourceError extends Error {
  * mock source. Production requires `WEFT_CONVERSATION_SOURCE=mock` to be
  * explicitly configured; any other production configuration is a hard
  * failure rather than a silent fallback to simulated data.
+ *
+ * The value is trimmed and lowercased, and an empty string counts as unset:
+ * a hosting dashboard field left blank, and a `.env` line with nothing after
+ * the `=`, are both "nobody chose" rather than "somebody chose ''". Reporting
+ * those as an unsupported value would send whoever is debugging looking for a
+ * typo that does not exist.
  */
 export function conversationSource(environment: ConversationEnvironment): ConversationSource {
+  const configured = environment.WEFT_CONVERSATION_SOURCE?.trim().toLowerCase();
+
   // An explicit choice always wins, in any environment — that is what lets a
   // developer point at a locally running backend.
-  if (environment.WEFT_CONVERSATION_SOURCE === "backend") return "backend";
-  if (environment.WEFT_CONVERSATION_SOURCE === "mock") return "mock";
-  if (environment.WEFT_CONVERSATION_SOURCE === undefined) {
+  if (configured === "backend") return "backend";
+  if (configured === "mock") return "mock";
+  if (configured === undefined || configured === "") {
     if (environment.NODE_ENV !== "production") return "mock";
     throw new ConversationSourceError("Conversation source is not configured");
   }
   throw new ConversationSourceError(
     `Unsupported conversation source: "${environment.WEFT_CONVERSATION_SOURCE}"`,
   );
+}
+
+/**
+ * The whole configuration, checked in one go so a bad deploy can fail at boot
+ * instead of at the first guest's request. `conversationSource` alone is not
+ * the whole story: choosing `backend` without a `WEFT_B2B_API_URL` to reach is
+ * just as broken, and fails just as late.
+ *
+ * Called from `src/instrumentation.ts`. Kept pure and separately exported so
+ * it is testable without a running server.
+ */
+export function assertConversationConfigured(
+  environment: ConversationEnvironment = process.env,
+): void {
+  if (conversationSource(environment) === "backend" && !environment.WEFT_B2B_API_URL?.trim()) {
+    throw new ConversationSourceError(
+      "WEFT_CONVERSATION_SOURCE is \"backend\" but WEFT_B2B_API_URL is not configured",
+    );
+  }
 }
 
 /**

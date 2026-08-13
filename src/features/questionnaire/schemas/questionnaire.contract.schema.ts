@@ -42,6 +42,10 @@ export const backendQuestionSchema = z.discriminatedUnion("type", [
 export const formDefinitionSchema = z.object({
   form_version: z.string().min(1),
   language: languageSchema,
+  // The form token hides the event id, and every screen after this one is
+  // addressed by the raw id — so this field is the guest's only bridge from
+  // the questionnaire to the conversation and feedback routes.
+  event_id: z.string().uuid(),
   event_name: z.string().min(1),
   accepting_submissions: z.boolean(),
   questions: z.array(backendQuestionSchema).length(17),

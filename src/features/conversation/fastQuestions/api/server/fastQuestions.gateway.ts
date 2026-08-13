@@ -29,9 +29,18 @@ export function attendeeCookieName(eventId: string): string {
   return `weft_attendee_${eventId.replace(/-/g, "")}`;
 }
 
+/**
+ * A missing base URL is a configuration failure, not a bug, so it leaves here
+ * as a typed gateway error the route can map to a 503. A bare `Error` escaped
+ * the route's mapping and surfaced as a 500 — the exact unmapped throw this
+ * layer exists to prevent.
+ */
 function baseUrl(): string {
   const url = process.env.WEFT_B2B_API_URL;
-  if (!url) throw new Error("WEFT_B2B_API_URL is not configured");
+  if (!url) {
+    console.error("fast questions gateway failed", "missing-base-url");
+    throw new FastQuestionsGatewayError("unavailable", "WEFT_B2B_API_URL is not configured");
+  }
   return url;
 }
 

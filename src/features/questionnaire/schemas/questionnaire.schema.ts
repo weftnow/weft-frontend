@@ -102,6 +102,7 @@ export const questionnaireSchema = z
     id: nonEmptyString,
     version: nonEmptyString,
     language: languageSchema,
+    eventId: z.string().uuid(),
     eventName: nonEmptyString,
     acceptingSubmissions: z.boolean(),
     intro: z.object({
