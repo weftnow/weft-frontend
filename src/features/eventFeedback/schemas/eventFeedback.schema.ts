@@ -15,19 +15,24 @@ export const eventFeedbackSubmissionSchema = z.object({
   // spaces is not a filled-in field.
   improvement: z.string().trim().min(1).max(2000),
   /**
-   * Display names of tablemates this guest would meet again. Empty is a real
+   * Refs of the tablemates this guest would meet again. Empty is a real
    * answer — "nobody" is allowed and is not the same as skipping the question.
    *
-   * Names rather than ids because that is what the backend's per-person
-   * feedback endpoint takes, and what its "is this person at your table" check
-   * validates against. No id for a tablemate ever reaches the browser.
+   * Refs, not display names: two guests at one table can share a name, and a
+   * name would credit whichever of them the backend looked up first. A ref is
+   * an opaque signature the backend issued, so no tablemate id ever reaches
+   * the browser either.
    */
-  meetAgain: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
+  meetAgainRefs: z.array(z.string().trim().min(1).max(400)).max(20).default([]),
 });
 
 export type EventFeedbackSubmission = z.infer<typeof eventFeedbackSubmissionSchema>;
 
-export const tablemateSchema = z.object({ displayName: z.string().min(1) });
+export const tablemateSchema = z.object({
+  displayName: z.string().min(1),
+  /** Opaque handle from the backend. The only thing that identifies a person. */
+  ref: z.string().min(1),
+});
 
 export const eventFeedbackStatusSchema = z.object({
   submitted: z.boolean(),
@@ -42,5 +47,5 @@ export const eventFeedbackStatusDtoSchema = z.object({ submitted: z.boolean() })
 
 /** The subset of the backend's `MyTableOut` this feature needs. */
 export const myTableDtoSchema = z.object({
-  tablemates: z.array(z.object({ display_name: z.string().min(1) })),
+  tablemates: z.array(z.object({ display_name: z.string().min(1), ref: z.string().min(1) })),
 });

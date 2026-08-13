@@ -92,7 +92,7 @@ export function createEventFeedbackGateway(
    * published, which is not an error here — the rest of the form still works,
    * so an empty list simply hides the question rather than blocking the screen.
    */
-  async function tablemates(signed: string): Promise<{ displayName: string }[]> {
+  async function tablemates(signed: string): Promise<{ displayName: string; ref: string }[]> {
     const response = await call(`/a/${encodeURIComponent(signed)}`, { method: "GET" }, fetchImpl);
     if (response.status === 204) return [];
     if (unusableToken(response.status)) {
@@ -107,7 +107,10 @@ export function createEventFeedbackGateway(
       console.error("event feedback gateway failed", "invalid-table-body");
       return [];
     }
-    return parsed.data.tablemates.map((mate) => ({ displayName: mate.display_name }));
+    return parsed.data.tablemates.map((mate) => ({
+      displayName: mate.display_name,
+      ref: mate.ref,
+    }));
   }
 
   return {
@@ -151,18 +154,18 @@ export function createEventFeedbackGateway(
       // ordering the one-shot write last means a retry after a partial failure
       // re-sends the rest harmlessly and still lands the submission. The other
       // order would mark the guest done with their meet-again answers lost.
-      for (const displayName of answers.meetAgain) {
+      for (const ref of answers.meetAgainRefs) {
         const response = await call(
           `/a/${encodeURIComponent(signed)}/feedback`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ to_display_name: displayName, would_meet_again: true }),
+            body: JSON.stringify({ to_ref: ref, would_meet_again: true }),
           },
           fetchImpl,
         );
         // 409 is "already recorded", which is the desired end state. A 404 here
-        // means that name is not at this table — stale UI, not worth failing
+        // means that ref is not at this table — stale UI, not worth failing
         // the whole submission over.
         if (!response.ok && response.status !== 409 && response.status !== 404) {
           console.error("event feedback gateway failed", response.status);

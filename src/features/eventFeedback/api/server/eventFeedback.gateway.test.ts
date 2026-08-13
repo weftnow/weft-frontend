@@ -39,7 +39,7 @@ const ANSWERS = {
   recommendScore: 4,
   rating: 5,
   improvement: "More time.",
-  meetAgain: [] as string[],
+  meetAgainRefs: [] as string[],
 };
 
 test("the cookie name matches the backend's per-event name", () => {
@@ -52,12 +52,20 @@ test("an unsubmitted guest gets the status and their tablemates", async () => {
     const path = String(url);
     seen.push(path);
     if (path.endsWith("/event-feedback")) return json({ submitted: false });
-    return json({ tablemates: [{ display_name: "Ana" }, { display_name: "Beto" }] });
+    return json({
+      tablemates: [
+        { display_name: "Ana", ref: "ref-ana" },
+        { display_name: "Beto", ref: "ref-beto" },
+      ],
+    });
   });
 
   expect(await api.status(EVENT_ID)).toEqual({
     submitted: false,
-    tablemates: [{ displayName: "Ana" }, { displayName: "Beto" }],
+    tablemates: [
+      { displayName: "Ana", ref: "ref-ana" },
+      { displayName: "Beto", ref: "ref-beto" },
+    ],
   });
   expect(seen).toEqual([
     `http://backend.test/a/${TOKEN}/event-feedback`,
@@ -102,28 +110,28 @@ test("meet-again lands before the one-shot write, so a retry cannot strand it", 
   const api = gateway(async (url, init) => {
     const path = String(url);
     if (path.endsWith("/feedback")) {
-      calls.push(`meet:${JSON.parse(String(init?.body)).to_display_name}`);
+      calls.push(`meet:${JSON.parse(String(init?.body)).to_ref}`);
       return json({ status: "recorded" }, 201);
     }
     calls.push("event-feedback");
     return json({ status: "recorded" }, 201);
   });
 
-  await api.submit(EVENT_ID, { ...ANSWERS, meetAgain: ["Ana", "Beto"] });
+  await api.submit(EVENT_ID, { ...ANSWERS, meetAgainRefs: ["ref-ana", "ref-beto"] });
 
-  expect(calls).toEqual(["meet:Ana", "meet:Beto", "event-feedback"]);
+  expect(calls).toEqual(["meet:ref-ana", "meet:ref-beto", "event-feedback"]);
 });
 
-test("a meet-again name already recorded is the desired end state, not a failure", async () => {
+test("a meet-again ref already recorded is the desired end state, not a failure", async () => {
   const api = gateway(async (url) => {
     if (String(url).endsWith("/event-feedback")) return json({ status: "recorded" }, 201);
     return json({ detail: "feedback already recorded" }, 409);
   });
 
-  await api.submit(EVENT_ID, { ...ANSWERS, meetAgain: ["Ana"] });
+  await api.submit(EVENT_ID, { ...ANSWERS, meetAgainRefs: ["ref-ana"] });
 });
 
-test("a name no longer at the table does not sink the whole submission", async () => {
+test("a ref no longer at the table does not sink the whole submission", async () => {
   let recorded = false;
   const api = gateway(async (url) => {
     if (String(url).endsWith("/event-feedback")) {
@@ -133,7 +141,7 @@ test("a name no longer at the table does not sink the whole submission", async (
     return json({ detail: "that person is not at your table" }, 404);
   });
 
-  await api.submit(EVENT_ID, { ...ANSWERS, meetAgain: ["Ghost"] });
+  await api.submit(EVENT_ID, { ...ANSWERS, meetAgainRefs: ["ref-ghost"] });
   expect(recorded).toBe(true);
 });
 

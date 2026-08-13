@@ -76,17 +76,17 @@ test("out-of-range and empty answers are rejected before the repository", async 
   }
 });
 
-test("meet-again names are accepted, and omitting them is a valid answer", async () => {
-  const withNames = await POST(
+test("meet-again refs are accepted, and omitting them is a valid answer", async () => {
+  const withRefs = await POST(
     submission({
       recommendScore: 5,
       rating: 5,
       improvement: "Nothing.",
-      meetAgain: ["Ana", "Beto"],
+      meetAgainRefs: ["ref-ana", "ref-beto"],
     }),
     { params: Promise.resolve({ eventId: "3d3c4a6e-8a3f-4a2b-9a4c-0d9e8f7a6b5c" }) },
   );
-  expect(withNames.status).toBe(201);
+  expect(withRefs.status).toBe(201);
 
   // "Nobody" is a real answer, not a missing field.
   const without = await POST(

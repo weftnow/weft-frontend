@@ -6,10 +6,12 @@ import { EventFeedbackGatewayError, type EventFeedbackStore } from "./eventFeedb
  * lists the same people locally that a real session would.
  */
 const MOCK_TABLEMATES = [
-  { displayName: "Ana" },
-  { displayName: "Beto" },
-  { displayName: "Carla" },
-  { displayName: "Diego" },
+  { displayName: "Ana", ref: "mock-ref-ana" },
+  { displayName: "Beto", ref: "mock-ref-beto" },
+  { displayName: "Carla", ref: "mock-ref-carla" },
+  // Two Anas on purpose: names repeat in a real room, and the screen has to
+  // keep them apart. Their refs are what tell them apart.
+  { displayName: "Ana", ref: "mock-ref-ana-2" },
 ];
 
 /**

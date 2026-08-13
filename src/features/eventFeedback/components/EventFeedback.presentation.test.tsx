@@ -3,7 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { EventFeedbackForm } from "./EventFeedbackForm";
 import { EventFeedbackThanks } from "./EventFeedbackThanks";
 
-const TABLEMATES = [{ displayName: "Ana" }, { displayName: "Beto" }];
+const TABLEMATES = [
+  { displayName: "Ana", ref: "ref-ana" },
+  { displayName: "Beto", ref: "ref-beto" },
+];
 
 function form(overrides: Partial<Parameters<typeof EventFeedbackForm>[0]> = {}) {
   return (
@@ -50,6 +53,20 @@ test("names the actual people at the table", () => {
   expect(html).toContain(">Ana<");
   expect(html).toContain(">Beto<");
   expect(html).toContain('aria-label="Ana, not selected"');
+});
+
+test("two tablemates with the same name are two separate people", () => {
+  const html = renderToStaticMarkup(
+    form({
+      tablemates: [
+        { displayName: "Maria", ref: "ref-maria-1" },
+        { displayName: "Maria", ref: "ref-maria-2" },
+      ],
+    }),
+  );
+  // One button per person, not per name — the selection is keyed by ref, so
+  // tapping one Maria cannot rate the other.
+  expect(html.split('aria-label="Maria, not selected"').length - 1).toBe(2);
 });
 
 test("an unpublished group hides the meet-again question entirely", () => {
