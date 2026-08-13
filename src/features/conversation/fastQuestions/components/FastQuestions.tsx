@@ -11,6 +11,7 @@ import { useFastQuestions } from "../hooks/useFastQuestions";
 import { useCountdown } from "../hooks/useCountdown";
 import { CircularTimer, RING_SWEEP_MS } from "./CircularTimer";
 import { FastQuestionsNotice } from "./FastQuestionsNotice";
+import { FastQuestionsReady } from "./FastQuestionsReady";
 import { ParticipantList } from "./ParticipantList";
 import { QuestionDisplay } from "./QuestionDisplay";
 import { RoundProgress } from "./RoundProgress";
@@ -46,10 +47,10 @@ export function FastQuestionsExperience({
   transitionSettleMs,
 }: FastQuestionsExperienceProps) {
   const queryClient = useQueryClient();
-  const { error, isLoading, retry, session, viewState } = useFastQuestions(eventId, {
-    api,
-    transitionSettleMs,
-  });
+  const { error, isLoading, isStarting, retry, session, startPhase, viewState } = useFastQuestions(
+    eventId,
+    { api, transitionSettleMs },
+  );
   const timerEndsAt = session?.status === "active" ? session.timerEndsAt : null;
   const timerStartedAt = session?.status === "active" ? session.timerStartedAt : null;
   const remainingMilliseconds = useCountdown(timerEndsAt);
@@ -89,6 +90,19 @@ export function FastQuestionsExperience({
 
   if (error) return <FastQuestionsNotice onRetry={retry} status="error" />;
   if (!session || isLoading) return <FastQuestionsNotice status="loading" />;
+
+  // A waiting session is a table that has not decided it is ready. Nothing
+  // below this line has a clock to render — `timerEndsAt` is null until the
+  // group taps Start — so the lobby is its own screen, not a disabled turn.
+  if (session.status === "waiting") {
+    return (
+      <FastQuestionsReady
+        isStarting={isStarting}
+        language={session.language}
+        onStart={startPhase}
+      />
+    );
+  }
 
   const messages = messagesFor(session.language);
   // Both lookups are indexed by a server-provided number, so neither is

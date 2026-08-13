@@ -151,6 +151,15 @@ test("renders only canonical Phase 1 transitions without timer announcements", a
       );
     });
 
+    // The table has not tapped Start yet, so the lobby is the whole screen —
+    // no round, no turn, no clock. Nothing below here happens on its own.
+    await waitFor(() => container.textContent?.includes("Ready when you are.") === true, container);
+    expect(container.textContent).not.toContain("Round 1 of 3");
+
+    await act(async () => {
+      container.querySelector<HTMLButtonElement>("button")?.click();
+    });
+
     await waitFor(() => container.textContent?.includes("Antonio’s turn") === true, container);
     expect(container.textContent).toContain("Round 1 of 3");
     expect(container.textContent).toContain("Antonio’s turn");

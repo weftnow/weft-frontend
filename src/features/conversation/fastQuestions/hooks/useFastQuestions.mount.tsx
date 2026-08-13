@@ -34,7 +34,8 @@ Object.assign(globalThis, {
 
 // Fail the suite on any React "not wrapped in act(...)" warning instead of
 // letting it pass silently — this mount test exercises async effects
-// (polling, auto-start, transition timers) that are easy to leave unguarded.
+// (polling, the start request, transition timers) that are easy to leave
+// unguarded.
 const actWarnings: string[] = [];
 const originalConsoleError = console.error;
 console.error = (...args: unknown[]) => {
@@ -104,7 +105,7 @@ function createFakeApi(): ConversationApi & { startCalls: string[] } {
 }
 
 function Probe({ api }: { api: ConversationApi }) {
-  const { session, viewState } = useFastQuestions(EVENT_ID, {
+  const { session, startPhase, viewState } = useFastQuestions(EVENT_ID, {
     api,
     transitionSettleMs: 0,
   });
@@ -112,6 +113,7 @@ function Probe({ api }: { api: ConversationApi }) {
     <div>
       <span data-testid="status">{session?.status ?? ""}</span>
       <span data-testid="view-state">{viewState ?? ""}</span>
+      <button data-testid="start" onClick={startPhase} type="button">start</button>
     </div>
   );
 }
@@ -121,7 +123,7 @@ afterEach(() => {
   expect(warnings).toEqual([]);
 });
 
-test("auto-starts a waiting session exactly once and settles into participant_active", async () => {
+test("never starts a waiting session on its own, and starts once on an explicit tap", async () => {
   const api = createFakeApi();
   const queryClient = createTestQueryClient();
   const container = dom.window.document.createElement("div");
@@ -135,6 +137,20 @@ test("auto-starts a waiting session exactly once and settles into participant_ac
           <Probe api={api} />
         </QueryClientProvider>,
       );
+    });
+
+    // The regression this test exists for: the first phone to open the page
+    // used to start the clock for the whole table just by mounting.
+    await waitFor(() => container.textContent?.includes("waiting") === true);
+    await act(async () => wait(50));
+    expect(api.startCalls).toEqual([]);
+    expect(container.textContent).toContain("waiting");
+
+    const startButton = container.querySelector<HTMLButtonElement>("[data-testid='start']");
+    // Two taps in the same beat are one start: the in-flight guard holds.
+    await act(async () => {
+      startButton?.click();
+      startButton?.click();
     });
 
     await waitFor(() => container.textContent?.includes("participant_active") === true);

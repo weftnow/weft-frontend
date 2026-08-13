@@ -26,6 +26,16 @@ export type ConversationMessages = {
   syncError: string;
   retry: string;
 
+  /**
+   * The lobby. Start is one tap for the whole table — the backend stamps
+   * `started_at` on the group's session and every turn clock runs from it — so
+   * the copy has to say out loud that this is not a per-phone button.
+   */
+  readyHeading: string;
+  readyBody: string;
+  startLabel: string;
+  starting: string;
+
   fastQuestionsPhaseLabel: string;
   roundOf(current: number, total: number): string;
   turnLabel(firstName: string, isCurrentUser: boolean): string;
@@ -57,6 +67,12 @@ export const conversationMessages = {
     tooLate: "The event has already started. Join us early next time!",
     syncError: "We couldn’t sync the conversation.",
     retry: "Retry",
+
+    readyHeading: "Ready when you are.",
+    readyBody:
+      "Wait until everyone is at the table — one tap starts the clock for the whole group.",
+    startLabel: "Start",
+    starting: "Starting…",
 
     fastQuestionsPhaseLabel: "Phase 1 · Fast questions",
     roundOf: (current, total) => `Round ${current} of ${total}`,
@@ -93,6 +109,12 @@ export const conversationMessages = {
     tooLate: "El evento ya comenzó. ¡Únete más temprano la próxima vez!",
     syncError: "No pudimos sincronizar la conversación.",
     retry: "Intentar de nuevo",
+
+    readyHeading: "Cuando estén listos.",
+    readyBody:
+      "Esperen a que todos estén en la mesa — un solo toque inicia el reloj para todo el grupo.",
+    startLabel: "Comenzar",
+    starting: "Comenzando…",
 
     fastQuestionsPhaseLabel: "Fase 1 · Preguntas rápidas",
     roundOf: (current, total) => `Ronda ${current} de ${total}`,
