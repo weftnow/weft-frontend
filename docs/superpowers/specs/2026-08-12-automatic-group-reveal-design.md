@@ -1,7 +1,7 @@
 # Automatic Group Reveal — Design Specification
 
 **Date:** 2026-08-12  
-**Status:** Approved design; awaiting written-spec review  
+**Status:** Approved  
 **Frontend:** `weft-web` (Next.js 16.2.11)  
 **Backend:** `weft-b2b-backend` (FastAPI)
 
@@ -212,7 +212,10 @@ The attendee token never appears in browser JSON, route parameters,
 localStorage, client logs, or rendered HTML. The server gateway resolves it by
 forwarding the event-scoped HttpOnly cookie to the backend's existing resume
 endpoint with redirects disabled, accepting only a same-backend relative
-`/a/{token}` location. It then calls the attendee endpoint server-to-server.
+`/a/{token}` location. It matches that returned token to the existing
+`weft_attendee_{eventUuidHex}` cookie to recover the real event UUID for the
+existing conversation/feedback contract. Both values remain server-side while
+the gateway calls attendee endpoints.
 
 The same resolver supports confirmation and attendee icebreaker proxy routes
 under `/api/questionnaire/{formToken}/conversation`. Those routes mirror the
