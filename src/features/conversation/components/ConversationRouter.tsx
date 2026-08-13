@@ -27,9 +27,14 @@ export type ConversationRouterProps = {
  * device that never filled the form has no token — both are states of the
  * evening rather than sync errors, and neither is fixed by tapping Retry.
  */
-export function noticeStatusFor(error: unknown): "notStarted" | "invalid" | "error" {
+export function noticeStatusFor(
+  error: unknown,
+): "notStarted" | "tooLate" | "invalid" | "error" {
   if (!(error instanceof FastQuestionsApiError)) return "error";
   if (error.code === "no_session") return "notStarted";
+  // Terminal, unlike every other notice here: the tables are already assigned
+  // and this guest is not at one, so there is nothing a retry can change.
+  if (error.code === "too_late") return "tooLate";
   if (error.code === "no_attendee_token") return "invalid";
   return "error";
 }

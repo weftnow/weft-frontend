@@ -16,6 +16,13 @@ export type ConversationMessages = {
   invalidLink: string;
   /** Arrived before the host started the round — early, not broken. */
   notStarted: string;
+  /**
+   * The other side of `notStarted`, and the reason the two cannot share a
+   * screen: the tables are already assigned and this guest is not at one, so
+   * there is nothing to wait for. Latecomers are not seated (see the backend's
+   * app/services/submissions.py), which is what makes this state terminal.
+   */
+  tooLate: string;
   syncError: string;
   retry: string;
 
@@ -47,6 +54,7 @@ export const conversationMessages = {
     loading: "Preparing your conversation…",
     invalidLink: "This event link isn’t valid.",
     notStarted: "You’re all set. Your conversation opens once the host starts it.",
+    tooLate: "The event has already started. Join us early next time!",
     syncError: "We couldn’t sync the conversation.",
     retry: "Retry",
 
@@ -82,6 +90,7 @@ export const conversationMessages = {
     loading: "Preparando tu conversación…",
     invalidLink: "Este enlace del evento no es válido.",
     notStarted: "Todo listo. Tu conversación se abrirá cuando el anfitrión la inicie.",
+    tooLate: "El evento ya comenzó. ¡Únete más temprano la próxima vez!",
     syncError: "No pudimos sincronizar la conversación.",
     retry: "Intentar de nuevo",
 
