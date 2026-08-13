@@ -5,6 +5,10 @@ const tablemateSchema = z.object({
   company: z.string().trim().min(1).max(200).nullable(),
   role: z.string().trim().min(1).max(200),
   profile: z.string().trim().min(1).max(1_000),
+  // The opaque handle for sending this person feedback — signed by the
+  // backend, never a raw attendee id. Feedback is keyed by it because two
+  // guests at one table can share a display name.
+  ref: z.string().min(1),
 }).strict();
 
 export const groupRevealSchema = z.object({
