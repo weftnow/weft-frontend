@@ -1,0 +1,4 @@
+import { createFormTokenFastQuestionsRepository, formTokenConversationError } from "@/features/conversation/fastQuestions/api/server/formTokenFastQuestions.repository";
+import { formTokenSchema } from "@/features/questionnaire/schemas/questionnaire.contract.schema";
+const headers = { "Cache-Control": "no-store" };
+export async function POST(request: Request, { params }: { params: Promise<{ formToken: string }> }) { const parsed = formTokenSchema.safeParse((await params).formToken); if (!parsed.success) return Response.json({ code: "validation" }, { status: 400, headers }); try { return Response.json(await createFormTokenFastQuestionsRepository(parsed.data, request.headers.get("cookie")).continueToPhaseTwo(), { headers }); } catch (error) { const mapped = formTokenConversationError(error); return Response.json({ code: mapped.code }, { status: mapped.status, headers }); } }

@@ -144,6 +144,7 @@ async function mountQuestionnaire(
   storage: QuestionnaireStorage,
   questionnaire: BackendQuestionnaire = testFlowQuestionnaire,
   client = clientFor(),
+  onCompleted: (formToken: string) => void = () => {},
 ) {
   const container = dom.window.document.createElement("div");
   dom.window.document.body.append(container);
@@ -156,6 +157,7 @@ async function mountQuestionnaire(
         initialQuestionnaire={questionnaire}
         storage={storage}
         timings={TEST_TIMINGS}
+        onCompleted={onCompleted}
       />,
     );
   });
@@ -228,7 +230,8 @@ test(
   async () => {
     const storage = createMemoryQuestionnaireStorage();
     const client = clientFor();
-    const { container, root } = await mountQuestionnaire(storage, questionnaireEn, client);
+    const completed: string[] = [];
+    const { container, root } = await mountQuestionnaire(storage, questionnaireEn, client, (token) => completed.push(token));
     try {
       const labels = labelsFor("en");
       await startFromOpening(container, labels.start);
@@ -246,6 +249,7 @@ test(
       expect(readDraft(FORM_TOKEN, storage)?.status).toBe("completed");
       // Exactly one final network write for the whole 17-question journey.
       expect(client.submitCalls).toHaveLength(1);
+      expect(completed).toEqual([FORM_TOKEN]);
       expect(client.loadLanguageCalls).toEqual([]);
       // The language picker never reappears once the conversation starts.
       expect(container.querySelector('[role="radiogroup"][aria-label="Language"]')).toBeNull();
@@ -261,7 +265,8 @@ test(
   async () => {
     const storage = createMemoryQuestionnaireStorage();
     const client = clientFor();
-    const { container, root } = await mountQuestionnaire(storage, questionnaireEs, client);
+    const completed: string[] = [];
+    const { container, root } = await mountQuestionnaire(storage, questionnaireEs, client, (token) => completed.push(token));
     try {
       const labels = labelsFor("es");
       await startFromOpening(container, labels.start);
@@ -279,6 +284,7 @@ test(
       expect(readDraft(FORM_TOKEN, storage)?.status).toBe("completed");
       expect(client.submitCalls).toHaveLength(1);
       expect(client.loadLanguageCalls).toEqual([]);
+      expect(completed).toEqual([FORM_TOKEN]);
     } finally {
       await unmount(root, container);
     }
@@ -383,13 +389,15 @@ test(
     );
     await unmount(root, container);
 
-    const remounted = await mountQuestionnaire(storage, questionnaireEn, client);
+    const completionCalls: string[] = [];
+    const remounted = await mountQuestionnaire(storage, questionnaireEn, client, (token) => completionCalls.push(token));
     try {
       await waitFor(
         () => remounted.container.textContent?.includes("You’re all set.") === true,
         remounted.container,
       );
       expect(client.submitCalls).toHaveLength(1);
+      expect(completionCalls).toEqual([FORM_TOKEN]);
     } finally {
       await unmount(remounted.root, remounted.container);
     }

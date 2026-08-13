@@ -1,0 +1,20 @@
+.shell { min-height: 100svh; min-height: 100dvh; padding: 2rem 1.25rem max(1.25rem, env(safe-area-inset-bottom)); background: #f7f1e6; color: #201b18; }
+.frame { width: min(100%, 42rem); margin-inline: auto; padding-top: clamp(2rem, 12vh, 7rem); }
+.waitingStage { display: grid; width: min(100%, 30rem); justify-items: center; text-align: center; }
+.waitingLoader { position: relative; width: 100%; height: clamp(14rem, 38vh, 16rem); }
+.waitingDetail { max-width: 28rem; margin: -0.25rem 0 0; color: color-mix(in srgb, var(--color-ink) 60%, transparent); font-size: .95rem; line-height: 1.65; text-wrap: balance; }
+.eyebrow { margin: 0 0 1rem; color: #9b3b20; font: 700 .74rem/1.2 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.countdown { font: 500 clamp(2.5rem, 14vw, 5.5rem)/.95 var(--font-display); letter-spacing: -.06em; }
+.table { margin-bottom: 2rem; color: #665b52; }
+.members { margin: 0; padding: 0; list-style: none; border-top: 1px solid #cfc3b5; }
+.member { display: grid; grid-template-columns: 3rem 1fr; gap: 1rem; padding: 1.25rem 0; border-bottom: 1px solid #cfc3b5; }
+.member h2 { margin: 0; font-size: 1rem; }
+.member p { margin: .25rem 0 0; color: #665b52; }
+.avatar { display: grid; width: 3rem; height: 3rem; place-items: center; border-radius: 50%; background: #e6a77e; color: #31180f; font-weight: 700; }
+.profile { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.actionDock { position: sticky; bottom: 0; padding: 1rem 0 max(1rem, env(safe-area-inset-bottom)); background: #f7f1e6; }
+.primaryButton, .secondaryButton { min-height: 44px; padding: .75rem 1rem; border: 1px solid #7f2d1a; border-radius: 0; font: inherit; cursor: pointer; }
+.primaryButton { width: 100%; background: #9b3b20; color: #fffaf3; }
+.secondaryButton { background: transparent; color: #7f2d1a; }
+.primaryButton:focus-visible, .secondaryButton:focus-visible { outline: 3px solid #201b18; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .shell * { transition-duration: 0ms !important; animation-duration: 0ms !important; } }

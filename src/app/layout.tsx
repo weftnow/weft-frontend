@@ -1,18 +1,5 @@
 import type { Metadata } from "next";
-import { Comfortaa, Geist_Mono } from "next/font/google";
 import "../styles/globals.css";
-
-const comfortaa = Comfortaa({
-  variable: "--font-comfortaa",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-});
 
 export const metadata: Metadata = {
   title: "Weft: Networking that actually connects",
@@ -26,7 +13,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${comfortaa.variable} ${geistMono.variable} antialiased`}
+      className="antialiased"
     >
       <body>{children}</body>
     </html>

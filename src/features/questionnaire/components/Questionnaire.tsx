@@ -9,6 +9,7 @@ import { QuestionnaireCompletion } from "./QuestionnaireCompletion";
 import { QuestionnaireFlow, type QuestionnaireTimings } from "./QuestionnaireFlow";
 import { QuestionnaireNotice } from "./QuestionnaireNotice";
 import { QuestionnaireOpening } from "./QuestionnaireOpening";
+import { useEffect, useRef } from "react";
 
 export type QuestionnaireProps = {
   formToken: string;
@@ -16,6 +17,7 @@ export type QuestionnaireProps = {
   client?: QuestionnaireClient;
   storage?: QuestionnaireStorage;
   timings?: Partial<QuestionnaireTimings>;
+  onCompleted?: (formToken: string) => void;
 };
 
 const DEFAULT_TIMINGS: QuestionnaireTimings = {
@@ -29,7 +31,9 @@ export function Questionnaire({
   client,
   storage,
   timings,
+  onCompleted,
 }: QuestionnaireProps) {
+  const completionHandled = useRef(false);
   const controller = useQuestionnaireController(
     formToken,
     initialQuestionnaire,
@@ -37,6 +41,11 @@ export function Questionnaire({
     storage,
   );
   const resolvedTimings = { ...DEFAULT_TIMINGS, ...timings };
+  useEffect(() => {
+    if (controller.view !== "completed" || completionHandled.current) return;
+    completionHandled.current = true;
+    onCompleted?.(formToken);
+  }, [controller.view, formToken, onCompleted]);
 
   if (controller.view === "hydrating") {
     return (

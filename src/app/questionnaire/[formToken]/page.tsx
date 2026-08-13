@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { loadQuestionnaire } from "@/features/questionnaire/api/server/questionnaire.gateway";
-import { Questionnaire } from "@/features/questionnaire/components/Questionnaire";
+import { QuestionnaireWithNavigation } from "@/features/questionnaire/components/QuestionnaireWithNavigation";
 import { QuestionnaireNotice } from "@/features/questionnaire/components/QuestionnaireNotice";
 import { formTokenSchema } from "@/features/questionnaire/schemas/questionnaire.contract.schema";
 
@@ -27,6 +27,6 @@ export default async function EventQuestionnairePage({
   }
 
   return (
-    <Questionnaire formToken={tokenResult.data} initialQuestionnaire={outcome.questionnaire} />
+    <QuestionnaireWithNavigation formToken={tokenResult.data} initialQuestionnaire={outcome.questionnaire} />
   );
 }
