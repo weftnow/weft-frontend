@@ -14,6 +14,8 @@ export type ConversationLanguage = "en" | "es";
 export type ConversationMessages = {
   loading: string;
   invalidLink: string;
+  /** Arrived before the host started the round — early, not broken. */
+  notStarted: string;
   syncError: string;
   retry: string;
 
@@ -44,6 +46,7 @@ export const conversationMessages = {
   en: {
     loading: "Preparing your conversation…",
     invalidLink: "This event link isn’t valid.",
+    notStarted: "You’re all set. Your conversation opens once the host starts it.",
     syncError: "We couldn’t sync the conversation.",
     retry: "Retry",
 
@@ -78,6 +81,7 @@ export const conversationMessages = {
   es: {
     loading: "Preparando tu conversación…",
     invalidLink: "Este enlace del evento no es válido.",
+    notStarted: "Todo listo. Tu conversación se abrirá cuando el anfitrión la inicie.",
     syncError: "No pudimos sincronizar la conversación.",
     retry: "Intentar de nuevo",
 

@@ -8,7 +8,7 @@ import {
 import styles from "./FastQuestions.module.css";
 
 export type FastQuestionsNoticeProps = {
-  status: "loading" | "invalid" | "error";
+  status: "loading" | "invalid" | "notStarted" | "error";
   onRetry?: () => void;
   /**
    * Every notice can be reached before a session has loaded — an invalid link
@@ -27,6 +27,7 @@ export function FastQuestionsNotice({
   const noticeCopy = {
     loading: messages.loading,
     invalid: messages.invalidLink,
+    notStarted: messages.notStarted,
     error: messages.syncError,
   } as const;
 
