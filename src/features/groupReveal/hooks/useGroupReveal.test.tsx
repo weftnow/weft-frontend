@@ -4,9 +4,16 @@ import { createRoot } from "react-dom/client";
 import { JSDOM } from "jsdom";
 import { GroupRevealProbe } from "./useGroupReveal.mount";
 
-const dom = new JSDOM("<!doctype html><html><body></body></html>", { pretendToBeVisual: true });
+const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+  pretendToBeVisual: true,
+  url: "http://localhost/",
+});
 Object.assign(globalThis, { document: dom.window.document, window: dom.window, navigator: dom.window.navigator });
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+
+test("provides a stable HTTP origin for browser globals", () => {
+  expect(window.location.origin).toBe("http://localhost");
+});
 
 test("moves from polling waiting state into a ready group", async () => {
   const node = document.createElement("div"); const root = createRoot(node);
