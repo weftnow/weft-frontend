@@ -14,18 +14,6 @@ import type { FastQuestionsSession, Participant } from "../types/fastQuestions.t
  *   phase 1 only, and `mapConversationState` is what decides that.
  */
 
-// The backend knows names, not faces. Cycling a fixed set keyed by position
-// gives every participant a stable, distinct avatar without inventing an
-// upload path nobody asked for.
-const AVATARS = [
-  "/placeholders/weft/attendee-01.png",
-  "/placeholders/weft/attendee-02.png",
-  "/placeholders/weft/attendee-03.png",
-  "/placeholders/weft/customer1.jpeg",
-  "/placeholders/weft/customer2.jpeg",
-  "/placeholders/weft/testimonial-02.png",
-] as const;
-
 const MAX_ROUND_INDEX = 2;
 
 /**
@@ -41,10 +29,9 @@ function mapStatus(dto: IcebreakerStateDto): FastQuestionsSession["status"] {
 }
 
 function mapParticipants(dto: IcebreakerStateDto): Participant[] {
-  return dto.participant_order.map((participant, index) => ({
+  return dto.participant_order.map((participant) => ({
     id: participant.attendee_id,
     firstName: participant.name,
-    avatarUrl: AVATARS[index % AVATARS.length] as string,
     isCurrentUser: participant.attendee_id === dto.viewer.attendee_id,
   }));
 }

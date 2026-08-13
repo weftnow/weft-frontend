@@ -12,9 +12,9 @@ const valid = {
   timerStartedAt: "2026-08-08T20:00:00.000Z",
   timerEndsAt: "2026-08-08T20:00:30.000Z",
   participants: [
-    { id: "p1", firstName: "Antonio", avatarUrl: "/a.png", isCurrentUser: false },
-    { id: "p2", firstName: "You", avatarUrl: "/b.png", isCurrentUser: true },
-    { id: "p3", firstName: "María", avatarUrl: "/c.png", isCurrentUser: false },
+    { id: "p1", firstName: "Antonio", isCurrentUser: false },
+    { id: "p2", firstName: "You", isCurrentUser: true },
+    { id: "p3", firstName: "María", isCurrentUser: false },
   ],
   rounds: [
     { id: "round_1", question: "One?", participantDurationSeconds: 30 },

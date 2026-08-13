@@ -120,10 +120,22 @@
 }
 
 .avatar {
+  display: grid;
   width: 100%;
   height: 100%;
+  place-items: center;
   border-radius: 50%;
-  object-fit: cover;
+  background: rgb(18 18 18 / 6%);
+  color: rgb(18 18 18 / 68%);
+  font-size: calc(var(--avatar-size) * 0.38);
+  font-weight: 600;
+  line-height: 1;
+  user-select: none;
+}
+
+.participant[data-active="true"] .avatar {
+  background: var(--color-ember);
+  color: #fffaf3;
 }
 
 .activityDot {
