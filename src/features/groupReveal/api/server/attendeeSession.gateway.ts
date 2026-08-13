@@ -20,9 +20,13 @@ export async function resolveAttendeeSession(formToken: string, cookieHeader: st
     const redirect = new URL(location, base);
     if (redirect.origin !== base.origin || redirect.search || redirect.pathname.split("/").filter(Boolean).length !== 2 || !redirect.pathname.startsWith("/a/")) throw new AttendeeSessionGatewayError("no_session");
     const token = decodeURIComponent(redirect.pathname.split("/")[2]);
-    const matches = [...(cookieHeader ?? "").matchAll(/(?:^|;\s*)weft_attendee_([a-f0-9]{32})=([^;]+)/gi)].filter(([, , value]) => decodeURIComponent(value) === token);
-    if (matches.length !== 1) throw new AttendeeSessionGatewayError("no_session");
-    const hex = matches[0][1];
-    return { token, eventId: `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}` };
+    // The event comes off the response header rather than the cookie jar.
+    // This used to find the one cookie whose value equalled the token and read
+    // the event out of its name, which stopped working when /resume began
+    // minting a fresh token per call instead of echoing the stored one — the
+    // cookie now holds a session handle that matches no token by value.
+    const eventId = response.headers.get("x-weft-event-id");
+    if (!eventId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId)) throw new AttendeeSessionGatewayError("unavailable");
+    return { token, eventId };
   } catch (error) { if (error instanceof AttendeeSessionGatewayError) throw error; throw new AttendeeSessionGatewayError("unavailable"); }
 }
