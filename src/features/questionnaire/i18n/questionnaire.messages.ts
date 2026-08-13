@@ -28,6 +28,7 @@ export type QuestionnaireMessages = {
   submissionFailed: string;
   skipped: string;
   completionMessages: [string, string];
+  continueToConversation: string;
 };
 
 export const questionnaireMessages = {
@@ -62,6 +63,7 @@ export const questionnaireMessages = {
       "You’re all set.",
       "Thanks. We’ll use your answers to introduce you to the right people.",
     ],
+    continueToConversation: "Go to your conversation",
   },
   es: {
     openingEyebrow: "Cuestionario Weft",
@@ -94,6 +96,7 @@ export const questionnaireMessages = {
       "Todo listo.",
       "Gracias. Usaremos tus respuestas para presentarte a las personas indicadas.",
     ],
+    continueToConversation: "Ir a tu conversación",
   },
 } satisfies Record<Language, QuestionnaireMessages>;
 

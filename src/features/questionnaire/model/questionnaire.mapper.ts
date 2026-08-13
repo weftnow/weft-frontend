@@ -9,6 +9,7 @@ export function mapQuestionnaireDefinition(dto: FormDefinitionDto): Questionnair
     id: "weft-b2b-attendee",
     version: dto.form_version,
     language: dto.language,
+    eventId: dto.event_id,
     eventName: dto.event_name,
     acceptingSubmissions: dto.accepting_submissions,
     intro: {

@@ -15,6 +15,13 @@ test("maps the 17-question backend contract without stringifying numbers", () =>
   expect(questionnaire.version).toBe("v1");
 });
 
+test("carries the event id through, since it addresses every later screen", () => {
+  const questionnaire = mapQuestionnaireDefinition(
+    formDefinitionSchema.parse(backendFormEn),
+  );
+  expect(questionnaire.eventId).toBe(backendFormEn.event_id);
+});
+
 test("maps backend text semantics into focused UI metadata", () => {
   const questionnaire = mapQuestionnaireDefinition(
     formDefinitionSchema.parse(backendFormEn),

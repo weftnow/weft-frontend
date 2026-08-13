@@ -3,6 +3,7 @@ import type { FormDefinitionDto } from "../schemas/questionnaire.contract.schema
 export const backendFormEn: FormDefinitionDto = {
   form_version: "v1",
   language: "en",
+  event_id: "8f14e45f-ea0c-4d6b-9f1c-2b3a4c5d6e7f",
   event_name: "Mixer",
   accepting_submissions: true,
   questions: [
@@ -236,6 +237,7 @@ export const backendFormEn: FormDefinitionDto = {
 export const backendFormEs: FormDefinitionDto = {
   form_version: "v1",
   language: "es",
+  event_id: "8f14e45f-ea0c-4d6b-9f1c-2b3a4c5d6e7f",
   event_name: "Mixer",
   accepting_submissions: true,
   questions: [

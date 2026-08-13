@@ -55,6 +55,7 @@ export function Questionnaire({
   if (controller.view === "completed") {
     return (
       <QuestionnaireCompletion
+        eventId={initialQuestionnaire.eventId}
         eventName={initialQuestionnaire.eventName}
         language={controller.language}
       />
