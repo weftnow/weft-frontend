@@ -14,6 +14,7 @@ type RegistrationQuestionProps = {
   disabled: boolean;
   onTextChange: (value: string) => void;
   onRoleChange: (role: OrganizerRole) => void;
+  onRoleOtherChange: (value: string) => void;
   onEnter: () => void;
 };
 
@@ -24,14 +25,21 @@ export function RegistrationQuestion({
   disabled,
   onTextChange,
   onRoleChange,
+  onRoleOtherChange,
   onEnter,
 }: RegistrationQuestionProps) {
     const prompt = messages.registration.prompts[step];
     const error = state.fieldError?.field === step
+      && state.fieldError?.code !== "roleOther"
       ? messages.errors[state.fieldError.code]
       : null;
 
     if (step === "role") {
+      const roleOtherError = state.fieldError?.field === "role"
+        && state.fieldError?.code === "roleOther"
+        ? messages.errors.roleOther
+        : null;
+
       return (
         <fieldset className={styles.question} data-registration-question>
           <legend className={styles.questionPrompt}>
@@ -43,6 +51,36 @@ export function RegistrationQuestion({
             onChange={onRoleChange}
             selected={state.draft.role}
           />
+          {state.draft.role === "other" ? (
+            <div className={styles.roleOtherField}>
+              <label htmlFor="organizer-role-other">
+                {messages.registration.roleOtherLabel}
+              </label>
+              <input
+                aria-describedby={roleOtherError ? "organizer-role-other-error" : undefined}
+                aria-invalid={roleOtherError ? true : undefined}
+                className={styles.field}
+                disabled={disabled}
+                id="organizer-role-other"
+                maxLength={200}
+                onChange={(event) => onRoleOtherChange(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    onEnter();
+                  }
+                }}
+                placeholder={messages.registration.roleOtherPlaceholder}
+                type="text"
+                value={state.draft.roleOther}
+              />
+              {roleOtherError ? (
+                <p className={styles.error} id="organizer-role-other-error" role="alert">
+                  {roleOtherError}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           {error ? <p className={styles.error} role="alert">{error}</p> : null}
         </fieldset>
       );

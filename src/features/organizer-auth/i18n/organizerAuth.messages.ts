@@ -11,6 +11,8 @@ export type OrganizerAuthMessages = {
   registration: {
     prompts: Record<RegisterStep, string>;
     placeholders: Record<Exclude<RegisterStep, "role">, string>;
+    roleOtherLabel: string;
+    roleOtherPlaceholder: string;
     progress: string;
     continue: string;
     back: string;
@@ -33,6 +35,7 @@ export type OrganizerAuthMessages = {
     contact_name: string;
     organization_name: string;
     role: string;
+    roleOther: string;
     email: string;
     password: string;
     emailAlreadyRegistered: string;
@@ -63,6 +66,8 @@ export const organizerAuthMessages: Record<
         email: "you@organization.com",
         password: "At least 8 characters",
       },
+      roleOtherLabel: "Describe your role",
+      roleOtherPlaceholder: "Your role",
       progress: "Question {current} of {total}",
       continue: "Continue",
       back: "Back",
@@ -92,6 +97,7 @@ export const organizerAuthMessages: Record<
       contact_name: "Enter your name.",
       organization_name: "Enter your organization name.",
       role: "Choose your role.",
+      roleOther: "Tell us your role.",
       email: "Enter a valid work email.",
       password: "Use between 8 and 72 characters.",
       emailAlreadyRegistered: "An account already exists for this email.",
@@ -117,6 +123,8 @@ export const organizerAuthMessages: Record<
         email: "tu@organizacion.com",
         password: "Mínimo 8 caracteres",
       },
+      roleOtherLabel: "Describe tu rol",
+      roleOtherPlaceholder: "Tu rol",
       progress: "Pregunta {current} de {total}",
       continue: "Continuar",
       back: "Atrás",
@@ -146,6 +154,7 @@ export const organizerAuthMessages: Record<
       contact_name: "Escribe tu nombre.",
       organization_name: "Escribe el nombre de tu organización.",
       role: "Elige tu rol.",
+      roleOther: "Cuéntanos tu rol.",
       email: "Escribe un correo de trabajo válido.",
       password: "Usa entre 8 y 72 caracteres.",
       emailAlreadyRegistered: "Ya existe una cuenta con este correo.",

@@ -18,6 +18,7 @@ import {
   resolveBrowserTimezone,
   toRegisterRequest,
   validateRegistrationStep,
+  validateRoleStep,
 } from "../schemas/organizerAuth.schema";
 import {
   REGISTER_STEPS,
@@ -71,7 +72,13 @@ export function RegisterFlow({
 
   async function advance() {
     if (state.status === "submitting" || inFlight.current) return;
-    if (validateRegistrationStep(step, state.draft)) {
+    if (step === "role") {
+      const roleFailure = validateRoleStep(state.draft);
+      if (roleFailure) {
+        dispatch({ type: "fieldFailure", field: "role", code: roleFailure });
+        return;
+      }
+    } else if (validateRegistrationStep(step, state.draft)) {
       failCurrent();
       return;
     }
@@ -97,6 +104,11 @@ export function RegisterFlow({
             field: "email",
             code: "emailAlreadyRegistered",
           });
+        } else if (
+          error.data.code === "validation"
+          && error.data.field === "role_other"
+        ) {
+          dispatch({ type: "fieldFailure", field: "role", code: "roleOther" });
         } else if (
           error.data.code === "validation"
           && isRegisterStep(error.data.field)
@@ -147,6 +159,11 @@ export function RegisterFlow({
               messages={messages}
               onEnter={() => void advance()}
               onRoleChange={(role: OrganizerRole) => dispatch({ type: "setRole", value: role })}
+              onRoleOtherChange={(value) => dispatch({
+                type: "setTextValue",
+                field: "roleOther",
+                value,
+              })}
               onTextChange={(value) => {
                 if (step !== "role") {
                   dispatch({

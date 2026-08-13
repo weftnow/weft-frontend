@@ -5,6 +5,7 @@ const validBody = {
   contact_name: "Ana Restrepo",
   organization_name: "Weft Events",
   role: "event_manager",
+  role_other: null,
   email: "ana@example.com",
   password: "longenough",
   timezone: "America/Bogota",
