@@ -154,15 +154,6 @@ test("narrows a regional language tag the same way the backend does", () => {
   expect(mapIcebreakerState(EVENT_ID, dto({ language: "en" })).language).toBe("en");
 });
 
-test("gives every participant a distinct, stable avatar", () => {
-  const first = mapIcebreakerState(EVENT_ID, dto());
-  const second = mapIcebreakerState(EVENT_ID, dto());
-  expect(first.participants.map(({ avatarUrl }) => avatarUrl)).toEqual(
-    second.participants.map(({ avatarUrl }) => avatarUrl),
-  );
-  expect(first.participants.every(({ avatarUrl }) => avatarUrl.length > 0)).toBe(true);
-});
-
 test("clamps a round beyond the deck rather than producing an invalid index", () => {
   const session = mapIcebreakerState(EVENT_ID, dto({ round: 9 }));
   expect(session.roundIndex).toBe(2);

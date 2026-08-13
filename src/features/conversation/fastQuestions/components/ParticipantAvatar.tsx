@@ -1,10 +1,17 @@
 "use client";
 
-import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import type { ConversationMessages } from "../../i18n/conversation.messages";
 import type { Participant } from "../types/fastQuestions.types";
 import styles from "./FastQuestions.module.css";
+
+/**
+ * Split by code point, not by index: `"Ángela"[0]` is a whole letter here but
+ * half of one for a name that starts with an emoji or a surrogate pair.
+ */
+function initialFor(name: string): string {
+  return [...name.trim()][0]?.toUpperCase() ?? "?";
+}
 
 export type ParticipantAvatarProps = {
   participant: Participant;
@@ -25,15 +32,9 @@ export function ParticipantAvatar({ active, messages, participant }: Participant
       transition={{ duration: reducedMotion ? 0.01 : 0.18, ease: "easeOut" }}
     >
       <span className={styles.avatarFrame}>
-        <Image
-          alt=""
-          className={styles.avatar}
-          height={96}
-          sizes="(max-width: 32rem) 15vw, 4.5rem"
-          src={participant.avatarUrl}
-          title={participant.firstName}
-          width={96}
-        />
+        <span aria-hidden="true" className={styles.avatar} title={participant.firstName}>
+          {initialFor(participant.firstName)}
+        </span>
         {active ? <span aria-hidden="true" className={styles.activityDot} /> : null}
       </span>
       <span className={styles.participantName} title={participant.firstName}>

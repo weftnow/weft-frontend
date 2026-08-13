@@ -4,7 +4,6 @@ export const eventIdSchema = z.uuid();
 export const participantSchema = z.object({
   id: z.string().min(1),
   firstName: z.string().trim().min(1).max(80),
-  avatarUrl: z.string().min(1),
   isCurrentUser: z.boolean(),
 });
 export const fastQuestionRoundSchema = z.object({
