@@ -9,7 +9,7 @@ test("selects Weft's branded presentation for the group-waiting state", () => {
       confirm={async () => undefined}
       confirmationError={false}
       confirming={false}
-      error={false}
+      error={null}
       group={undefined}
       messages={groupRevealMessages.en}
       onStartConversation={() => undefined}
@@ -25,4 +25,22 @@ test("selects Weft's branded presentation for the group-waiting state", () => {
   expect(html).toContain(
     "Keep this page open. Your table will appear here shortly.",
   );
+});
+
+test("uses the existing error presentation for a typed polling error", () => {
+  const html = renderToStaticMarkup(
+    <GroupRevealView
+      confirm={async () => undefined}
+      confirmationError={false}
+      confirming={false}
+      error="no_session"
+      group={undefined}
+      messages={groupRevealMessages.en}
+      onStartConversation={() => undefined}
+      remaining={0}
+      retry={async () => undefined}
+    />,
+  );
+
+  expect(html).toContain(groupRevealMessages.en.unavailable);
 });

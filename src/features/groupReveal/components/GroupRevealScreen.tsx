@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
+import type { GroupRevealLoadErrorKind } from "../api/groupReveal.api";
 import type { GroupReveal } from "../schemas/groupReveal.schema";
 import { initialsFor } from "../model/groupReveal.model";
 import { useGroupReveal } from "../hooks/useGroupReveal";
@@ -27,7 +28,7 @@ export function GroupRevealView({
   onStartConversation,
 }: {
   group: GroupReveal | undefined;
-  error: boolean;
+  error: GroupRevealLoadErrorKind | null;
   confirmationError: boolean;
   confirming: boolean;
   remaining: number;
