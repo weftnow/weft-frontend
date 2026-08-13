@@ -13,8 +13,7 @@
 .avatar { display: grid; width: 3rem; height: 3rem; place-items: center; border-radius: 50%; background: #e6a77e; color: #31180f; font-weight: 700; }
 .profile { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .actionDock { position: sticky; bottom: 0; padding: 1rem 0 max(1rem, env(safe-area-inset-bottom)); background: #f7f1e6; }
-.primaryButton, .secondaryButton { min-height: 44px; padding: .75rem 1rem; border: 1px solid #7f2d1a; border-radius: 0; font: inherit; cursor: pointer; }
+.primaryButton { min-height: 44px; padding: .75rem 1rem; border: 1px solid #7f2d1a; border-radius: 0; font: inherit; cursor: pointer; }
 .primaryButton { width: 100%; background: #9b3b20; color: #fffaf3; }
-.secondaryButton { background: transparent; color: #7f2d1a; }
-.primaryButton:focus-visible, .secondaryButton:focus-visible { outline: 3px solid #201b18; outline-offset: 3px; }
+.primaryButton:focus-visible { outline: 3px solid #201b18; outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { .shell * { transition-duration: 0ms !important; animation-duration: 0ms !important; } }

@@ -2,18 +2,18 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
+import type { GroupRevealLoadErrorKind } from "../api/groupReveal.api";
 import type { GroupReveal } from "../schemas/groupReveal.schema";
 import { initialsFor } from "../model/groupReveal.model";
 import { useGroupReveal } from "../hooks/useGroupReveal";
 import {
   groupRevealLanguageFor,
   groupRevealMessages,
+  type GroupRevealMessages,
 } from "../i18n/groupReveal.messages";
 import styles from "./GroupReveal.module.css";
+import { GroupRevealError } from "./GroupRevealError";
 import { GroupRevealWaiting } from "./GroupRevealWaiting";
-
-type GroupRevealMessages =
-  (typeof groupRevealMessages)[keyof typeof groupRevealMessages];
 
 export function GroupRevealView({
   group,
@@ -25,9 +25,10 @@ export function GroupRevealView({
   retry,
   confirm,
   onStartConversation,
+  onRestartQuestionnaire,
 }: {
   group: GroupReveal | undefined;
-  error: boolean;
+  error: GroupRevealLoadErrorKind | null;
   confirmationError: boolean;
   confirming: boolean;
   remaining: number;
@@ -35,6 +36,7 @@ export function GroupRevealView({
   retry: () => Promise<void>;
   confirm: () => Promise<void>;
   onStartConversation: () => void;
+  onRestartQuestionnaire: () => void;
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
 
@@ -44,17 +46,15 @@ export function GroupRevealView({
 
   if (error) {
     return (
-      <main className={styles.shell}>
-        <section className={styles.frame}>
-          <p role="status">{messages.unavailable}</p>
-          <button
-            className={styles.secondaryButton}
-            onClick={() => void retry()}
-          >
-            {messages.retry}
-          </button>
-        </section>
-      </main>
+      <GroupRevealError
+        error={error}
+        messages={messages}
+        onAction={
+          error === "no_session"
+            ? onRestartQuestionnaire
+            : () => void retry()
+        }
+      />
     );
   }
 
@@ -165,6 +165,9 @@ export function GroupRevealScreen({ formToken }: { formToken: string }) {
         router.push(
           `/questionnaire/${encodeURIComponent(formToken)}/conversation`,
         )
+      }
+      onRestartQuestionnaire={() =>
+        router.push(`/questionnaire/${encodeURIComponent(formToken)}`)
       }
     />
   );
