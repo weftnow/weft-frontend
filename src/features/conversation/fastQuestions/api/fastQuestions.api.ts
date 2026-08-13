@@ -5,6 +5,7 @@ import {
   eventIdSchema,
 } from "../schemas/fastQuestions.schema";
 import type { AdvanceParticipantInput } from "../types/fastQuestions.types";
+import { formTokenSchema } from "@/features/questionnaire/schemas/questionnaire.contract.schema";
 
 const TIMEOUT_MS = 8_000;
 
@@ -38,25 +39,36 @@ async function requestSession(path: string, init?: RequestInit): Promise<Convers
   return conversationSessionSchema.parse(await response.json());
 }
 
-export const conversationApi: ConversationApi = {
-  async getConversationSession(eventId) {
-    const id = eventIdSchema.parse(eventId);
-    return requestSession("/api/events/" + id + "/conversation");
+export function createConversationApi(
+  basePath: (sessionKey: string) => string,
+  validateSessionKey: (sessionKey: string) => string = eventIdSchema.parse,
+): ConversationApi {
+  return {
+  async getConversationSession(sessionKey) {
+    const id = validateSessionKey(sessionKey);
+    return requestSession(basePath(id));
   },
-  async startFastQuestionsPhase(eventId) {
-    const id = eventIdSchema.parse(eventId);
-    return requestSession("/api/events/" + id + "/conversation/start", { method: "POST" });
+  async startFastQuestionsPhase(sessionKey) {
+    const id = validateSessionKey(sessionKey);
+    return requestSession(basePath(id) + "/start", { method: "POST" });
   },
-  async advanceParticipantTurn(eventId, expected: AdvanceParticipantInput) {
-    const id = eventIdSchema.parse(eventId);
+  async advanceParticipantTurn(sessionKey, expected: AdvanceParticipantInput) {
+    const id = validateSessionKey(sessionKey);
     const body = advanceParticipantInputSchema.parse(expected);
-    return requestSession("/api/events/" + id + "/conversation/advance", {
+    return requestSession(basePath(id) + "/advance", {
       method: "POST",
       body: JSON.stringify(body),
     });
   },
-  async continueToPhaseTwo(eventId) {
-    const id = eventIdSchema.parse(eventId);
-    return requestSession("/api/events/" + id + "/conversation/continue", { method: "POST" });
+  async continueToPhaseTwo(sessionKey) {
+    const id = validateSessionKey(sessionKey);
+    return requestSession(basePath(id) + "/continue", { method: "POST" });
   },
-};
+  };
+}
+
+export const conversationApi = createConversationApi((eventId) => `/api/events/${encodeURIComponent(eventId)}/conversation`);
+export const formTokenConversationApi = createConversationApi(
+  (formToken) => `/api/questionnaire/${encodeURIComponent(formToken)}/conversation`,
+  formTokenSchema.parse,
+);

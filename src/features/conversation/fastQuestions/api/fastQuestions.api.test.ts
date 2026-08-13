@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { createMockFastQuestionsSession } from "../data/mockFastQuestions";
-import { conversationApi, FastQuestionsApiError } from "./fastQuestions.api";
+import { conversationApi, FastQuestionsApiError, formTokenConversationApi } from "./fastQuestions.api";
 
 const originalFetch = globalThis.fetch;
 afterEach(() => {
@@ -78,5 +78,24 @@ test("posts an advance request with a validated body", async () => {
       method: "POST",
       body: { roundIndex: 0, participantIndex: 0 },
     },
+  ]);
+});
+
+test("form-token transport encodes its key for every operation", async () => {
+  const formToken = "token-valid-123456";
+  const calls: string[] = [];
+  globalThis.fetch = (async (input) => {
+    calls.push(String(input));
+    return Response.json(createMockFastQuestionsSession("8f39ad30-f5f4-4404-8760-592e69794816"));
+  }) as typeof fetch;
+  await formTokenConversationApi.getConversationSession(formToken);
+  await formTokenConversationApi.startFastQuestionsPhase(formToken);
+  await formTokenConversationApi.advanceParticipantTurn(formToken, { roundIndex: 0, participantIndex: 0 });
+  await formTokenConversationApi.continueToPhaseTwo(formToken);
+  expect(calls).toEqual([
+    `/api/questionnaire/${formToken}/conversation`,
+    `/api/questionnaire/${formToken}/conversation/start`,
+    `/api/questionnaire/${formToken}/conversation/advance`,
+    `/api/questionnaire/${formToken}/conversation/continue`,
   ]);
 });

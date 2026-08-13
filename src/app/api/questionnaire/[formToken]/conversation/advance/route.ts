@@ -1,0 +1,5 @@
+import { createFormTokenFastQuestionsRepository, formTokenConversationError } from "@/features/conversation/fastQuestions/api/server/formTokenFastQuestions.repository";
+import { advanceParticipantInputSchema } from "@/features/conversation/fastQuestions/schemas/fastQuestions.schema";
+import { formTokenSchema } from "@/features/questionnaire/schemas/questionnaire.contract.schema";
+const headers = { "Cache-Control": "no-store" };
+export async function POST(request: Request, { params }: { params: Promise<{ formToken: string }> }) { const token = formTokenSchema.safeParse((await params).formToken); const body = advanceParticipantInputSchema.safeParse(await request.json().catch(() => null)); if (!token.success || !body.success) return Response.json({ code: "validation" }, { status: 400, headers }); try { return Response.json(await createFormTokenFastQuestionsRepository(token.data, request.headers.get("cookie")).advance(body.data), { headers }); } catch (error) { const mapped = formTokenConversationError(error); return Response.json({ code: mapped.code }, { status: mapped.status, headers }); } }
