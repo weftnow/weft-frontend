@@ -9,8 +9,8 @@ export function useGroupReveal(formToken: string, client: GroupRevealClient = gr
   const [error, setError] = useState(false);
   const [confirmationError, setConfirmationError] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [now, setNow] = useState(Date.now());
-  const receivedAt = useRef<number | undefined>(undefined);
+  const [now, setNow] = useState(() => Date.now());
+  const [receivedAt, setReceivedAt] = useState<number>();
   const inFlight = useRef(false);
   const retryDelay = useRef(2_000);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -21,7 +21,7 @@ export function useGroupReveal(formToken: string, client: GroupRevealClient = gr
     try {
       const result = await client.load(formToken);
       if (result.status === "ready") {
-        receivedAt.current = Date.now();
+        setReceivedAt(Date.now());
         setGroup(result.group);
       }
       retryDelay.current = 2_000;
@@ -48,7 +48,10 @@ export function useGroupReveal(formToken: string, client: GroupRevealClient = gr
         void load().then(schedule);
       }
     };
-    void load().then(schedule);
+    timer.current = setTimeout(async () => {
+      await load();
+      schedule();
+    }, 0);
     document.addEventListener("visibilitychange", resume);
     return () => {
       disposed = true;
@@ -57,8 +60,8 @@ export function useGroupReveal(formToken: string, client: GroupRevealClient = gr
     };
   }, [load]);
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(id); }, []);
-  const remaining = group && receivedAt.current
-    ? countdownRemainingMs(group.reveal_at, group.server_time, receivedAt.current, now)
+  const remaining = group && receivedAt
+    ? countdownRemainingMs(group.reveal_at, group.server_time, receivedAt, now)
     : 0;
   const confirm = async () => {
     if (confirming) return;
