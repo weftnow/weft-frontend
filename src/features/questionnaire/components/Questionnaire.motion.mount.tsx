@@ -90,6 +90,7 @@ test(
             initialQuestionnaire={testFlowQuestionnaire}
             storage={storage}
             timings={{ conversationalPauseMs: 0, transitionDelayMs: 0 }}
+            onCompleted={() => {}}
           />,
         );
       });
