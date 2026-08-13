@@ -1,12 +1,12 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { groupRevealClient, type GroupRevealClient } from "../api/groupReveal.api";
+import { GroupRevealLoadError, groupRevealClient, type GroupRevealClient, type GroupRevealLoadErrorKind } from "../api/groupReveal.api";
 import { countdownRemainingMs } from "../model/groupReveal.model";
 import type { GroupReveal } from "../schemas/groupReveal.schema";
 
 export function useGroupReveal(formToken: string, client: GroupRevealClient = groupRevealClient) {
   const [group, setGroup] = useState<GroupReveal>();
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<GroupRevealLoadErrorKind | null>(null);
   const [confirmationError, setConfirmationError] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -25,9 +25,13 @@ export function useGroupReveal(formToken: string, client: GroupRevealClient = gr
         setGroup(result.group);
       }
       retryDelay.current = 2_000;
-      setError(false);
-    } catch {
-      setError(true);
+      setError(null);
+    } catch (loadError) {
+      setError(
+        loadError instanceof GroupRevealLoadError
+          ? loadError.kind
+          : "unavailable",
+      );
       retryDelay.current = Math.min(retryDelay.current * 2, 16_000);
     } finally {
       inFlight.current = false;
