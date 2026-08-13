@@ -187,3 +187,14 @@ test("a 200 with an unexpected shape is unavailable rather than trusted", async 
   const error = await api.status(EVENT_ID).catch((caught: unknown) => caught);
   expect((error as EventFeedbackGatewayError).code).toBe("unavailable");
 });
+
+/** Matches the fast questions gateway: typed, and not mislogged as a network error. */
+test("a missing base URL is a typed unavailable, not a bare throw", async () => {
+  delete process.env.WEFT_B2B_API_URL;
+  const api = gateway(async () => json({ submitted: false }));
+
+  const error = await api.status(EVENT_ID).catch((caught: unknown) => caught);
+  expect(error instanceof EventFeedbackGatewayError).toBe(true);
+  expect((error as EventFeedbackGatewayError).code).toBe("unavailable");
+  expect((error as Error).message).toContain("WEFT_B2B_API_URL");
+});

@@ -32,6 +32,11 @@ export type EventFeedbackMessages = {
   thanksHeading: string;
   thanksBody: string;
   noLink: string;
+  /**
+   * Shown when the server has no data source configured. Says nothing about
+   * trying again, because trying again is not what fixes it.
+   */
+  unavailable: string;
 };
 
 export const eventFeedbackMessages = {
@@ -60,6 +65,7 @@ export const eventFeedbackMessages = {
     thanksHeading: "Thanks.",
     thanksBody: "This is how the next one gets better.",
     noLink: "Open this from your own event link to leave feedback.",
+    unavailable: "Feedback isn’t available for this event. That’s on us, not you — nothing here to retry.",
   },
   es: {
     heading: "Antes de irte",
@@ -86,6 +92,7 @@ export const eventFeedbackMessages = {
     thanksHeading: "Gracias.",
     thanksBody: "Así mejora la próxima.",
     noLink: "Abre esto desde tu propio enlace del evento para dejar tu opinión.",
+    unavailable: "La sección de opiniones no está disponible para este evento. Es cosa nuestra, no tuya — no hay nada que reintentar.",
   },
 } satisfies Record<ConversationLanguage, EventFeedbackMessages>;
 

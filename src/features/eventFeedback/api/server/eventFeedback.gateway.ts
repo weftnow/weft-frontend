@@ -36,15 +36,27 @@ export function attendeeCookieName(eventId: string): string {
   return `weft_attendee_${eventId.replace(/-/g, "")}`;
 }
 
+/**
+ * A missing base URL is a configuration failure, not a bug, so it leaves here
+ * as a typed gateway error — matching the fast questions gateway, so the same
+ * misconfiguration cannot answer differently in the two features.
+ */
 function baseUrl(): string {
   const url = process.env.WEFT_B2B_API_URL;
-  if (!url) throw new Error("WEFT_B2B_API_URL is not configured");
+  if (!url) {
+    console.error("event feedback gateway failed", "missing-base-url");
+    throw new EventFeedbackGatewayError("unavailable", "WEFT_B2B_API_URL is not configured");
+  }
   return url;
 }
 
 async function call(path: string, init: RequestInit, fetchImpl: typeof fetch): Promise<Response> {
+  // Resolved outside the try: inside it, a configuration failure would be
+  // caught and logged as a network error, which is a lie to whoever is reading
+  // the logs at the time.
+  const url = `${baseUrl()}${path}`;
   try {
-    return await fetchImpl(`${baseUrl()}${path}`, {
+    return await fetchImpl(url, {
       ...init,
       cache: "no-store",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
