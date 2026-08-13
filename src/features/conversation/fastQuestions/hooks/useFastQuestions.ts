@@ -44,8 +44,10 @@ export type UseFastQuestionsResult = {
   session: FastQuestionsSession | null;
   viewState: FastQuestionsViewState | null;
   isLoading: boolean;
+  isStarting: boolean;
   error: unknown;
   retry(): void;
+  startPhase(): void;
   advanceParticipantTurn(): Promise<void>;
 };
 
@@ -81,6 +83,11 @@ export function useFastQuestions(
   // a new one is scheduled and on unmount, so timers never leak or stack.
   useEffect(() => {
     if (!session) return;
+    // A waiting session has no turn to visualise — the lobby owns that screen.
+    // Leaving `viewState` null here is what makes the first resolved state
+    // after Start a real `round_intro` rather than a replay of one that
+    // already settled while the group was still gathering.
+    if (session.status === "waiting") return;
 
     const previous = previousSessionRef.current;
     const next = resolveViewState(previous, session);
@@ -108,24 +115,26 @@ export function useFastQuestions(
     [],
   );
 
-  // Idempotently start the phase whenever the canonical session is `waiting`.
-  // The in-flight ref prevents double-firing while the request is pending;
-  // once the cache is replaced with a non-waiting session this effect's
-  // dependency (`session`) changes identity and the guard body no-ops.
+  // Start is a deliberate tap, never an effect. The backend stamps
+  // `started_at` on the group's row and runs every turn clock from it
+  // (app/services/icebreaker_runner.py), so whoever fires this starts the
+  // round for the whole table — firing it on mount would burn turns while
+  // people are still walking over. Phones that did not tap follow along
+  // because `useConversationSession` polls a non-active phase-1 session.
   //
-  // `startAttempt` exists solely so `retry()` can force one more attempt: if
-  // `startFastQuestionsPhase` fails and a later refetch happens to return a
-  // structurally identical `waiting` payload, TanStack Query's structural
-  // sharing keeps `session` referentially the same, so the effect would
-  // otherwise never re-run on its own.
+  // Five phones tapping at once is already safe on the server — the endpoint
+  // is idempotent and the row is locked. This ref only stops one phone firing
+  // a second request before the first has answered.
   const startInFlightRef = useRef(false);
-  const [startAttempt, setStartAttempt] = useState(0);
+  const [isStarting, setIsStarting] = useState(false);
   const [startError, setStartError] = useState<unknown>(null);
-  useEffect(() => {
+
+  function startPhase(): void {
     if (!session || session.status !== "waiting") return;
     if (startInFlightRef.current) return;
 
     startInFlightRef.current = true;
+    setIsStarting(true);
     api
       .startFastQuestionsPhase(eventId)
       .then((result) => {
@@ -137,9 +146,9 @@ export function useFastQuestions(
       })
       .finally(() => {
         startInFlightRef.current = false;
+        setIsStarting(false);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, eventId, startAttempt]);
+  }
 
   async function advanceParticipantTurn(): Promise<void> {
     if (!session) return;
@@ -152,7 +161,6 @@ export function useFastQuestions(
 
   function retry(): void {
     setStartError(null);
-    setStartAttempt((attempt) => attempt + 1);
     void query.refetch();
   }
 
@@ -160,8 +168,10 @@ export function useFastQuestions(
     session,
     viewState,
     isLoading: query.isLoading,
+    isStarting,
     error: query.error ?? startError,
     retry,
+    startPhase,
     advanceParticipantTurn,
   };
 }

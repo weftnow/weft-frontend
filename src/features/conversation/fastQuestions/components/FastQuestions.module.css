@@ -23,6 +23,7 @@
 
 .mark,
 .completionMark,
+.readyMark,
 .noticeMark {
   width: clamp(2.125rem, 9vw, 2.625rem);
   height: clamp(2.125rem, 9vw, 2.625rem);
@@ -195,6 +196,7 @@
 }
 
 .completion,
+.ready,
 .notice {
   display: flex;
   width: min(100%, 29rem);
@@ -212,6 +214,7 @@
 }
 
 .completion h1,
+.ready h1,
 .notice p {
   max-width: 20rem;
   margin: 0;
@@ -223,6 +226,7 @@
 }
 
 .completion p,
+.ready p,
 .notice p {
   color: rgb(18 18 18 / 55%);
   font-size: 0.95rem;
@@ -230,6 +234,7 @@
 }
 
 .continueButton,
+.startButton,
 .retryButton {
   min-height: 2.75rem;
   border: 0;
@@ -244,9 +249,16 @@
 }
 
 .continueButton:focus-visible,
+.startButton:focus-visible,
 .retryButton:focus-visible {
   outline: 3px solid var(--color-signal);
   outline-offset: 3px;
+}
+
+/* The tap is in flight, not rejected — dim it without moving it. */
+.startButton:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 @supports (height: 100dvh) {
