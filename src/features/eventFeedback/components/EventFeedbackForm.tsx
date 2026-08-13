@@ -15,7 +15,7 @@ export type EventFeedbackFormProps = {
   /** Set when a submission failed and the answers are still on screen. */
   failed: boolean;
   /** Empty hides the meet-again question — an unpublished group has no names. */
-  tablemates: { displayName: string }[];
+  tablemates: { displayName: string; ref: string }[];
   onSubmit: (answers: EventFeedbackSubmission) => void;
 };
 
@@ -48,16 +48,16 @@ export function EventFeedbackForm({
   const [recommendScore, setRecommendScore] = useState<number | null>(null);
   const [rating, setRating] = useState<number | null>(null);
   const [improvement, setImprovement] = useState("");
-  const [meetAgain, setMeetAgain] = useState<string[]>([]);
+  // Keyed by ref, not by name: a table with two Marias has two buttons, and
+  // tapping one must not light up the other.
+  const [meetAgainRefs, setMeetAgainRefs] = useState<string[]>([]);
 
   const complete =
     recommendScore !== null && rating !== null && improvement.trim().length > 0;
 
-  function toggleMeetAgain(displayName: string) {
-    setMeetAgain((current) =>
-      current.includes(displayName)
-        ? current.filter((name) => name !== displayName)
-        : [...current, displayName],
+  function toggleMeetAgain(ref: string) {
+    setMeetAgainRefs((current) =>
+      current.includes(ref) ? current.filter((value) => value !== ref) : [...current, ref],
     );
   }
 
@@ -68,7 +68,7 @@ export function EventFeedbackForm({
       recommendScore: recommendScore as number,
       rating: rating as number,
       improvement: improvement.trim(),
-      meetAgain,
+      meetAgainRefs,
     });
   }
 
@@ -136,14 +136,14 @@ export function EventFeedbackForm({
             <p className={styles.hint}>{messages.meetAgainHint}</p>
             <div className={styles.people}>
               {tablemates.map((mate) => {
-                const selected = meetAgain.includes(mate.displayName);
+                const selected = meetAgainRefs.includes(mate.ref);
                 return (
                   <button
                     aria-label={messages.meetAgainOption(mate.displayName, selected)}
                     aria-pressed={selected}
                     className={styles.person}
-                    key={mate.displayName}
-                    onClick={() => toggleMeetAgain(mate.displayName)}
+                    key={mate.ref}
+                    onClick={() => toggleMeetAgain(mate.ref)}
                     type="button"
                   >
                     {mate.displayName}

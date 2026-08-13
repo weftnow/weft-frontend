@@ -36,7 +36,7 @@ export function EventFeedbackScreen({
   const [screen, setScreen] = useState<Screen>("form");
   const [submitting, setSubmitting] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [tablemates, setTablemates] = useState<{ displayName: string }[]>([]);
+  const [tablemates, setTablemates] = useState<{ displayName: string; ref: string }[]>([]);
   const inFlight = useRef(false);
 
   useEffect(() => {

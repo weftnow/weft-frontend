@@ -7,7 +7,7 @@ const ANSWERS = {
   recommendScore: 4,
   rating: 5,
   improvement: "More time at the end.",
-  meetAgain: [] as string[],
+  meetAgainRefs: [] as string[],
 };
 
 const originalFetch = globalThis.fetch;
