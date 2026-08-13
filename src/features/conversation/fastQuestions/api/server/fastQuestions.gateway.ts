@@ -15,7 +15,7 @@ const REQUEST_TIMEOUT_MS = 8_000;
  */
 
 export class FastQuestionsGatewayError extends Error {
-  readonly code: "no_attendee_token" | "no_session" | "unavailable";
+  readonly code: "no_attendee_token" | "no_session" | "too_late" | "unavailable";
 
   constructor(code: FastQuestionsGatewayError["code"], message: string) {
     super(message);
@@ -69,6 +69,19 @@ async function call(
   // show yet" contract, not an error condition on the wire.
   if (response.status === 204 || response.status === 404) {
     throw new FastQuestionsGatewayError("no_session", "No icebreaker session for this group");
+  }
+
+  // A 409 the backend labels `event_already_started` is the same "no session"
+  // shape with the opposite meaning: the tables are out and this guest is not
+  // at one, so polling will never produce a session. Told apart here rather
+  // than upstream, because the wire is the only place the two differ.
+  if (response.status === 409) {
+    const body: unknown = await response.json().catch(() => null);
+    if ((body as { code?: unknown } | null)?.code === "event_already_started") {
+      throw new FastQuestionsGatewayError("too_late", "This guest was never seated");
+    }
+    console.error("fast questions gateway failed", response.status);
+    throw new FastQuestionsGatewayError("unavailable", "Icebreaker backend rejected the request");
   }
 
   if (!response.ok) {

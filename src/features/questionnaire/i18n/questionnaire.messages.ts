@@ -50,8 +50,10 @@ export const questionnaireMessages = {
     invalidLinkBody: "Ask the event organizer for a new link or QR code.",
     notFoundTitle: "We couldn’t find this event",
     notFoundBody: "Check the link with the event organizer.",
-    notAcceptingTitle: "This event isn’t accepting answers right now",
-    notAcceptingBody: "Try again in a moment or ask the event organizer.",
+    // The form closes when the host locks the room and does not reopen, so
+    // this cannot say "try again in a moment" — there is nothing to wait for.
+    notAcceptingTitle: "The event has already started",
+    notAcceptingBody: "Sign-ups for tonight are closed. Join us early next time!",
     unavailableTitle: "This questionnaire isn’t available right now",
     unavailableBody: "Check the event link or try again in a moment.",
     versionReset: "The questionnaire was updated, so we need to start this draft again.",
@@ -83,8 +85,8 @@ export const questionnaireMessages = {
     invalidLinkBody: "Pide un nuevo enlace o código QR a la organización del evento.",
     notFoundTitle: "No encontramos este evento",
     notFoundBody: "Confirma el enlace con la organización del evento.",
-    notAcceptingTitle: "Este evento no está recibiendo respuestas ahora",
-    notAcceptingBody: "Intenta de nuevo en un momento o consulta con la organización.",
+    notAcceptingTitle: "El evento ya comenzó",
+    notAcceptingBody: "Las inscripciones de esta noche están cerradas. ¡Únete más temprano la próxima vez!",
     unavailableTitle: "Este cuestionario no está disponible ahora",
     unavailableBody: "Revisa el enlace del evento o intenta de nuevo en un momento.",
     versionReset: "El cuestionario cambió, así que necesitamos comenzar este borrador de nuevo.",

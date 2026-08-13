@@ -123,6 +123,34 @@ test("204 means the group has no session", async () => {
   }
 });
 
+test("a guest who was never seated is told so, not told to wait", async () => {
+  // The distinction the 204 above cannot carry: latecomers are not seated, so
+  // this guest has no table and polling will never give them one.
+  const gateway = createFastQuestionsGateway(withToken, async () =>
+    respond({ detail: "the tables for this event are already assigned", code: "event_already_started" }, 409),
+  );
+
+  try {
+    await gateway.get(EVENT_ID);
+    throw new Error("expected a gateway error");
+  } catch (error) {
+    expect((error as FastQuestionsGatewayError).code).toBe("too_late");
+  }
+});
+
+test("a 409 the backend does not label is still just unavailable", async () => {
+  const gateway = createFastQuestionsGateway(withToken, async () =>
+    respond({ detail: "something else entirely" }, 409),
+  );
+
+  try {
+    await gateway.get(EVENT_ID);
+    throw new Error("expected a gateway error");
+  } catch (error) {
+    expect((error as FastQuestionsGatewayError).code).toBe("unavailable");
+  }
+});
+
 test("a network failure surfaces as unavailable, not a crash", async () => {
   const gateway = createFastQuestionsGateway(withToken, async () => {
     throw new Error("boom");

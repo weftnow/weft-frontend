@@ -16,6 +16,9 @@ type Context = { params: Promise<{ eventId: string }> };
  */
 const GATEWAY_STATUS: Record<FastQuestionsGatewayError["code"], number> = {
   no_session: 404,
+  // Not 404: "there is no session yet" and "you are not in this event's
+  // seating" are different answers, and only one of them is worth retrying.
+  too_late: 409,
   no_attendee_token: 401,
   unavailable: 503,
 };
