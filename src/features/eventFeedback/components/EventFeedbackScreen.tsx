@@ -10,7 +10,12 @@ import { EventFeedbackForm } from "./EventFeedbackForm";
 import { EventFeedbackThanks } from "./EventFeedbackThanks";
 
 export type EventFeedbackScreenProps = {
-  eventId: string;
+  /**
+   * The form token. Named for what it does rather than for an event: it is what
+   * the server trades for the attendee token that makes a submission
+   * attributable, and an event id cannot be traded for one.
+   */
+  sessionKey: string;
   language: ConversationLanguage;
   api?: EventFeedbackApi;
 };
@@ -30,8 +35,8 @@ type Screen = "form" | "thanks" | "no_link" | "unavailable";
  */
 export function EventFeedbackScreen({
   api = defaultApi,
-  eventId,
   language,
+  sessionKey,
 }: EventFeedbackScreenProps) {
   const [screen, setScreen] = useState<Screen>("form");
   const [submitting, setSubmitting] = useState(false);
@@ -41,7 +46,7 @@ export function EventFeedbackScreen({
 
   useEffect(() => {
     let cancelled = false;
-    void api.getStatus(eventId).then((result) => {
+    void api.getStatus(sessionKey).then((result) => {
       if (cancelled) return;
       if ("notConfigured" in result) {
         setScreen("unavailable");
@@ -54,7 +59,7 @@ export function EventFeedbackScreen({
     return () => {
       cancelled = true;
     };
-  }, [api, eventId]);
+  }, [api, sessionKey]);
 
   function handleSubmit(answers: EventFeedbackSubmission) {
     // Stops one phone firing a second request before the first has answered.
@@ -65,7 +70,7 @@ export function EventFeedbackScreen({
     setFailed(false);
 
     void api
-      .submit(eventId, answers)
+      .submit(sessionKey, answers)
       .then((outcome) => {
         if (outcome.status === "recorded" || outcome.status === "already_submitted") {
           setScreen("thanks");
