@@ -13,7 +13,12 @@ export type SharedChallengeCompleteProps = {
   /** The backend's closing line, already in the session's language. */
   closingLine: string | null;
   language: ConversationLanguage;
-  eventId: string;
+  /**
+   * Whatever keyed this conversation — the form token, on the link a guest
+   * actually holds. Passed straight through to the feedback screen, which
+   * needs the same key to resolve the same session.
+   */
+  sessionKey: string;
 };
 
 /**
@@ -29,8 +34,8 @@ export type SharedChallengeCompleteProps = {
  */
 export function SharedChallengeComplete({
   closingLine,
-  eventId,
   language,
+  sessionKey,
 }: SharedChallengeCompleteProps) {
   const messages = messagesFor(language);
   const feedbackMessages = eventFeedbackMessagesFor(language);
@@ -44,7 +49,7 @@ export function SharedChallengeComplete({
         </h1>
         <Link
           className={styles.feedbackLink}
-          href={`/e/${eventId}/feedback?lang=${language}`}
+          href={`/questionnaire/${encodeURIComponent(sessionKey)}/feedback?lang=${language}`}
         >
           {feedbackMessages.heading}
         </Link>

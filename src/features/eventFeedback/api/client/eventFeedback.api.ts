@@ -25,12 +25,18 @@ export type EventFeedbackStatusResult =
   | { notConfigured: true };
 
 export type EventFeedbackApi = {
-  getStatus(eventId: string): Promise<EventFeedbackStatusResult>;
-  submit(eventId: string, answers: EventFeedbackSubmission): Promise<EventFeedbackOutcome>;
+  getStatus(sessionKey: string): Promise<EventFeedbackStatusResult>;
+  submit(sessionKey: string, answers: EventFeedbackSubmission): Promise<EventFeedbackOutcome>;
 };
 
-function path(eventId: string): string {
-  return `/api/events/${eventId}/feedback`;
+/**
+ * The session key is the form token, not the event id: it is the only thing the
+ * server can trade for an attendee token at `/resume`. An event id names the
+ * evening but nobody in it, so a route keyed by one could never say whose
+ * feedback had just arrived — and the one that was could not save it.
+ */
+function path(sessionKey: string): string {
+  return `/api/questionnaire/${encodeURIComponent(sessionKey)}/feedback`;
 }
 
 async function codeOf(response: Response): Promise<string> {
@@ -40,10 +46,10 @@ async function codeOf(response: Response): Promise<string> {
 }
 
 export const eventFeedbackApi: EventFeedbackApi = {
-  async getStatus(eventId) {
+  async getStatus(sessionKey) {
     let response: Response;
     try {
-      response = await fetch(path(eventId), {
+      response = await fetch(path(sessionKey), {
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
     } catch {
@@ -67,10 +73,10 @@ export const eventFeedbackApi: EventFeedbackApi = {
     return parsed.success ? parsed.data : { unavailable: true };
   },
 
-  async submit(eventId, answers) {
+  async submit(sessionKey, answers) {
     let response: Response;
     try {
-      response = await fetch(path(eventId), {
+      response = await fetch(path(sessionKey), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(answers),
