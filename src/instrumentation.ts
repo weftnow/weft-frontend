@@ -17,22 +17,10 @@ export async function register() {
   // that says nothing about the deployed environment.
   if (process.env.NEXT_PHASE === "phase-production-build") return;
 
-  const { assertConversationConfigured } = await import(
-    "@/features/conversation/fastQuestions/api/server/fastQuestions.source"
-  );
+  // Dynamic, and it has to stay that way. The check kills the process on a bad
+  // configuration, and naming a Node-only API in this file's source fails the
+  // Edge build of this same hook -- see `src/lib/startupCheck.ts`.
+  const { assertConfiguredOrExit } = await import("@/lib/startupCheck");
 
-  try {
-    assertConversationConfigured(process.env);
-  } catch (error) {
-    console.error(
-      "startup configuration check failed:",
-      error instanceof Error ? error.message : "unknown",
-    );
-    // Exiting rather than rethrowing, which was measured: Next catches the
-    // throw, stops serving, and leaves the process alive. A container that is
-    // up but answers nothing reads as healthy to whatever is watching it, and
-    // silently black-holes traffic. A dead process is the honest signal, and
-    // the one a supervisor knows how to act on.
-    process.exit(1);
-  }
+  assertConfiguredOrExit(process.env);
 }
