@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, useRef, type FormEvent } from "react";
 import {
   organizerAuthClient,
@@ -118,9 +117,6 @@ export function LoginForm({
         <button className={styles.primary} disabled={submitting} type="submit">
           {submitting ? messages.login.submitting : messages.login.submit}
         </button>
-        <p className={styles.accountSwitch}>
-          {messages.login.newPrompt} <Link href="/organizer/register">{messages.login.registerLink}</Link>
-        </p>
       </form>
     </AuthShell>
   );

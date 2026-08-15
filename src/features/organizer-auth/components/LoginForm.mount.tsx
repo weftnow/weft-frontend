@@ -111,6 +111,19 @@ test("login keeps email and password together with password-manager autocomplete
   });
 });
 
+test("login offers no way to sign up", async () => {
+  // Registering stays a backend capability with no front door on the site.
+  // The endpoint still accepts it, so this is the only thing keeping the two
+  // apart -- a link put back here quietly reopens self-service sign-up.
+  await withLogin(async () => {}, async (container) => {
+    const hrefs = Array.from(container.querySelectorAll("a"))
+      .map((link) => link.getAttribute("href"));
+    expect(hrefs).not.toContain("/organizer/register");
+    expect(container.textContent).not.toContain("Create an account");
+    expect(container.textContent).not.toContain("New to Weft?");
+  });
+});
+
 test("valid login submits once and reports authentication", async () => {
   const submitted: LoginRequestDto[] = [];
   let authenticated = 0;

@@ -169,7 +169,10 @@ export const content = {
       { label: "Stories", href: "#stories" },
       { label: "FAQ", href: "#faq" },
     ],
-    cta: "Try it!",
+    // The nav's one button belongs to returning organizers. Attendees reach the
+    // matching demo from the hero's "Try it!", which is the louder ask on a page
+    // written for the people who buy Weft.
+    cta: { label: "Sign in", href: "/organizer/login" },
   },
 
   hero: {
