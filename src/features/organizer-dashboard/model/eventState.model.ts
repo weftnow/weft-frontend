@@ -27,6 +27,18 @@ export function landingTab(state: EventState): DashboardTab {
   return RUNNING.has(state) ? "live" : "overview";
 }
 
+/**
+ * Whether the guest questionnaire is still open, and so whether there is any
+ * point showing the organizer a link to it.
+ *
+ * Only "open" qualifies. Locking is what closes the form — everything after it
+ * has either been matched already or is over, and an invitation to a room that
+ * has stopped admitting people is worse than no invitation at all.
+ */
+export function acceptsResponses(state: EventState): boolean {
+  return state === "open";
+}
+
 export type ReadinessStep = { key: string; done: boolean };
 
 // The night is over and the tables are public. "published" is deliberately

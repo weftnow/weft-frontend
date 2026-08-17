@@ -28,8 +28,22 @@ describe("EventsList", () => {
     expect(html).toContain("closed");
   });
 
-  test("an organizer with no events is told what to do next, not shown a zero", () => {
+  test("an organizer with no events gets the form, not a note about the absence", () => {
+    // The old copy told them to create an event and gave them no way to do it.
     const html = renderToStaticMarkup(<EventsList events={[]} />);
-    expect(html).toContain("Create your first event");
+    expect(html).toContain('name="name"');
+    expect(html).toContain("Create event");
+    expect(html).not.toContain("No events yet");
+  });
+
+  test("an organizer who already has events can still start another", () => {
+    const html = renderToStaticMarkup(
+      <EventsList
+        events={[
+          { id: "e1", name: "Founder Night Bogotá", state: "closed", starts_at: null },
+        ]}
+      />,
+    );
+    expect(html).toContain("New event");
   });
 });

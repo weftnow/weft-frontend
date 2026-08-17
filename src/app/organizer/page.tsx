@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { readOrganizerSession } from "@/features/organizer-auth/api/server/organizerSession";
 import { fetchFromBackend } from "@/features/organizer-dashboard/api/server/dashboard.gateway";
+import { CreateEventForm } from "@/features/organizer-dashboard/components/CreateEventForm";
 import {
   eventListSchema,
   type EventSummaryRow,
@@ -16,12 +17,17 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+/**
+ * An organizer with no events used to land on "No events yet. Create your first
+ * event…" — an instruction the app gave them no way to follow, since nothing in
+ * the frontend called POST /v1/events. The empty state is now the form itself:
+ * there is exactly one thing to do on this screen, so the screen is that thing.
+ */
 export function EventsList({ events }: { events: EventSummaryRow[] }) {
   if (events.length === 0) {
     return (
       <main className={styles.dashboardPlaceholder}>
-        <h1>No events yet</h1>
-        <p>Create your first event to get a form link and a dashboard.</p>
+        <CreateEventForm />
       </main>
     );
   }
@@ -36,6 +42,16 @@ export function EventsList({ events }: { events: EventSummaryRow[] }) {
           </li>
         ))}
       </ul>
+      {/*
+        A <details> rather than a button holding open/closed state: the
+        disclosure is the only interactive thing here, and the native element
+        brings keyboard support and the right screen-reader announcement with
+        it. <summary> names the form, so the form drops its own heading.
+      */}
+      <details className={styles.newEvent}>
+        <summary>New event</summary>
+        <CreateEventForm heading={null} />
+      </details>
     </main>
   );
 }
