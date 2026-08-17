@@ -371,6 +371,44 @@ test("a failed save keeps what was typed", async () => {
   );
 });
 
+test("the zone chip names the zone the boxes are showing, not the stored one", async () => {
+  // The boxes render host-local wall-clock — a datetime-local input cannot hold
+  // anything else — so the chip beside them has to name the host's zone or it
+  // is inviting the organizer to "correct" a time that was never wrong.
+  //
+  // Both halves are derived at runtime rather than written down: a hard-coded
+  // zone would only be asserting where CI happens to sit. The second assertion
+  // is phrased as an equivalence for the same reason — on a machine genuinely
+  // set to America/Bogota the host zone and the stored zone coincide, and the
+  // test has to say "these match exactly when the host is Bogotá" rather than
+  // "these never match", which would be a lie in Bogotá.
+  const hostZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const bodies: EventUpdateBody[] = [];
+  let saved: EventSummaryRow | null = null;
+  await withEditForm(
+    async (_eventId, body) => { bodies.push(body); return STORED; },
+    async (container) => {
+      // The chip is the only span in the form carrying a title.
+      const chip = container.querySelector("span[title]");
+      expect(chip).not.toBe(null);
+      expect(chip!.getAttribute("aria-label")).toBe(hostZone);
+      expect(chip!.getAttribute("title")).toBe(hostZone);
+      expect(chip!.getAttribute("aria-label") === STORED.timezone)
+        .toBe(hostZone === STORED.timezone);
+
+      // Saving without touching either datetime box sends the instant back
+      // exactly as it arrived: the label was wrong, the conversion never was.
+      await act(async () => buttonNamed(container, "Save changes").click());
+      await waitFor(() => saved !== null);
+      expect(new Date(bodies[0]!.starts_at!).getTime())
+        .toBe(new Date("2026-09-01T17:00:00Z").getTime());
+      // And the event stays filed under its own zone rather than the viewer's.
+      expect(bodies[0]?.timezone).toBe("America/Bogota");
+    },
+    (event) => { saved = event; },
+  );
+});
+
 test("an event that locked mid-edit says so, rather than reading as a failure", async () => {
   await withEditForm(
     async () => { throw new DashboardClientError("conflict"); },

@@ -66,8 +66,15 @@ function toInstant(value: string): string | null {
 /**
  * The reverse: an ISO instant as the wall-clock string the box wants.
  *
- * Reads the host's zone, so it is only ever called from an effect — see the
- * seeding effect below.
+ * A `datetime-local` box has no zone of its own — it can only ever hold a bare
+ * wall-clock reading — so the only honest one to put in it is the viewer's,
+ * which is what every getter here returns. That is also why the chip beside
+ * the boxes has to name the viewer's zone and not the event's stored one: the
+ * chip is a label for what is in the boxes.
+ *
+ * Reading the host's zone is something the server cannot do meaningfully, so
+ * the callers below reach this through useSyncExternalStore getSnapshot
+ * callbacks whose server snapshot is empty.
  */
 function toLocalInput(value: string | null | undefined): string {
   if (!value) return "";
@@ -136,25 +143,28 @@ export function CreateEventForm({
 }) {
   const editing = mode === "edit";
 
-  // The IANA zone these times mean. Not a control — there is nowhere sensible
-  // to put a zone picker on this screen and every organizer we have runs rooms
-  // in the city they are sitting in — so it is derived, never held in state. A
-  // stored zone wins over the machine's, or an event created in Bogotá would
-  // silently move the first time it was edited from a laptop in Madrid.
+  // Two zones, and they are not the same question. `hostZone` is where the
+  // person typing is sitting, which is the only zone the datetime boxes can be
+  // showing. `eventZone` is the zone the event is filed under — derived, never
+  // held in state, because there is nowhere sensible to put a zone picker on
+  // this screen and every organizer we have runs rooms in the city they are in.
+  // A stored zone wins there, or an event created in Bogotá would silently be
+  // refiled the first time it was edited from a laptop in Madrid. Only
+  // `eventZone` goes in the request body; only `hostZone` is ever shown.
   const hostZone = useSyncExternalStore(
     NEVER_CHANGES,
     () => Intl.DateTimeFormat().resolvedOptions().timeZone ?? "",
     EMPTY_ON_SERVER,
   );
-  const timezone = event?.timezone ?? hostZone;
-  // The chip's text goes through the same snapshot rather than being rendered
-  // straight from `timezone`: the abbreviation comes out of the locale data of
+  const eventZone = event?.timezone ?? hostZone;
+  // The chip's text goes through its own snapshot rather than being rendered
+  // straight from `hostZone`: the abbreviation comes out of the locale data of
   // whoever formats it, and the server's ICU build is not the browser's. An
   // empty server snapshot means there is nothing there to mismatch, and the
   // chip is a reminder for the person typing, so the client is where it belongs.
   const zoneChip = useSyncExternalStore(
     NEVER_CHANGES,
-    () => (timezone ? zoneLabel(timezone) : ""),
+    () => (hostZone ? zoneLabel(hostZone) : ""),
     EMPTY_ON_SERVER,
   );
 
@@ -223,7 +233,7 @@ export function CreateEventForm({
     const detail = {
       starts_at: toInstant(startsAt),
       ends_at: toInstant(endsAt),
-      timezone: timezone || null,
+      timezone: eventZone || null,
       location: location.trim() || null,
       description: description.trim() || null,
       // "" is unlimited, not a room with no seats in it.
@@ -330,11 +340,15 @@ export function CreateEventForm({
               type="datetime-local"
               value={endsAt}
             />
+            {/* Names `hostZone`, not the event's: the boxes to its left are
+                showing the viewer's wall-clock, and a chip that named the
+                stored zone would be inviting the viewer to "correct" a time
+                that was never wrong. */}
             {zoneChip ? (
               <span
-                aria-label={timezone}
+                aria-label={hostZone}
                 className={styles.createZone}
-                title={timezone}
+                title={hostZone}
               >
                 {zoneChip}
               </span>
