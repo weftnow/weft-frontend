@@ -1,9 +1,15 @@
 import { fetchFromBackend } from "@/features/organizer-dashboard/api/server/dashboard.gateway";
+import { loadEvent } from "@/features/organizer-dashboard/api/server/event.server";
 import { requireTabContext } from "@/features/organizer-dashboard/api/server/tabPage.server";
 import { IntentChart } from "@/features/organizer-dashboard/components/IntentChart";
 import { OverviewCards } from "@/features/organizer-dashboard/components/OverviewCards";
+import { ShareFormLink } from "@/features/organizer-dashboard/components/ShareFormLink";
 import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
-import { intentSchema } from "@/features/organizer-dashboard/schemas/dashboard.schema";
+import { acceptsResponses } from "@/features/organizer-dashboard/model/eventState.model";
+import {
+  eventSummaryRowSchema,
+  intentSchema,
+} from "@/features/organizer-dashboard/schemas/dashboard.schema";
 import styles from "@/features/organizer-dashboard/components/Dashboard.module.css";
 
 export const dynamic = "force-dynamic";
@@ -35,9 +41,21 @@ export default async function OverviewPage({
     intentOutcome.status === "ok" ? intentSchema.safeParse(intentOutcome.data) : null;
   const intent = parsedIntent?.success ? parsedIntent.data : null;
 
+  // Free: loadEvent is cache()d and the layout has already called it this
+  // render, so reading the event here to get its form token costs no request.
+  const eventOutcome = await loadEvent(eventId, token);
+  const parsedEvent =
+    eventOutcome.status === "ok"
+      ? eventSummaryRowSchema.safeParse(eventOutcome.data)
+      : null;
+  const event = parsedEvent?.success ? parsedEvent.data : null;
+
   return (
     <>
       <TabBar eventId={eventId} active="overview" plan={plan} />
+      {event?.form_token && acceptsResponses(event.state) ? (
+        <ShareFormLink formToken={event.form_token} />
+      ) : null}
       {summary ? (
         <OverviewCards summary={summary} />
       ) : (

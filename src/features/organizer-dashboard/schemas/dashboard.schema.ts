@@ -17,11 +17,41 @@ export const eventSummaryRowSchema = z.object({
   // The backend's EventOut already returns this; the Live tab's failure
   // banner is its only consumer, so it stays optional for the list views.
   partition_error: z.string().nullable().optional(),
+  // How an organizer invites anyone: the guest questionnaire lives at
+  // /questionnaire/{form_token}. Optional for the same reason as the line
+  // above — a field only one view reads must not be able to blank a page by
+  // going missing.
+  form_token: z.string().optional(),
 });
 
 export const eventListSchema = z.array(eventSummaryRowSchema);
 
 export type EventSummaryRow = z.infer<typeof eventSummaryRowSchema>;
+
+/**
+ * What the create-event form sends, mirroring the backend's EventCreate.
+ *
+ * Duplicated on purpose. The browser rejecting exactly what the server would
+ * means an empty name never costs a round trip, and it lets the client treat
+ * any rejection that gets past this as our bug rather than the organizer's
+ * mistake. The price is drift, which the tests beside this file pin down.
+ *
+ * `lock_rule` is part of EventCreate and deliberately absent here: it is a
+ * matching-engine knob with no organizer-facing meaning, and the backend
+ * defaults it.
+ */
+export const eventCreateSchema = z.object({
+  // Trim before the length checks, or a name of three spaces passes min(1) and
+  // the organizer ends up with an event that renders as nothing.
+  name: z.string().trim().min(1).max(200),
+  starts_at: z.string().nullable().default(null),
+  // 4-6 matches the backend's Field(ge=4, le=6). The matcher is built around
+  // tables of roughly five; outside that range it has nothing sensible to do.
+  group_size_target: z.number().int().min(4).max(6).default(5),
+});
+
+export type EventCreateRequest = z.input<typeof eventCreateSchema>;
+export type EventCreateBody = z.output<typeof eventCreateSchema>;
 
 export const summarySchema = z.object({
   plan: z.enum(["free", "pro"]),

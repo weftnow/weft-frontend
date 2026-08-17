@@ -1,5 +1,19 @@
 import { describe, expect, test } from "bun:test";
-import { landingTab, readiness } from "./eventState.model";
+import { acceptsResponses, landingTab, readiness } from "./eventState.model";
+
+describe("acceptsResponses", () => {
+  test("an open event is the only one still worth sharing a link for", () => {
+    expect(acceptsResponses("open")).toBe(true);
+  });
+
+  test("everything past the lock has stopped taking submissions", () => {
+    // "Share this with your guests" on an event that already ran is an
+    // instruction that no longer works — the form turns them away.
+    for (const state of ["locked", "published", "live", "closed", "learned"] as const) {
+      expect(acceptsResponses(state)).toBe(false);
+    }
+  });
+});
 
 describe("landingTab", () => {
   test("a running event opens on Live, because that is the screen in use", () => {

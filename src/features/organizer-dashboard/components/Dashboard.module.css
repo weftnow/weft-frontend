@@ -263,3 +263,177 @@
   opacity: 0.5;
   text-decoration: line-through;
 }
+
+/* Create-event form ------------------------------------------------------- */
+
+.createForm {
+  display: grid;
+  width: 100%;
+  max-width: 26rem;
+  gap: 1.1rem;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.createHeading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  line-height: 1.15;
+}
+
+.createLabel {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.createOptional {
+  color: rgb(18 18 18 / 45%);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 400;
+}
+
+.createField {
+  width: 100%;
+  min-height: 3.1rem;
+  border: 1px solid var(--hairline, #e7e2dc);
+  border-radius: 0.8rem;
+  background: rgb(255 255 255 / 70%);
+  padding: 0.75rem 0.95rem;
+  color: var(--color-ink);
+  font-size: 1rem;
+}
+
+.createField:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: 2px;
+}
+
+.createField:disabled { opacity: 0.55; }
+
+.createSizes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.createSizes legend {
+  padding: 0 0 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* The radio itself is hidden from sight but not from the accessibility tree or
+   the keyboard: :focus-visible and :checked below are driven by the real input,
+   so arrow-key navigation and screen-reader announcements keep working. */
+.createSize {
+  cursor: pointer;
+  border: 1px solid var(--hairline, #e7e2dc);
+  border-radius: 999px;
+  padding: 0.55rem 1.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+}
+
+.createSize input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.createSize:has(input:checked) {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.createSize:has(input:focus-visible) {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: 2px;
+}
+
+.createHint {
+  flex-basis: 100%;
+  margin: 0.2rem 0 0;
+  color: rgb(18 18 18 / 50%);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.createError {
+  margin: 0;
+  color: #c84419;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.primary {
+  min-height: 3.35rem;
+  border-radius: 999px;
+  background: var(--color-ember);
+  padding: 0.85rem 1.7rem;
+  color: var(--color-paper);
+  font-weight: 700;
+}
+
+.primary:active { transform: scale(0.98); }
+.primary:disabled { opacity: 0.5; }
+
+/* Share the guest form ---------------------------------------------------- */
+
+.shareCard {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.shareCard h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.shareRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* min-width: 0 lets a long token wrap instead of forcing the card wider than
+   the viewport — the URL is the one thing on this page nobody can shorten. */
+.shareUrl {
+  min-width: 0;
+  flex: 1 1 16rem;
+  overflow-wrap: anywhere;
+  border-radius: 0.6rem;
+  background: rgb(18 18 18 / 4%);
+  padding: 0.6rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.shareCopy {
+  min-height: 2.7rem;
+  border: 1px solid var(--color-ink);
+  border-radius: 999px;
+  padding: 0.5rem 1.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.shareCopy:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: 2px;
+}

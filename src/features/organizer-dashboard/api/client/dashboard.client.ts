@@ -1,4 +1,5 @@
 import type { GroupView } from "../../components/RoomMap";
+import type { EventCreateBody, EventSummaryRow } from "../../schemas/dashboard.schema";
 
 const REQUEST_TIMEOUT_MS = 8_000;
 
@@ -45,5 +46,21 @@ export function fetchGroups(eventId: string): Promise<GroupView[]> {
 export function lockEvent(eventId: string): Promise<{ status: string }> {
   return request<{ status: string }>(`/api/organizer/events/${eventId}/lock`, {
     method: "POST",
+  });
+}
+
+/**
+ * Create an event and get it back, form token and all.
+ *
+ * No `validation` error code, deliberately. eventCreateSchema applies the same
+ * rules the backend does before this is ever called, so a rejection that gets
+ * this far means the two have drifted — our bug, not something to explain to
+ * the organizer in a message of its own. It joins the "unavailable" story.
+ */
+export function createEvent(body: EventCreateBody): Promise<EventSummaryRow> {
+  return request<EventSummaryRow>("/api/organizer/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
   });
 }
