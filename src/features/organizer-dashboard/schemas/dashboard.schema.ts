@@ -98,7 +98,15 @@ export const eventUpdateSchema = z.object({
   location: z.string().trim().max(300).nullable().optional(),
   description: z.string().trim().max(5_000).nullable().optional(),
   capacity: z.number().int().min(1).nullable().optional(),
-});
+}).refine(
+  // Mirrors eventCreateSchema's rule — the backend now enforces this on both
+  // POST and PATCH (app/schemas/events.py), and the edit form sends both
+  // dates together, so the browser can catch the same backwards range before
+  // it costs a round trip.
+  (value) => !value.starts_at || !value.ends_at
+    || new Date(value.ends_at) > new Date(value.starts_at),
+  { message: "ends_at must be after starts_at", path: ["ends_at"] },
+);
 
 export type EventUpdateBody = z.output<typeof eventUpdateSchema>;
 
