@@ -934,6 +934,11 @@
 
 .secondaryAction svg { width: 0.95rem; height: 0.95rem; flex: none; }
 
+/* EventDetailsCard's "Edit event" / "Cancel" sit directly in the card rather
+   than inside .actionRow — the card holds a single action, not a pair — so it
+   still needs its own space above the copy or the form that precedes it. */
+.card > .secondaryAction { margin-top: 1rem; }
+
 /* Buttons sit on their own line under the copy that explains them, and the
    confirm/cancel pair wraps rather than squeezing inside a `.minor` card. */
 .actionRow {

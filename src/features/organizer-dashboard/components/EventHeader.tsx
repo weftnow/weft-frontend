@@ -16,14 +16,23 @@ export function EventHeader({
   name,
   state,
   startsAt,
+  endsAt,
+  location,
   submitted,
 }: {
   name: string;
   state: EventState | null;
   startsAt: string | null;
+  endsAt: string | null;
+  location: string | null;
   submitted: number | null;
 }) {
-  const date = formatEventDate(startsAt);
+  const start = formatEventDate(startsAt);
+  const end = formatEventDate(endsAt);
+  // One phrase, not two dates: the end only earns its own mention when it
+  // actually differs from the start, so a same-day event still reads as one
+  // date rather than the same day twice.
+  const date = start && end && end !== start ? `${start} – ${end}` : start;
   // Zero responses is worth saying out loud — it is the whole story of a new
   // event — so this is a null check, not a truthiness check.
   const responses =
@@ -46,9 +55,11 @@ export function EventHeader({
         ) : null}
       </div>
 
-      {date || responses ? (
+      {date || location || responses ? (
         <p className={styles.eventMeta}>
           {date ? <span>{date}</span> : null}
+          {/* An absent location renders nothing at all — no "Location: —". */}
+          {location ? <span>{location}</span> : null}
           {responses ? <span>{responses}</span> : null}
         </p>
       ) : null}

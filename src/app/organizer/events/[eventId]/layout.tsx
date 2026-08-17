@@ -49,6 +49,8 @@ export default async function EventLayout({
   return (
     <DashboardShell>
       <EventHeader
+        endsAt={event?.success ? event.data.ends_at ?? null : null}
+        location={event?.success ? event.data.location ?? null : null}
         name={event?.success ? event.data.name : "Event"}
         startsAt={event?.success ? event.data.starts_at : null}
         state={event?.success ? event.data.state : null}
