@@ -1,52 +1,16 @@
-"use client";
-
-import { useState } from "react";
 import type { EventSummaryRow } from "../schemas/dashboard.schema";
-import { CreateEventForm } from "./CreateEventForm";
 import styles from "./Dashboard.module.css";
 
 /**
- * What the organizer typed, and the way back in to change it.
+ * What the organizer typed, read back to them.
  *
- * A client component rather than markup in overview/page.tsx because that page
- * is an async server component and this needs the toggle state. Editing is
- * revealed inline rather than routed to /edit, matching how /organizer already
- * reveals the create form.
- *
- * `editable` is decided by the caller from the event's state, not here: once an
- * event locks the backend answers 409, and offering a button that cannot work
- * is worse than offering none. CreateEventForm still handles the 409 for the
- * case where the event locks while this page sits open.
+ * This used to hold the way in to changing it too — a button that swapped the
+ * card's contents for the whole two-pane CreateEventForm, inside one column of
+ * a grid, with the rest of the tab still on screen around it. Editing now has
+ * a screen of its own and one entry point, in the event header, so the card is
+ * only what it displays. No state left, so no "use client" either.
  */
-export function EventDetailsCard({
-  event,
-  editable,
-}: {
-  event: EventSummaryRow;
-  editable: boolean;
-}) {
-  const [editing, setEditing] = useState(false);
-
-  if (editing) {
-    return (
-      <section className={`${styles.card} ${styles.wide}`}>
-        <CreateEventForm
-          event={event}
-          heading="Edit event"
-          mode="edit"
-          onCreated={() => window.location.reload()}
-        />
-        <button
-          className={styles.secondaryAction}
-          onClick={() => setEditing(false)}
-          type="button"
-        >
-          Cancel
-        </button>
-      </section>
-    );
-  }
-
+export function EventDetailsCard({ event }: { event: EventSummaryRow }) {
   return (
     <section className={`${styles.card} ${styles.wide}`}>
       <h2>Event details</h2>
@@ -58,15 +22,6 @@ export function EventDetailsCard({
             empty state — so it prints rather than being hidden. */}
         {event.capacity ? `${event.capacity} seats` : "Unlimited seats"}
       </p>
-      {editable ? (
-        <button
-          className={styles.secondaryAction}
-          onClick={() => setEditing(true)}
-          type="button"
-        >
-          Edit event
-        </button>
-      ) : null}
     </section>
   );
 }
