@@ -73,3 +73,26 @@ export const attendeeRowSchema = z.object({
 export const attendeeListSchema = z.array(attendeeRowSchema);
 
 export type AttendeeRow = z.infer<typeof attendeeRowSchema>;
+
+// Mutual reconnects. `responders` rides along as the denominator: the count on
+// its own invites a percentage, and the honest phrasing is "31 of the 34 people
+// who answered" rather than a percentage of a number nobody stated.
+export const outcomesSchema = z.object({
+  responders: z.number(),
+  selected_someone: z.number(),
+  mutual_pairs: z.number(),
+  per_table: z.array(z.object({ index: z.number(), mutual: z.number() })),
+});
+
+export type DashboardOutcomes = z.infer<typeof outcomesSchema>;
+
+// Bands, never a score. The backend converts the raw match figure into
+// strong/good/mixed before it leaves the server, because a decimal on this
+// screen would imply a precision the model does not have.
+export const bonusIntroListSchema = z.array(
+  z.object({
+    person_a: z.string(),
+    person_b: z.string(),
+    strength: z.enum(["strong", "good", "mixed"]),
+  }),
+);
