@@ -128,3 +128,60 @@
     grid-column: 1 / -1;
   }
 }
+
+.roomMap {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+}
+
+.tableCard {
+  border: 1px solid var(--hairline, #e7e2dc);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+.seats {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.seat {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* An outline is an empty seat, a filled dot is someone who found their table.
+   Never colour alone — the same distinction has to survive a projector. */
+.dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  border: 1.5px solid currentColor;
+}
+
+.seat[data-confirmed="true"] .dot {
+  background: currentColor;
+}
+
+.seatName {
+  font-size: 0.85rem;
+}
+
+.tableIndex {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.alert {
+  border-color: #c0392b;
+}
