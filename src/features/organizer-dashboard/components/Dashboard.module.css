@@ -219,6 +219,37 @@
 
 .back svg { width: 1.1rem; height: 1.1rem; }
 
+/* The header's third grid column. Quieter than .newEventButton on the events
+   list: creating an event is that screen's whole purpose, editing one is not,
+   so this borrows .secondaryAction's outline rather than the ink fill. No
+   self-alignment — the grid's `align-items: start` already sets it against
+   the title. */
+.headerAction {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border: 1px solid var(--dash-line-firm);
+  border-radius: 999px;
+  padding: 0.5rem 1.15rem;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.headerAction:hover {
+  border-color: var(--color-ink);
+  background: rgb(18 18 18 / 3%);
+}
+
+.headerAction:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: 2px;
+}
+
 .eventTitleRow {
   display: flex;
   min-width: 0;
