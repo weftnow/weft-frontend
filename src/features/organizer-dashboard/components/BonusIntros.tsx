@@ -34,7 +34,8 @@ export function BonusIntros({ pairs }: { pairs: BonusIntroPair[] }) {
     <section className={`${styles.card} ${styles.wide}`}>
       <h2>Introduce these people</h2>
       <p className={styles.caption}>
-        Pairs who scored well but could not sit together.
+        Pairs who scored well but could not sit together. Ticking only marks
+        your place in the list — it is not saved.
       </p>
       <ul className={styles.checklist}>
         {pairs.map((pair, index) => (
@@ -54,6 +55,14 @@ export function BonusIntros({ pairs }: { pairs: BonusIntroPair[] }) {
               />
               <span>
                 {pair.person_a} &amp; {pair.person_b}
+              </span>
+              {/*
+                The band is the reason a pair is on this list at all, so it
+                belongs on the row — but as a quiet tag at the end, not as a
+                second thing competing with the two names.
+              */}
+              <span className={styles.strength} data-strength={pair.strength}>
+                {pair.strength}
               </span>
             </label>
           </li>

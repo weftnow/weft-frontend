@@ -5,7 +5,9 @@ import {
   RoomMap,
   type GroupView,
 } from "@/features/organizer-dashboard/components/RoomMap";
+import { StatTiles } from "@/features/organizer-dashboard/components/StatTiles";
 import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
+import styles from "@/features/organizer-dashboard/components/Dashboard.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -29,18 +31,48 @@ export default async function GroupsPage({
     token,
   );
   const groups = outcome.status === "ok" ? outcome.data : [];
+  const seats = groups.flatMap((group) => group.members);
+  const confirmed = seats.filter((member) => member.confirmed).length;
 
   return (
     <>
-      <TabBar eventId={eventId} active="groups" plan={plan} />
-      {/*
-        Gate on the plan, not on the shape of the data. Unlike Attendees and
-        Outcomes there is no 402 to read here — /groups answers 200 to everyone
-        and merely nulls the names — so checking `display_name === null` would
-        also fire on a pro event whose partition has not run yet, and show the
-        upgrade card to someone who has already paid.
-      */}
-      {plan === "free" ? <LockedTab feature="groups" /> : <RoomMap groups={groups} />}
+      <TabBar active="groups" eventId={eventId} plan={plan} />
+      <div className={styles.cardGrid}>
+        {/*
+          Gate on the plan, not on the shape of the data. Unlike Attendees and
+          Outcomes there is no 402 to read here — /groups answers 200 to everyone
+          and merely nulls the names — so checking `display_name === null` would
+          also fire on a pro event whose partition has not run yet, and show the
+          upgrade card to someone who has already paid.
+        */}
+        {plan === "free" ? (
+          <LockedTab feature="groups" />
+        ) : (
+          <>
+            {groups.length > 0 ? (
+              <section className={`${styles.card} ${styles.wide}`}>
+                <h2>The seating plan</h2>
+                <StatTiles
+                  lead
+                  stats={[
+                    { value: groups.length, label: "Tables" },
+                    { value: seats.length, label: "Seats filled" },
+                    {
+                      value: confirmed,
+                      of: seats.length,
+                      label: "Found their table",
+                    },
+                  ]}
+                />
+              </section>
+            ) : null}
+            <section className={`${styles.card} ${styles.wide}`}>
+              <h2>Who sat where</h2>
+              <RoomMap groups={groups} />
+            </section>
+          </>
+        )}
+      </div>
     </>
   );
 }

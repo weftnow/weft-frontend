@@ -1,3 +1,4 @@
+import { LockIcon } from "./icons";
 import styles from "./Dashboard.module.css";
 
 const FEATURES = {
@@ -19,13 +20,21 @@ const FEATURES = {
  * Deliberately not a blurred preview. Blurring implies the data reached the
  * browser and is merely hidden — here it was never sent, and the placeholder
  * should not suggest otherwise.
+ *
+ * Warm rather than grey, for the same reason: this is an invitation, and a
+ * disabled-looking panel reads as something broken rather than something
+ * available.
  */
 export function LockedTab({ feature }: { feature: keyof typeof FEATURES }) {
   const copy = FEATURES[feature];
   return (
-    <section className={`${styles.card} ${styles.wide}`}>
+    <div className={styles.locked}>
+      <span className={styles.lockedBadge}>
+        <LockIcon />
+        Paid plan
+      </span>
       <h2>{copy.title}</h2>
-      <p className={styles.caption}>{copy.body}</p>
-    </section>
+      <p>{copy.body}</p>
+    </div>
   );
 }

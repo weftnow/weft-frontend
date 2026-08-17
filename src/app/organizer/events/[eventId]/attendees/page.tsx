@@ -2,6 +2,7 @@ import { fetchFromBackend } from "@/features/organizer-dashboard/api/server/dash
 import { loadEvent } from "@/features/organizer-dashboard/api/server/event.server";
 import { requireTabContext } from "@/features/organizer-dashboard/api/server/tabPage.server";
 import { AttendeeTable } from "@/features/organizer-dashboard/components/AttendeeTable";
+import { EmptyState } from "@/features/organizer-dashboard/components/EmptyState";
 import { ExportCsvButton } from "@/features/organizer-dashboard/components/ExportCsvButton";
 import { LockedTab } from "@/features/organizer-dashboard/components/LockedTab";
 import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
@@ -50,24 +51,42 @@ export default async function AttendeesPage({
       : null;
   const eventName = parsedEvent?.success ? parsedEvent.data.name : "event";
 
+  const rows = parsed?.success ? parsed.data : null;
+  const checkedIn = rows?.filter((row) => row.checked_in).length ?? 0;
+
   return (
     <>
-      <TabBar eventId={eventId} active="attendees" plan={plan} />
-      {outcome.status === "planRequired" ? (
-        <LockedTab feature="attendees" />
-      ) : parsed?.success ? (
-        <>
-          <ExportCsvButton rows={parsed.data} eventName={eventName} />
-          <AttendeeTable rows={parsed.data} />
-        </>
-      ) : (
-        <section className={`${styles.card} ${styles.wide}`}>
-          <h2>We can&apos;t load your attendees right now.</h2>
-          <p className={styles.caption}>
-            Your event is fine — refresh to try again.
-          </p>
-        </section>
-      )}
+      <TabBar active="attendees" eventId={eventId} plan={plan} />
+      <div className={styles.cardGrid}>
+        {outcome.status === "planRequired" ? (
+          <LockedTab feature="attendees" />
+        ) : rows ? (
+          <>
+            {/*
+              The count lives beside the export rather than above the table:
+              it is what an organizer checks before downloading, and it answers
+              "is this everyone?" at the moment the question comes up.
+            */}
+            {rows.length > 0 ? (
+              <div className={styles.toolbar}>
+                <p className={styles.toolbarCount}>
+                  {rows.length} {rows.length === 1 ? "guest" : "guests"} · {checkedIn}{" "}
+                  checked in
+                </p>
+                <ExportCsvButton eventName={eventName} rows={rows} />
+              </div>
+            ) : null}
+            <AttendeeTable rows={rows} />
+          </>
+        ) : (
+          <section className={`${styles.card} ${styles.wide}`}>
+            <EmptyState
+              body="Your event is fine — refresh to try again."
+              title="We can't load your attendees right now."
+            />
+          </section>
+        )}
+      </div>
     </>
   );
 }

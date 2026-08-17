@@ -18,6 +18,26 @@ export function setOrganizerSession(
   });
 }
 
+/**
+ * Expire the cookie rather than delete it.
+ *
+ * `cookies.delete` drops the attributes the cookie was written with, and a
+ * browser only replaces a cookie whose path and domain match — so the safe
+ * clear is a re-set carrying the same attributes with maxAge 0.
+ */
+export function clearOrganizerSession(
+  response: NextResponse,
+  secure = process.env.NODE_ENV === "production",
+): void {
+  response.cookies.set(ORGANIZER_SESSION_COOKIE, "", {
+    httpOnly: true,
+    secure,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+}
+
 export async function readOrganizerSession(): Promise<string | null> {
   return (await cookies()).get(ORGANIZER_SESSION_COOKIE)?.value ?? null;
 }

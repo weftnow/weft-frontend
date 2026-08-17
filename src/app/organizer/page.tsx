@@ -4,11 +4,14 @@ import { redirect } from "next/navigation";
 import { readOrganizerSession } from "@/features/organizer-auth/api/server/organizerSession";
 import { fetchFromBackend } from "@/features/organizer-dashboard/api/server/dashboard.gateway";
 import { CreateEventForm } from "@/features/organizer-dashboard/components/CreateEventForm";
+import { DashboardShell } from "@/features/organizer-dashboard/components/DashboardShell";
+import { formatEventDate } from "@/features/organizer-dashboard/model/eventDate.model";
 import {
   eventListSchema,
   type EventSummaryRow,
 } from "@/features/organizer-dashboard/schemas/dashboard.schema";
-import styles from "@/features/organizer-auth/components/OrganizerAuth.module.css";
+import authStyles from "@/features/organizer-auth/components/OrganizerAuth.module.css";
+import styles from "@/features/organizer-dashboard/components/Dashboard.module.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -24,21 +27,35 @@ export const metadata: Metadata = {
  * there is exactly one thing to do on this screen, so the screen is that thing.
  */
 export function EventsList({ events }: { events: EventSummaryRow[] }) {
+  // The first event is the whole screen. There is exactly one thing to do here
+  // and no list to head it, so the form keeps the full-bleed auth shell rather
+  // than sitting in an empty dashboard panel.
   if (events.length === 0) {
     return (
-      <main className={styles.dashboardPlaceholder}>
+      <main className={authStyles.dashboardPlaceholder}>
         <CreateEventForm />
       </main>
     );
   }
   return (
-    <main className={styles.dashboardPlaceholder}>
-      <h1>Your events</h1>
-      <ul>
+    <DashboardShell>
+      <div className={styles.pageHead}>
+        <h1 className={styles.pageTitle}>Your events</h1>
+      </div>
+      <ul className={styles.eventList}>
         {events.map((event) => (
           <li key={event.id}>
-            <Link href={`/organizer/events/${event.id}`}>{event.name}</Link>
-            <span>{event.state}</span>
+            <Link className={styles.eventRow} href={`/organizer/events/${event.id}`}>
+              <span>
+                <span className={styles.eventRowName}>{event.name}</span>
+                <span className={styles.eventRowMeta}>
+                  {formatEventDate(event.starts_at) ?? "No date set"}
+                </span>
+              </span>
+              <span className={styles.state} data-state={event.state}>
+                {event.state}
+              </span>
+            </Link>
           </li>
         ))}
       </ul>
@@ -48,20 +65,22 @@ export function EventsList({ events }: { events: EventSummaryRow[] }) {
         brings keyboard support and the right screen-reader announcement with
         it. <summary> names the form, so the form drops its own heading.
       */}
-      <details className={styles.newEvent}>
+      <details className={authStyles.newEvent}>
         <summary>New event</summary>
         <CreateEventForm heading={null} />
       </details>
-    </main>
+    </DashboardShell>
   );
 }
 
 export function OrganizerUnavailable() {
   return (
-    <main className={styles.dashboardPlaceholder}>
+    <main className={authStyles.dashboardPlaceholder}>
       <h1>We can&apos;t open your dashboard right now.</h1>
       <p>Your session is still here.</p>
-      <Link className={styles.primary} href="/organizer">Try again</Link>
+      <Link className={authStyles.primary} href="/organizer">
+        Try again
+      </Link>
     </main>
   );
 }

@@ -1,6 +1,7 @@
 import { fetchFromBackend } from "@/features/organizer-dashboard/api/server/dashboard.gateway";
 import { requireTabContext } from "@/features/organizer-dashboard/api/server/tabPage.server";
 import { BonusIntros } from "@/features/organizer-dashboard/components/BonusIntros";
+import { EmptyState } from "@/features/organizer-dashboard/components/EmptyState";
 import { LockedTab } from "@/features/organizer-dashboard/components/LockedTab";
 import { OutcomeCards } from "@/features/organizer-dashboard/components/OutcomeCards";
 import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
@@ -44,22 +45,24 @@ export default async function OutcomesPage({
 
   return (
     <>
-      <TabBar eventId={eventId} active="outcomes" plan={plan} />
-      {outcome.status === "planRequired" ? (
-        <LockedTab feature="outcomes" />
-      ) : parsed?.success ? (
-        <>
-          <OutcomeCards outcomes={parsed.data} />
-          {parsedIntros?.success ? <BonusIntros pairs={parsedIntros.data} /> : null}
-        </>
-      ) : (
-        <section className={`${styles.card} ${styles.wide}`}>
-          <h2>We can&apos;t load your results right now.</h2>
-          <p className={styles.caption}>
-            Your event is fine — refresh to try again.
-          </p>
-        </section>
-      )}
+      <TabBar active="outcomes" eventId={eventId} plan={plan} />
+      <div className={styles.cardGrid}>
+        {outcome.status === "planRequired" ? (
+          <LockedTab feature="outcomes" />
+        ) : parsed?.success ? (
+          <>
+            <OutcomeCards outcomes={parsed.data} />
+            {parsedIntros?.success ? <BonusIntros pairs={parsedIntros.data} /> : null}
+          </>
+        ) : (
+          <section className={`${styles.card} ${styles.wide}`}>
+            <EmptyState
+              body="Your event is fine — refresh to try again."
+              title="We can't load your results right now."
+            />
+          </section>
+        )}
+      </div>
     </>
   );
 }

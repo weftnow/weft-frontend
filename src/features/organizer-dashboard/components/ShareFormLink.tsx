@@ -55,19 +55,34 @@ export function ShareFormLink({ formToken }: { formToken: string }) {
   }
 
   return (
-    <section className={`${styles.card} ${styles.wide} ${styles.shareCard}`}>
+    /*
+      A tinted band rather than one more white card. While an event is open
+      this is the only thing on screen there is anything to *do* about, and
+      dressed like the read-only statistics beside it, it gets skipped.
+    */
+    <section className={styles.shareBand}>
       <h2>Share this link with your guests</h2>
+      <p className={styles.caption}>
+        Everyone who fills this in gets sorted into a table.
+      </p>
       <div className={styles.shareRow}>
         <a className={styles.shareUrl} href={url} rel="noreferrer" target="_blank">
           {url}
         </a>
-        <button className={styles.shareCopy} onClick={copy} type="button">
-          {copied ? "Copied" : "Copy"}
+        {/*
+          aria-live because the confirmation *is* the label changing. A sighted
+          organizer reads that directly; without the live region a screen reader
+          user gets no feedback that the copy worked at all.
+        */}
+        <button
+          aria-live="polite"
+          className={styles.shareCopy}
+          onClick={copy}
+          type="button"
+        >
+          {copied ? "Copied" : "Copy link"}
         </button>
       </div>
-      <p className={styles.caption}>
-        Everyone who fills this in gets sorted into a table.
-      </p>
     </section>
   );
 }
