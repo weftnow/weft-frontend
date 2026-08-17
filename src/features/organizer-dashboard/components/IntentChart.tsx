@@ -31,7 +31,7 @@ function BarList({
 }) {
   const max = rows.reduce((highest, row) => Math.max(highest, row.count), 0);
   return (
-    <section className={styles.card}>
+    <section className={`${styles.card} ${styles.half}`}>
       <h2>{title}</h2>
       {rows.length === 0 ? (
         <p className={styles.caption}>No answers yet.</p>
@@ -74,8 +74,11 @@ export function IntentChart({
   offers: IntentCount[];
   language: "en" | "es";
 }) {
+  // A fragment, not a grid: the tab owns the one `.cardGrid` these two sit in,
+  // so they share their gutters with every other card rather than inventing a
+  // second set.
   return (
-    <div className={styles.cardGrid}>
+    <>
       <BarList
         title={language === "es" ? "Lo que la sala buscaba" : "What the room wanted"}
         rows={asks}
@@ -92,6 +95,6 @@ export function IntentChart({
         labels={OFFER_LABELS}
         language={language}
       />
-    </div>
+    </>
   );
 }

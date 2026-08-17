@@ -1,8 +1,10 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchGroups, lockEvent } from "../api/client/dashboard.client";
+import { useQuery } from "@tanstack/react-query";
+import { fetchGroups } from "../api/client/dashboard.client";
+import { LockRoomCard } from "./LockRoomCard";
 import { RoomMap } from "./RoomMap";
+import { StatTiles } from "./StatTiles";
 import styles from "./Dashboard.module.css";
 
 const POLL_MS = 10_000;
@@ -14,6 +16,11 @@ const POLL_MS = 10_000;
  * move on the scale of a person walking to a table, and ten seconds of lag is
  * invisible in a room. A websocket here would be infrastructure bought to shave
  * latency nobody can perceive.
+ *
+ * This is the one tab read standing up, at arm's length, in bad light — so the
+ * counts lead in ember and the seat dots carry the only motion on the surface:
+ * a dot fills when the poll lands rather than flicking, which is what makes a
+ * change across the room legible from the corner of the eye.
  */
 export function LiveRoom({
   eventId,
@@ -28,18 +35,10 @@ export function LiveRoom({
   canLock: boolean;
   partitionError: string | null;
 }) {
-  const queryClient = useQueryClient();
-
   const groups = useQuery({
     queryKey: ["organizer", "groups", eventId],
     queryFn: () => fetchGroups(eventId),
     refetchInterval: POLL_MS,
-  });
-
-  const lock = useMutation({
-    mutationFn: () => lockEvent(eventId),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["organizer", "groups", eventId] }),
   });
 
   const rows = groups.data ?? [];
@@ -47,7 +46,7 @@ export function LiveRoom({
   const confirmed = seats.filter((member) => member.confirmed).length;
 
   return (
-    <div className={styles.cardGrid}>
+    <>
       {partitionError ? (
         <section
           className={`${styles.card} ${styles.wide} ${styles.alert}`}
@@ -58,19 +57,22 @@ export function LiveRoom({
         </section>
       ) : null}
 
-      <section className={styles.card}>
-        <h2>Checked in</h2>
-        <p className={styles.hero}>
-          {checkedIn} <span className={styles.of}>/ {submitted}</span>
-        </p>
+      {/* Narrows to make room for the lock action only while that action
+          exists. An event past "open" has nothing to decide, so the counts
+          take the whole row rather than leaving a hole beside them. */}
+      <section className={`${styles.card} ${canLock ? styles.major : styles.wide}`}>
+        <h2>The night so far</h2>
+        <StatTiles
+          lead
+          stats={[
+            { value: checkedIn, of: submitted, label: "Checked in" },
+            { value: confirmed, of: seats.length, label: "Found their table" },
+            { value: rows.length, label: "Tables" },
+          ]}
+        />
       </section>
 
-      <section className={styles.card}>
-        <h2>Found their table</h2>
-        <p className={styles.hero}>
-          {confirmed} <span className={styles.of}>/ {seats.length}</span>
-        </p>
-      </section>
+      {canLock ? <LockRoomCard eventId={eventId} submitted={submitted} /> : null}
 
       <section className={`${styles.card} ${styles.wide}`}>
         <h2>The room</h2>
@@ -83,17 +85,6 @@ export function LiveRoom({
           <RoomMap groups={rows} />
         )}
       </section>
-
-      {canLock ? (
-        <section className={`${styles.card} ${styles.wide}`}>
-          <button type="button" onClick={() => lock.mutate()} disabled={lock.isPending}>
-            {lock.isPending ? "Forming groups…" : "Form groups now"}
-          </button>
-          {lock.isError ? (
-            <p className={styles.caption}>That did not work. Try again.</p>
-          ) : null}
-        </section>
-      ) : null}
-    </div>
+    </>
   );
 }

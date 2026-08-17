@@ -1,4 +1,6 @@
 import type { AttendeeRow } from "../schemas/dashboard.schema";
+import { EmptyState } from "./EmptyState";
+import { CheckIcon, UsersIcon } from "./icons";
 import styles from "./Dashboard.module.css";
 
 function text(value: unknown): string | null {
@@ -12,10 +14,20 @@ function text(value: unknown): string | null {
  * their name rather than behind a click. It is the most human field in the
  * database and the reason an organizer feels they know their room; burying it
  * turns the page into a contact export.
+ *
+ * Whether someone checked in is a tick plus dimmed row, never dimming alone:
+ * the difference has to be readable in a badly-lit venue on a phone, and it is
+ * the column an organizer scans this table for.
  */
 export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
   if (rows.length === 0) {
-    return <p className={styles.caption}>No responses yet.</p>;
+    return (
+      <EmptyState
+        body="Share the guest link from the Overview tab and answers land here as they arrive."
+        icon={<UsersIcon />}
+        title="No responses yet"
+      />
+    );
   }
   return (
     <div className={styles.tableScroll}>
@@ -32,8 +44,8 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
         <tbody>
           {rows.map((row) => (
             <tr
-              key={`${row.display_name}-${row.submitted_at}`}
               data-checked-in={String(row.checked_in)}
+              key={`${row.display_name}-${row.submitted_at}`}
             >
               <th scope="row">
                 <span className={styles.personName}>{row.display_name}</span>
@@ -44,7 +56,16 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
               <td>{text(row.answers.company) ?? "—"}</td>
               <td>{row.email ?? "—"}</td>
               <td>{row.phone ?? "—"}</td>
-              <td>{row.checked_in ? "Yes" : "No"}</td>
+              <td>
+                {row.checked_in ? (
+                  <span className={styles.tick}>
+                    <CheckIcon />
+                    Yes
+                  </span>
+                ) : (
+                  "No"
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

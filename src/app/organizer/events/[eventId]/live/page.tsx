@@ -4,6 +4,7 @@ import { DashboardProvider } from "@/features/organizer-dashboard/components/Das
 import { LiveRoom } from "@/features/organizer-dashboard/components/LiveRoom";
 import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
 import { eventSummaryRowSchema } from "@/features/organizer-dashboard/schemas/dashboard.schema";
+import styles from "@/features/organizer-dashboard/components/Dashboard.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -32,16 +33,18 @@ export default async function LivePage({
     <>
       <TabBar eventId={eventId} active="live" plan={plan} />
       <DashboardProvider>
-        <LiveRoom
-          eventId={eventId}
-          checkedIn={summary?.checked_in ?? 0}
-          submitted={summary?.submitted ?? 0}
-          // Only an open event can be locked — every later state has already
-          // been through it, and offering the button again would suggest the
-          // matching could be re-run.
-          canLock={event?.state === "open"}
-          partitionError={event?.partition_error ?? null}
-        />
+        <div className={styles.cardGrid}>
+          <LiveRoom
+            eventId={eventId}
+            checkedIn={summary?.checked_in ?? 0}
+            submitted={summary?.submitted ?? 0}
+            // Only an open event can be locked — every later state has already
+            // been through it, and offering the button again would suggest the
+            // matching could be re-run.
+            canLock={event?.state === "open"}
+            partitionError={event?.partition_error ?? null}
+          />
+        </div>
       </DashboardProvider>
     </>
   );

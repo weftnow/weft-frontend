@@ -2,6 +2,7 @@
 
 import { csvFilename, toCsv } from "../model/csv.model";
 import type { AttendeeRow } from "../schemas/dashboard.schema";
+import { DownloadIcon } from "./icons";
 import styles from "./Dashboard.module.css";
 
 /**
@@ -35,10 +36,14 @@ export function ExportCsvButton({
   }
 
   return (
-    <div className={styles.toolbar}>
-      <button type="button" onClick={download} disabled={rows.length === 0}>
-        Export CSV
-      </button>
-    </div>
+    <button
+      className={styles.secondaryAction}
+      disabled={rows.length === 0}
+      onClick={download}
+      type="button"
+    >
+      <DownloadIcon />
+      Export CSV
+    </button>
   );
 }
