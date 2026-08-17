@@ -106,11 +106,21 @@ already routes an unauthorized response back to the login screen.
 
 ## Testing and Verification
 
-No new test suite. `CreateEventForm.interaction.test.ts` already drives the edit
-flow end to end through `mode="edit"`, and that form is not changing — only where
-it is mounted. Nothing currently references `EventDetailsCard` from a test, so
-reducing it breaks no existing coverage. The edit page is a session check, a
-fetch and a set of redirects.
+No new test suite. Coverage is added to the existing mounted suite behind
+`CreateEventForm.interaction.test.ts`.
+
+That suite currently proves the create path only — all seven of its cases mount
+the form in its default mode and stub `updateEvent` without ever reaching it. So
+`mode="edit"` is untested today. This work makes the edit path the app's only
+editing surface, which is the point at which that gap stops being acceptable, so
+the same mounted suite gains cases covering edit mode: that the fields open
+holding the event's stored values, that saving sends a PATCH carrying the edited
+values and no table size, that a rejected save keeps what was typed, and that a
+409 reports the event as locked rather than as a failure.
+
+Nothing currently references `EventDetailsCard` from a test, so reducing it
+breaks no existing coverage. The edit page itself is a session check, a fetch and
+a set of redirects.
 
 Verification is the existing Bun suite, ESLint, a production Next.js build,
 `git diff --check`, and browser checks at phone and desktop widths covering: the
