@@ -1,22 +1,10 @@
-import { expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import {
-  OrganizerPlaceholder,
-  OrganizerUnavailable,
-  dynamic,
-  metadata,
-} from "./page";
+import { EventsList, OrganizerUnavailable, dynamic, metadata } from "./page";
 
 test("protected organizer route is dynamic and private", () => {
   expect(dynamic).toBe("force-dynamic");
   expect(metadata.robots).toEqual({ index: false, follow: false });
-});
-
-test("authenticated placeholder uses the exact approved copy", () => {
-  const html = renderToStaticMarkup(<OrganizerPlaceholder />);
-  expect(html).toContain("your event data will appear here");
-  expect(html).not.toContain("Create event");
-  expect(html).not.toContain("Sign out");
 });
 
 test("temporary backend failure has a retry without pretending logout", () => {
@@ -24,4 +12,24 @@ test("temporary backend failure has a retry without pretending logout", () => {
   expect(html).toContain('href="/organizer"');
   expect(html).toContain("Try again");
   expect(html).not.toContain("Sign in");
+});
+
+describe("EventsList", () => {
+  test("links each event to its dashboard and shows its state", () => {
+    const html = renderToStaticMarkup(
+      <EventsList
+        events={[
+          { id: "e1", name: "Founder Night Bogotá", state: "closed", starts_at: null },
+        ]}
+      />,
+    );
+    expect(html).toContain("Founder Night Bogot");
+    expect(html).toContain("/organizer/events/e1");
+    expect(html).toContain("closed");
+  });
+
+  test("an organizer with no events is told what to do next, not shown a zero", () => {
+    const html = renderToStaticMarkup(<EventsList events={[]} />);
+    expect(html).toContain("Create your first event");
+  });
 });

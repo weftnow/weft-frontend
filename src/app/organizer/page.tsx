@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { readOrganizerSession } from "@/features/organizer-auth/api/server/organizerSession";
-import { resolveOrganizerPage } from "@/features/organizer-auth/model/organizerPage.model";
+import { fetchFromBackend } from "@/features/organizer-dashboard/api/server/dashboard.gateway";
+import {
+  eventListSchema,
+  type EventSummaryRow,
+} from "@/features/organizer-dashboard/schemas/dashboard.schema";
 import styles from "@/features/organizer-auth/components/OrganizerAuth.module.css";
 
 export const dynamic = "force-dynamic";
@@ -12,10 +16,26 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export function OrganizerPlaceholder() {
+export function EventsList({ events }: { events: EventSummaryRow[] }) {
+  if (events.length === 0) {
+    return (
+      <main className={styles.dashboardPlaceholder}>
+        <h1>No events yet</h1>
+        <p>Create your first event to get a form link and a dashboard.</p>
+      </main>
+    );
+  }
   return (
     <main className={styles.dashboardPlaceholder}>
-      <h1>your event data will appear here</h1>
+      <h1>Your events</h1>
+      <ul>
+        {events.map((event) => (
+          <li key={event.id}>
+            <Link href={`/organizer/events/${event.id}`}>{event.name}</Link>
+            <span>{event.state}</span>
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }
@@ -30,9 +50,24 @@ export function OrganizerUnavailable() {
   );
 }
 
+/**
+ * Fetching the event list *is* the session check.
+ *
+ * This used to call resolveOrganizerPage first, but that validates by
+ * requesting /v1/events and throwing the body away — so the page hit the same
+ * endpoint twice on every load, once to learn the session was good and again
+ * to learn what was in it. One request answers both questions: a 401 means
+ * bounce to login, a body means render it.
+ */
 export default async function OrganizerPage() {
-  const decision = await resolveOrganizerPage(await readOrganizerSession());
-  if (decision.status === "redirect") redirect("/organizer/login");
-  if (decision.status === "unavailable") return <OrganizerUnavailable />;
-  return <OrganizerPlaceholder />;
+  const token = await readOrganizerSession();
+  if (!token) redirect("/organizer/login");
+
+  const outcome = await fetchFromBackend<unknown>("/v1/events", token);
+  if (outcome.status === "unauthorized") redirect("/organizer/login");
+  if (outcome.status !== "ok") return <OrganizerUnavailable />;
+
+  const parsed = eventListSchema.safeParse(outcome.data);
+  if (!parsed.success) return <OrganizerUnavailable />;
+  return <EventsList events={parsed.data} />;
 }

@@ -1,0 +1,265 @@
+/*
+ * One stylesheet for the whole dashboard.
+ *
+ * Every bar on every tab is a `.track` containing a `.fill` whose width is set
+ * inline, so this one rule pair covers the rating distribution, the intent
+ * chart and anything added later. Keeping them together is what stops the
+ * Overview and the Live tab from drifting into two different-looking products.
+ */
+
+.cardGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.card {
+  border: 1px solid var(--hairline, #e7e2dc);
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.hero {
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  line-height: 1;
+  margin: 0;
+}
+
+.of {
+  font-size: 1rem;
+  opacity: 0.6;
+}
+
+.caption {
+  opacity: 0.7;
+  margin: 0.25rem 0 0;
+}
+
+.secondary {
+  margin: 0.75rem 0 0;
+}
+
+.distribution {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.distribution li {
+  display: grid;
+  grid-template-columns: 1rem 1fr 2rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.track {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  height: 0.5rem;
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  border-radius: 999px;
+}
+
+.scoreCount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.scoreLabel {
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+.comments {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+  margin: 1rem 0 0;
+}
+
+.comments li {
+  border-left: 2px solid currentColor;
+  padding-left: 0.75rem;
+}
+
+.bars {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bars li {
+  display: grid;
+  grid-template-columns: minmax(8rem, 14rem) 1fr 2rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.barLabel {
+  font-size: 0.9rem;
+}
+
+/*
+ * Narrow screens drop the label onto its own row rather than squeezing it into
+ * a column. "Solve a problem, find a provider" wrapped to four lines beside a
+ * bar reads worse than the same sentence sitting above one.
+ */
+@media (max-width: 40rem) {
+  .bars li {
+    grid-template-columns: 1fr 2rem;
+  }
+
+  .bars li .barLabel {
+    grid-column: 1 / -1;
+  }
+}
+
+.roomMap {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+}
+
+.tableCard {
+  border: 1px solid var(--hairline, #e7e2dc);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+.seats {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.seat {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* An outline is an empty seat, a filled dot is someone who found their table.
+   Never colour alone — the same distinction has to survive a projector. */
+.dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  border: 1.5px solid currentColor;
+}
+
+.seat[data-confirmed="true"] .dot {
+  background: currentColor;
+}
+
+.seatName {
+  font-size: 0.85rem;
+}
+
+.tableIndex {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.alert {
+  border-color: #c0392b;
+}
+
+/* The directory. A table rather than cards: an organizer scanning for one
+   person reads down a column, and cards make that a scroll instead of a
+   glance. */
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--hairline, #e7e2dc);
+  vertical-align: top;
+}
+
+.personName {
+  display: block;
+  font-weight: 600;
+}
+
+.personGoal {
+  display: block;
+  font-weight: 400;
+  opacity: 0.7;
+  font-size: 0.85rem;
+  max-width: 28rem;
+}
+
+/* Scoped under .table on purpose: a bare `tr[...]` in a CSS module is not
+   hashed, so it would style every table in the app. */
+.table tr[data-checked-in="false"] {
+  opacity: 0.55;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.plainList {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+/* min-height is the point: the host is standing, holding a phone, half
+   looking at the room. A 44px target is the difference between ticking a
+   name and ticking the one below it. */
+.checklist label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.5rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.checklist input:checked + span {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
