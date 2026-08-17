@@ -1,5 +1,5 @@
 import type { GroupView } from "../../components/RoomMap";
-import type { EventCreateBody, EventSummaryRow } from "../../schemas/dashboard.schema";
+import type { EventCreateBody, EventSummaryRow, EventUpdateBody } from "../../schemas/dashboard.schema";
 
 const REQUEST_TIMEOUT_MS = 8_000;
 
@@ -12,7 +12,9 @@ const REQUEST_TIMEOUT_MS = 8_000;
  * mapped here.
  */
 export class DashboardClientError extends Error {
-  constructor(readonly code: "unauthorized" | "planRequired" | "unavailable") {
+  constructor(
+    readonly code: "unauthorized" | "planRequired" | "unavailable" | "conflict",
+  ) {
     super(code);
     this.name = "DashboardClientError";
   }
@@ -34,6 +36,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (response.status === 401) throw new DashboardClientError("unauthorized");
   if (response.status === 402) throw new DashboardClientError("planRequired");
+  // An event that locked while the edit form was open. The organizer did
+  // nothing wrong and needs a different sentence from "we're down".
+  if (response.status === 409) throw new DashboardClientError("conflict");
   if (!response.ok) throw new DashboardClientError("unavailable");
 
   return (await response.json()) as T;
@@ -60,6 +65,26 @@ export function lockEvent(eventId: string): Promise<{ status: string }> {
 export function createEvent(body: EventCreateBody): Promise<EventSummaryRow> {
   return request<EventSummaryRow>("/api/organizer/events", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * Edit an event that has not locked yet.
+ *
+ * Same error story as createEvent: eventUpdateSchema applies the backend's own
+ * rules first, so anything the backend still rejects is our drift, not the
+ * organizer's mistake. The one exception is a 409 — the event locked between
+ * the page rendering and the save, which is a real thing that happens and is
+ * handled by the form, not by this layer.
+ */
+export function updateEvent(
+  eventId: string,
+  body: EventUpdateBody,
+): Promise<EventSummaryRow> {
+  return request<EventSummaryRow>(`/api/organizer/events/${eventId}`, {
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });

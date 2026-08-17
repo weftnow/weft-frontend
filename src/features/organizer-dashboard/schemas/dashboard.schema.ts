@@ -9,6 +9,22 @@ export const eventStateSchema = z.enum([
   "learned",
 ]);
 
+/**
+ * The five fields the two-pane create screen added.
+ *
+ * Shared between create and update so the browser cannot enforce one set of
+ * rules on the way in and a different set on the way back. Every one is
+ * nullable on the backend, so every one is optional here.
+ */
+const eventDetailFields = {
+  ends_at: z.string().nullable().default(null),
+  timezone: z.string().max(64).nullable().default(null),
+  location: z.string().trim().max(300).nullable().default(null),
+  description: z.string().trim().max(5_000).nullable().default(null),
+  // ge=1 on the backend: zero is a closed event, which `state` already says.
+  capacity: z.number().int().min(1).nullable().default(null),
+};
+
 export const eventSummaryRowSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -22,6 +38,14 @@ export const eventSummaryRowSchema = z.object({
   // above — a field only one view reads must not be able to blank a page by
   // going missing.
   form_token: z.string().optional(),
+  // Same reasoning again: the header and Overview read these, the list does
+  // not, and a missing one must not cost a render.
+  ends_at: z.string().nullable().optional(),
+  timezone: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  capacity: z.number().nullable().optional(),
+  group_size_target: z.number().optional(),
 });
 
 export const eventListSchema = z.array(eventSummaryRowSchema);
@@ -48,10 +72,35 @@ export const eventCreateSchema = z.object({
   // 4-6 matches the backend's Field(ge=4, le=6). The matcher is built around
   // tables of roughly five; outside that range it has nothing sensible to do.
   group_size_target: z.number().int().min(4).max(6).default(5),
-});
+  ...eventDetailFields,
+}).refine(
+  (value) => !value.starts_at || !value.ends_at
+    || new Date(value.ends_at) > new Date(value.starts_at),
+  { message: "ends_at must be after starts_at", path: ["ends_at"] },
+);
 
 export type EventCreateRequest = z.input<typeof eventCreateSchema>;
 export type EventCreateBody = z.output<typeof eventCreateSchema>;
+
+/**
+ * What PATCH sends. Every field optional — including name, which create
+ * requires — because a patch that only moves the date must not have to resend
+ * the name.
+ *
+ * `group_size_target` is absent on purpose, mirroring the backend's
+ * EventUpdate: the matcher is built around it and the room was scored for it.
+ */
+export const eventUpdateSchema = z.object({
+  name: z.string().trim().min(1).max(200).optional(),
+  starts_at: z.string().nullable().optional(),
+  ends_at: z.string().nullable().optional(),
+  timezone: z.string().max(64).nullable().optional(),
+  location: z.string().trim().max(300).nullable().optional(),
+  description: z.string().trim().max(5_000).nullable().optional(),
+  capacity: z.number().int().min(1).nullable().optional(),
+});
+
+export type EventUpdateBody = z.output<typeof eventUpdateSchema>;
 
 export const summarySchema = z.object({
   plan: z.enum(["free", "pro"]),

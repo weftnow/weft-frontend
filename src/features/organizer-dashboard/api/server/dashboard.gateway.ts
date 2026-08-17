@@ -15,6 +15,11 @@ export type DashboardOutcome<T> =
   | { status: "unauthorized" }
   | { status: "planRequired" }
   | { status: "notFound" }
+  // The event locked between the page rendering and the save. Kept distinct
+  // from "unavailable" for the same reason 402 is kept distinct from 403:
+  // one means "we're down", this one means "you're too late", and telling an
+  // organizer the wrong one sends them to refresh instead of to reload.
+  | { status: "conflict" }
   | { status: "unavailable" };
 
 function backendBaseUrl(): string | null {
@@ -53,6 +58,7 @@ export async function fetchFromBackend<T>(
   if (response.status === 401 || response.status === 403) return { status: "unauthorized" };
   if (response.status === 402) return { status: "planRequired" };
   if (response.status === 404) return { status: "notFound" };
+  if (response.status === 409) return { status: "conflict" };
   if (!response.ok) {
     console.error("dashboard request failed", response.status);
     return { status: "unavailable" };
