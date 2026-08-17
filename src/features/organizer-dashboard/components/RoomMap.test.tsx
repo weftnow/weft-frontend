@@ -26,4 +26,19 @@ describe("RoomMap", () => {
     const html = renderToStaticMarkup(<RoomMap groups={[]} />);
     expect(html).toContain("No tables yet");
   });
+
+  test("a pro organizer sees names beside the dots", () => {
+    const html = renderToStaticMarkup(
+      <RoomMap
+        groups={[
+          {
+            index: 1,
+            colour: "amber",
+            members: [{ display_name: "Ana", confirmed: true }],
+          },
+        ]}
+      />,
+    );
+    expect(html).toContain("Ana");
+  });
 });
