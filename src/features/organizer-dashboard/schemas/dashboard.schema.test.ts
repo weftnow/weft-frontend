@@ -17,6 +17,11 @@ describe("eventCreateSchema", () => {
       name: "Founder Night",
       starts_at: null,
       group_size_target: 5,
+      ends_at: null,
+      timezone: null,
+      location: null,
+      description: null,
+      capacity: null,
     });
   });
 

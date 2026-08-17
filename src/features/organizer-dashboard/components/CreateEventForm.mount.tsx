@@ -114,7 +114,16 @@ test("a name is all it takes — table size comes preset to five", async () => {
       await act(async () => buttonNamed(container, "Create event").click());
       await waitFor(() => created !== null);
       expect(submitted).toEqual([
-        { name: "Founder Night", starts_at: null, group_size_target: 5 },
+        {
+          name: "Founder Night",
+          starts_at: null,
+          group_size_target: 5,
+          ends_at: null,
+          timezone: null,
+          location: null,
+          description: null,
+          capacity: null,
+        },
       ]);
       expect(created).toEqual(CREATED);
     },
