@@ -12,14 +12,33 @@ export const groupRevealMessages = {
     missingSessionTitle: "We couldn't find your saved session.",
     missingSessionBody: "Return to the questionnaire to continue.",
     restartQuestionnaire: "Return to questionnaire",
-    matchComplete: "Match complete",
-    connections: "connections",
-    circleReady: "Your circle is ready.",
-    table: "Table",
-    foundGroup: "I found my group",
-    starting: "Starting…",
+    matchFound: "Match found",
+    allSet: "You're all set!",
+    lede: "Weft has matched you with a great group. Get ready for meaningful conversations.",
+    group: "Group",
+    people: "{count} people",
+    roleAt: "{role} at {company}",
+    colourGroup: "{colour} group",
+    colours: {
+      amber: "Amber",
+      teal: "Teal",
+      coral: "Coral",
+      indigo: "Indigo",
+      lime: "Lime",
+      magenta: "Magenta",
+      cyan: "Cyan",
+      rust: "Rust",
+      violet: "Violet",
+      olive: "Olive",
+      rose: "Rose",
+      slate: "Slate",
+    },
+    startTitle: "Start the experience",
+    startBody: "You'll be guided through a series of conversations and activities together.",
     startConversation: "Start guided conversations",
-    confirmationError: "We couldn't confirm your group yet. Please try again.",
+    starting: "Starting…",
+    footnote: "Sit with your group to begin.",
+    confirmationError: "We couldn't confirm your group. Tap again to continue anyway.",
   },
   es: {
     waiting: "Weft está preparando tu grupo.",
@@ -32,14 +51,33 @@ export const groupRevealMessages = {
     missingSessionTitle: "No pudimos encontrar tu sesión guardada.",
     missingSessionBody: "Vuelve al cuestionario para continuar.",
     restartQuestionnaire: "Volver al cuestionario",
-    matchComplete: "Grupo listo",
-    connections: "conexiones",
-    circleReady: "Tu círculo está listo.",
-    table: "Mesa",
-    foundGroup: "Encontré a mi grupo",
-    starting: "Iniciando…",
+    matchFound: "Grupo encontrado",
+    allSet: "¡Todo listo!",
+    lede: "Weft te ha emparejado con un gran grupo. Prepárate para conversaciones con sentido.",
+    group: "Grupo",
+    people: "{count} personas",
+    roleAt: "{role} en {company}",
+    colourGroup: "Grupo {colour}",
+    colours: {
+      amber: "Ámbar",
+      teal: "Verde azulado",
+      coral: "Coral",
+      indigo: "Índigo",
+      lime: "Lima",
+      magenta: "Magenta",
+      cyan: "Cian",
+      rust: "Óxido",
+      violet: "Violeta",
+      olive: "Oliva",
+      rose: "Rosa",
+      slate: "Pizarra",
+    },
+    startTitle: "Comienza la experiencia",
+    startBody: "Te guiaremos por una serie de conversaciones y actividades, todos juntos.",
     startConversation: "Iniciar conversaciones guiadas",
-    confirmationError: "No pudimos confirmar tu grupo. Inténtalo de nuevo.",
+    starting: "Iniciando…",
+    footnote: "Siéntate con tu grupo para empezar.",
+    confirmationError: "No pudimos confirmar tu grupo. Toca de nuevo para continuar.",
   },
 } as const;
 
@@ -48,4 +86,22 @@ export type GroupRevealMessages =
 
 export function groupRevealLanguageFor(value: string | undefined): GroupRevealLanguage {
   return value?.toLowerCase().startsWith("es") ? "es" : "en";
+}
+
+/**
+ * The group's colour, in the reader's language.
+ *
+ * Falls back to the raw slug rather than to a placeholder: a colour we have
+ * not translated yet still tells someone which table is theirs, and the slugs
+ * are English words a Spanish reader can match against the dot beside them.
+ */
+export function colourLabelFor(
+  slug: string,
+  messages: GroupRevealMessages,
+): string {
+  const colours: Record<string, string> = messages.colours;
+  return messages.colourGroup.replace(
+    "{colour}",
+    colours[slug.toLowerCase()] ?? slug,
+  );
 }

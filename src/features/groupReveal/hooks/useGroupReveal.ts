@@ -67,15 +67,20 @@ export function useGroupReveal(formToken: string, client: GroupRevealClient = gr
   const remaining = group && receivedAt
     ? countdownRemainingMs(group.reveal_at, group.server_time, receivedAt, now)
     : 0;
-  const confirm = async () => {
-    if (confirming) return;
+  // Reports whether the confirmation landed. The reveal has one button that
+  // both confirms and moves on, so its handler needs the outcome to decide
+  // between navigating now and showing the retry line first.
+  const confirm = async (): Promise<boolean> => {
+    if (confirming) return false;
     setConfirming(true);
     setConfirmationError(false);
     try {
       await client.confirm(formToken);
       setGroup(value => value && { ...value, confirmed: true });
+      return true;
     } catch {
       setConfirmationError(true);
+      return false;
     } finally {
       setConfirming(false);
     }
