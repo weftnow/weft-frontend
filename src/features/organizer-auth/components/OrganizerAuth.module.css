@@ -387,17 +387,3 @@
    two-pane form's own breakpoint is on the viewport rather than on this box, so
    a narrow wrapper on a wide screen kept the 20rem settings rail and squeezed
    the left pane to nothing instead of stacking. */
-.newEvent {
-  width: 100%;
-  max-width: 64rem;
-  margin: 1.75rem auto 0;
-  text-align: left;
-}
-
-.newEvent summary {
-  cursor: pointer;
-  padding: 0.6rem 0;
-  font-weight: 600;
-}
-
-.newEvent[open] summary { margin-bottom: 1rem; }

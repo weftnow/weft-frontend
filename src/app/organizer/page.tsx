@@ -60,15 +60,15 @@ export function EventsList({ events }: { events: EventSummaryRow[] }) {
         ))}
       </ul>
       {/*
-        A <details> rather than a button holding open/closed state: the
-        disclosure is the only interactive thing here, and the native element
-        brings keyboard support and the right screen-reader announcement with
-        it. <summary> names the form, so the form drops its own heading.
+        A link to its own screen rather than a <details> that unfolds the form
+        in place. The disclosure suited a three-field form; the form is now two
+        panes plus a settings rail, which is more than a list row should try to
+        hold — and a create screen you can link to, reload and come back from is
+        worth more here than the navigation it saves.
       */}
-      <details className={authStyles.newEvent}>
-        <summary>New event</summary>
-        <CreateEventForm heading={null} />
-      </details>
+      <Link className={styles.newEventButton} href="/organizer/events/new">
+        New event
+      </Link>
     </DashboardShell>
   );
 }

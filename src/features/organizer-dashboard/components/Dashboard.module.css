@@ -1606,3 +1606,55 @@
     transition-duration: 0.01ms;
   }
 }
+
+/* "New event" on the events list. An anchor, not a button, because it goes
+   somewhere — so it takes .primary's shape by hand rather than borrowing the
+   class, whose rules assume a <button>'s default box. */
+.newEventButton {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  margin-top: 1.75rem;
+  border-radius: 999px;
+  background: var(--color-ink);
+  padding: 0.6rem 1.35rem;
+  color: var(--color-paper);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 160ms ease, transform 140ms var(--ease-out-ui);
+}
+
+.newEventButton:hover {
+  background: color-mix(in srgb, var(--color-ink) 88%, var(--color-ember));
+}
+
+.newEventButton:active { transform: scale(0.98); }
+
+.newEventButton:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: 2px;
+}
+
+/* The create screen sits on the bone field like the first-event screen, so it
+   supplies its own width and left alignment — dashboardPlaceholder centres its
+   children, which is right for a headline and wrong for a form. */
+.newEventPage {
+  display: flex;
+  width: 100%;
+  max-width: 64rem;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+}
+
+.backLink {
+  align-self: flex-start;
+  color: var(--dash-muted, rgb(18 18 18 / 66%));
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+
+.backLink:hover { color: var(--color-ink); }
