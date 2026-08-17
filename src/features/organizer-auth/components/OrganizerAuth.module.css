@@ -381,18 +381,9 @@
 }
 
 /* The "New event" disclosure on the events list. A <details>, so the marker is
-   the browser's own and only the spacing needs stating here. */
-.newEvent {
-  width: 100%;
-  max-width: 26rem;
-  margin: 1.75rem auto 0;
-  text-align: left;
-}
+   the browser's own and only the spacing needs stating here.
 
-.newEvent summary {
-  cursor: pointer;
-  padding: 0.6rem 0;
-  font-weight: 600;
-}
-
-.newEvent[open] summary { margin-bottom: 1rem; }
+   64rem, not the 26rem this held while the form was a single column: the
+   two-pane form's own breakpoint is on the viewport rather than on this box, so
+   a narrow wrapper on a wide screen kept the 20rem settings rail and squeezed
+   the left pane to nothing instead of stacking. */

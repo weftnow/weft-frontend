@@ -2,6 +2,7 @@ import { fetchFromBackend } from "@/features/organizer-dashboard/api/server/dash
 import { loadEvent } from "@/features/organizer-dashboard/api/server/event.server";
 import { requireTabContext } from "@/features/organizer-dashboard/api/server/tabPage.server";
 import { EmptyState } from "@/features/organizer-dashboard/components/EmptyState";
+import { EventDetailsCard } from "@/features/organizer-dashboard/components/EventDetailsCard";
 import { IntentChart } from "@/features/organizer-dashboard/components/IntentChart";
 import { OverviewCards } from "@/features/organizer-dashboard/components/OverviewCards";
 import { ReadinessCard } from "@/features/organizer-dashboard/components/ReadinessCard";
@@ -63,6 +64,10 @@ export default async function OverviewPage({
       <div className={styles.cardGrid}>
         {event?.form_token && acceptsResponses(event.state) ? (
           <ShareFormLink formToken={event.form_token} />
+        ) : null}
+
+        {event ? (
+          <EventDetailsCard editable={acceptsResponses(event.state)} event={event} />
         ) : null}
 
         {summary ? (

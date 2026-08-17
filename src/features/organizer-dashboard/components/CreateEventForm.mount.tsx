@@ -44,6 +44,12 @@ const CREATED: EventSummaryRow = {
   name: "Founder Night",
   state: "open",
   starts_at: null,
+  ends_at: null,
+  timezone: null,
+  location: null,
+  description: null,
+  capacity: null,
+  group_size_target: 5,
   form_token: "abc123",
 };
 
@@ -90,7 +96,10 @@ async function withForm(
   const root: Root = createRoot(container);
   await act(async () => {
     root.render(
-      <CreateEventForm client={{ createEvent }} onCreated={onCreated} />,
+      <CreateEventForm
+        client={{ createEvent, updateEvent: async () => CREATED }}
+        onCreated={onCreated}
+      />,
     );
   });
   try {
@@ -113,9 +122,13 @@ test("a name is all it takes — table size comes preset to five", async () => {
       await act(async () => setInput(nameField(container), "Founder Night"));
       await act(async () => buttonNamed(container, "Create event").click());
       await waitFor(() => created !== null);
-      expect(submitted).toEqual([
-        { name: "Founder Night", starts_at: null, group_size_target: 5 },
-      ]);
+      // Named fields rather than a strict equality on the whole body: an exact
+      // literal would have to be rewritten every time a field is added, which
+      // is churn rather than coverage.
+      expect(submitted).toHaveLength(1);
+      expect(submitted[0]?.name).toBe("Founder Night");
+      expect(submitted[0]?.starts_at).toBe(null);
+      expect(submitted[0]?.group_size_target).toBe(5);
       expect(created).toEqual(CREATED);
     },
     (event) => { created = event; },
@@ -208,6 +221,28 @@ test("a start time is sent as an instant, not as whatever the box said", async (
       await waitFor(() => submitted.length > 0);
       expect(new Date(submitted[0]!.starts_at!).getTime())
         .toBe(new Date("2026-09-01T19:00").getTime());
+    },
+  );
+});
+
+test("the detail fields reach the request when filled in", async () => {
+  const submitted: EventCreateBody[] = [];
+  await withForm(
+    async (body) => { submitted.push(body); return CREATED; },
+    async (container) => {
+      await act(async () => setInput(nameField(container), "Founder Night"));
+      await act(async () => setInput(
+        container.querySelector<HTMLInputElement>('input[name="location"]')!,
+        "Casa Club, Bogotá",
+      ));
+      await act(async () => setInput(
+        container.querySelector<HTMLInputElement>('input[name="capacity"]')!,
+        "20",
+      ));
+      await act(async () => buttonNamed(container, "Create event").click());
+      await waitFor(() => submitted.length > 0);
+      expect(submitted[0]?.location).toBe("Casa Club, Bogotá");
+      expect(submitted[0]?.capacity).toBe(20);
     },
   );
 });

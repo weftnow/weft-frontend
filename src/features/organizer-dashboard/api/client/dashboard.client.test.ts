@@ -26,7 +26,16 @@ describe("createEvent", () => {
     // The organizer's token is in an httpOnly cookie the browser cannot read,
     // so a direct call to weft_core would arrive unauthenticated.
     const calls = stubFetch(201, { id: "e1" });
-    createEvent({ name: "Founder Night", starts_at: null, group_size_target: 5 });
+    createEvent({
+      name: "Founder Night",
+      starts_at: null,
+      group_size_target: 5,
+      ends_at: null,
+      timezone: null,
+      location: null,
+      description: null,
+      capacity: null,
+    });
     expect(calls[0]?.url).toBe("/api/organizer/events");
     expect(calls[0]?.init.method).toBe("POST");
     expect(calls[0]?.init.headers).toEqual({ "Content-Type": "application/json" });
@@ -34,6 +43,11 @@ describe("createEvent", () => {
       name: "Founder Night",
       starts_at: null,
       group_size_target: 5,
+      ends_at: null,
+      timezone: null,
+      location: null,
+      description: null,
+      capacity: null,
     });
   });
 
@@ -43,6 +57,11 @@ describe("createEvent", () => {
       name: "Founder Night",
       starts_at: null,
       group_size_target: 5,
+      ends_at: null,
+      timezone: null,
+      location: null,
+      description: null,
+      capacity: null,
     });
     expect(event.id).toBe("e1");
   });
@@ -53,6 +72,11 @@ describe("createEvent", () => {
       name: "N",
       starts_at: null,
       group_size_target: 5,
+      ends_at: null,
+      timezone: null,
+      location: null,
+      description: null,
+      capacity: null,
     }).catch((error: unknown) => error);
     // instanceof rather than expect().toBeInstanceOf(): the matcher exists at
     // runtime but is missing from the bun:test types this project compiles
