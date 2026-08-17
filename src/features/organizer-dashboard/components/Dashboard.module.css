@@ -1607,16 +1607,18 @@
   }
 }
 
-/* "New event" on the events list. An anchor, not a button, because it goes
-   somewhere — so it takes .primary's shape by hand rather than borrowing the
-   class, whose rules assume a <button>'s default box. */
+/* "New event", opposite the page title. An anchor, not a button, because it
+   goes somewhere — so it takes .primary's shape by hand rather than borrowing
+   the class, whose rules assume a <button>'s default box.
+
+   No margin and no self-alignment: it is a flex child of .pageHead, which
+   already centres it against the title and pushes it to the far end. */
 .newEventButton {
   display: inline-flex;
   min-height: 2.75rem;
   align-items: center;
   justify-content: center;
-  align-self: flex-start;
-  margin-top: 1.75rem;
+  white-space: nowrap;
   border-radius: 999px;
   background: var(--color-ink);
   padding: 0.6rem 1.35rem;

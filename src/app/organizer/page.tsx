@@ -41,6 +41,20 @@ export function EventsList({ events }: { events: EventSummaryRow[] }) {
     <DashboardShell>
       <div className={styles.pageHead}>
         <h1 className={styles.pageTitle}>Your events</h1>
+        {/*
+          A link to its own screen rather than a <details> that unfolds the form
+          in place. The disclosure suited a three-field form; the form is now two
+          panes plus a settings rail, which is more than a list row should try to
+          hold — and a create screen you can link to, reload and come back from is
+          worth more here than the navigation it saves.
+
+          It sits in the head opposite the title, where pageHead's existing
+          space-between puts it top-right and its flex-wrap drops it under the
+          title on a narrow screen rather than squeezing both.
+        */}
+        <Link className={styles.newEventButton} href="/organizer/events/new">
+          New event
+        </Link>
       </div>
       <ul className={styles.eventList}>
         {events.map((event) => (
@@ -59,16 +73,6 @@ export function EventsList({ events }: { events: EventSummaryRow[] }) {
           </li>
         ))}
       </ul>
-      {/*
-        A link to its own screen rather than a <details> that unfolds the form
-        in place. The disclosure suited a three-field form; the form is now two
-        panes plus a settings rail, which is more than a list row should try to
-        hold — and a create screen you can link to, reload and come back from is
-        worth more here than the navigation it saves.
-      */}
-      <Link className={styles.newEventButton} href="/organizer/events/new">
-        New event
-      </Link>
     </DashboardShell>
   );
 }
