@@ -94,3 +94,37 @@
   border-left: 2px solid currentColor;
   padding-left: 0.75rem;
 }
+
+.bars {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bars li {
+  display: grid;
+  grid-template-columns: minmax(8rem, 14rem) 1fr 2rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.barLabel {
+  font-size: 0.9rem;
+}
+
+/*
+ * Narrow screens drop the label onto its own row rather than squeezing it into
+ * a column. "Solve a problem, find a provider" wrapped to four lines beside a
+ * bar reads worse than the same sentence sitting above one.
+ */
+@media (max-width: 40rem) {
+  .bars li {
+    grid-template-columns: 1fr 2rem;
+  }
+
+  .bars li .barLabel {
+    grid-column: 1 / -1;
+  }
+}

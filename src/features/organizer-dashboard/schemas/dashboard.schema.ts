@@ -42,6 +42,22 @@ export const summarySchema = z.object({
 
 export type DashboardSummary = z.infer<typeof summarySchema>;
 
+// The backend returns both lists already sorted by count descending, so the
+// chart renders them in the order they arrive rather than re-sorting and
+// risking a different answer than the one the API settled on.
+export const intentCountSchema = z.object({
+  value: z.string(),
+  count: z.number(),
+});
+
+export const intentSchema = z.object({
+  respondents: z.number(),
+  asks: z.array(intentCountSchema),
+  offers: z.array(intentCountSchema),
+});
+
+export type DashboardIntent = z.infer<typeof intentSchema>;
+
 // One row of the paid attendee directory, mirroring DashboardResponseOut in
 // app/schemas/attendees.py. Declared here rather than beside the table
 // component because the CSV exporter needs the same shape.
