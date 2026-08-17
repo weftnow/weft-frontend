@@ -19,6 +19,7 @@ export function EventHeader({
   endsAt,
   location,
   submitted,
+  editHref = null,
 }: {
   name: string;
   state: EventState | null;
@@ -26,6 +27,13 @@ export function EventHeader({
   endsAt: string | null;
   location: string | null;
   submitted: number | null;
+  /**
+   * Where the edit screen lives, or null when this event cannot be edited.
+   * Decided by the caller from the event's state rather than here: a locked
+   * event answers 409 to any edit, and a control that cannot work is worse
+   * than no control.
+   */
+  editHref?: string | null;
 }) {
   const start = formatEventDate(startsAt);
   const end = formatEventDate(endsAt);
@@ -54,6 +62,20 @@ export function EventHeader({
           </span>
         ) : null}
       </div>
+
+      {/*
+        The third column of .eventHeader's grid, which has been declared and
+        empty since the header was written. It sits opposite the back arrow
+        because left means leave and right means act on this event — two icons
+        sharing the left corner would make the organizer work out which is
+        which. Text rather than a pencil: there is no pencil in ./icons, and a
+        labelled control needs no legend.
+      */}
+      {editHref ? (
+        <Link className={styles.headerAction} href={editHref}>
+          Edit event
+        </Link>
+      ) : null}
 
       {date || location || responses ? (
         <p className={styles.eventMeta}>

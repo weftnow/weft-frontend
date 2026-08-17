@@ -1,8 +1,17 @@
+/*
+ * The (tabs) group exists so this layout stops wrapping the whole event
+ * subtree. /edit needs a screen of its own — the form is two panes and does
+ * not belong under a header carrying a link to itself — and a layout applies
+ * to every descendant, so the only way to leave one segment out is to move
+ * the rest in. Round-bracket folders contribute no path segment: every URL
+ * beneath /organizer/events/{id} is exactly what it was before the move.
+ */
 import { redirect } from "next/navigation";
 import { readOrganizerSession } from "@/features/organizer-auth/api/server/organizerSession";
 import { loadEvent, loadSummary } from "@/features/organizer-dashboard/api/server/event.server";
 import { DashboardShell } from "@/features/organizer-dashboard/components/DashboardShell";
 import { EventHeader } from "@/features/organizer-dashboard/components/EventHeader";
+import { acceptsResponses } from "@/features/organizer-dashboard/model/eventState.model";
 import {
   eventSummaryRowSchema,
   summarySchema,
@@ -49,6 +58,14 @@ export default async function EventLayout({
   return (
     <DashboardShell>
       <EventHeader
+        editHref={
+          // Only an open event can be edited: locking fixes its details and
+          // the backend answers 409 to anything after. Offering a control
+          // that cannot work is worse than offering none.
+          event?.success && acceptsResponses(event.data.state)
+            ? `/organizer/events/${eventId}/edit`
+            : null
+        }
         endsAt={event?.success ? event.data.ends_at ?? null : null}
         location={event?.success ? event.data.location ?? null : null}
         name={event?.success ? event.data.name : "Event"}

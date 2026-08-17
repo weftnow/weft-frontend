@@ -66,9 +66,7 @@ export default async function OverviewPage({
           <ShareFormLink formToken={event.form_token} />
         ) : null}
 
-        {event ? (
-          <EventDetailsCard editable={acceptsResponses(event.state)} event={event} />
-        ) : null}
+        {event ? <EventDetailsCard event={event} /> : null}
 
         {summary ? (
           <>
