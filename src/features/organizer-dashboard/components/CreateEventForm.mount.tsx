@@ -1,7 +1,11 @@
 import { expect, test } from "bun:test";
 import type { Root } from "react-dom/client";
 import { JSDOM } from "jsdom";
-import type { EventCreateBody, EventSummaryRow } from "../schemas/dashboard.schema";
+import type {
+  EventCreateBody,
+  EventSummaryRow,
+  EventUpdateBody,
+} from "../schemas/dashboard.schema";
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   pretendToBeVisual: true,
@@ -38,6 +42,7 @@ Object.assign(globalThis, {
 const { act } = await import("react");
 const { createRoot } = await import("react-dom/client");
 const { CreateEventForm } = await import("./CreateEventForm");
+const { DashboardClientError } = await import("../api/client/dashboard.client");
 
 const CREATED: EventSummaryRow = {
   id: "e1",
@@ -98,6 +103,52 @@ async function withForm(
     root.render(
       <CreateEventForm
         client={{ createEvent, updateEvent: async () => CREATED }}
+        onCreated={onCreated}
+      />,
+    );
+  });
+  try {
+    await run(container);
+  } finally {
+    await act(async () => root.unmount());
+    container.remove();
+  }
+}
+
+/** An event as the backend returns it, with every optional field populated. */
+const STORED: EventSummaryRow = {
+  id: "e9",
+  name: "Founder Night",
+  state: "open",
+  starts_at: "2026-09-01T17:00:00Z",
+  ends_at: "2026-09-01T20:00:00Z",
+  timezone: "America/Bogota",
+  location: "Casa Club, Bogotá",
+  description: "An evening for founders.",
+  capacity: 24,
+  group_size_target: 6,
+  form_token: "abc123",
+};
+
+/**
+ * The same harness as withForm, in edit mode. Separate rather than a flag,
+ * because the two modes take different clients and assert different calls —
+ * one helper serving both would need a branch in every line of it.
+ */
+async function withEditForm(
+  updateEvent: (eventId: string, body: EventUpdateBody) => Promise<EventSummaryRow>,
+  run: (container: HTMLElement) => Promise<void>,
+  onCreated: (event: EventSummaryRow) => void = () => {},
+) {
+  const container = dom.window.document.createElement("div");
+  dom.window.document.body.append(container);
+  const root: Root = createRoot(container);
+  await act(async () => {
+    root.render(
+      <CreateEventForm
+        client={{ createEvent: async () => CREATED, updateEvent }}
+        event={STORED}
+        mode="edit"
         onCreated={onCreated}
       />,
     );
@@ -243,6 +294,93 @@ test("the detail fields reach the request when filled in", async () => {
       await waitFor(() => submitted.length > 0);
       expect(submitted[0]?.location).toBe("Casa Club, Bogotá");
       expect(submitted[0]?.capacity).toBe(20);
+    },
+  );
+});
+
+test("the edit form opens holding what the event already says", async () => {
+  await withEditForm(
+    async () => STORED,
+    async (container) => {
+      expect(nameField(container).value).toBe("Founder Night");
+      expect(
+        container.querySelector<HTMLInputElement>('input[name="location"]')!.value,
+      ).toBe("Casa Club, Bogotá");
+      expect(
+        container.querySelector<HTMLInputElement>('input[name="capacity"]')!.value,
+      ).toBe("24");
+      expect(
+        container.querySelector<HTMLTextAreaElement>('textarea[name="description"]')!
+          .value,
+      ).toBe("An evening for founders.");
+      // Table size is fixed once the room has been scored for it, so the
+      // stored six shows and the whole group is disabled rather than absent —
+      // a missing control cannot explain why it is missing.
+      expect(
+        container.querySelector<HTMLInputElement>(
+          'input[name="group_size_target"][value="6"]',
+        )!.checked,
+      ).toBe(true);
+      // Asserted on the fieldset, not on a radio inside it: `.disabled` on an
+      // input reflects that input's own attribute, so a radio sitting in a
+      // disabled fieldset still reports false. The form has exactly one
+      // fieldset and this is it.
+      expect(
+        container.querySelector<HTMLFieldSetElement>("fieldset")!.disabled,
+      ).toBe(true);
+    },
+  );
+});
+
+test("saving sends the edited values to the event's own id", async () => {
+  const calls: { eventId: string; body: EventUpdateBody }[] = [];
+  let saved: EventSummaryRow | null = null;
+  await withEditForm(
+    async (eventId, body) => {
+      calls.push({ eventId, body });
+      return STORED;
+    },
+    async (container) => {
+      await act(async () => setInput(nameField(container), "Founder Night II"));
+      await act(async () => buttonNamed(container, "Save changes").click());
+      await waitFor(() => saved !== null);
+      expect(calls).toHaveLength(1);
+      expect(calls[0]?.eventId).toBe("e9");
+      expect(calls[0]?.body.name).toBe("Founder Night II");
+      expect(calls[0]?.body.location).toBe("Casa Club, Bogotá");
+      expect(calls[0]?.body.capacity).toBe(24);
+      // Table size is not the update body's to carry — it cannot change, and
+      // sending it would invite a PATCH that silently reseats the room.
+      expect("group_size_target" in calls[0]!.body).toBe(false);
+    },
+    (event) => { saved = event; },
+  );
+});
+
+test("a failed save keeps what was typed", async () => {
+  await withEditForm(
+    async () => { throw new DashboardClientError("unavailable"); },
+    async (container) => {
+      await act(async () => setInput(nameField(container), "Founder Night II"));
+      await act(async () => buttonNamed(container, "Save changes").click());
+      await waitFor(() => container.querySelector('[role="alert"]') !== null);
+      expect(nameField(container).value).toBe("Founder Night II");
+      expect(buttonNamed(container, "Save changes").hasAttribute("disabled"))
+        .toBe(false);
+    },
+  );
+});
+
+test("an event that locked mid-edit says so, rather than reading as a failure", async () => {
+  await withEditForm(
+    async () => { throw new DashboardClientError("conflict"); },
+    async (container) => {
+      await act(async () => setInput(nameField(container), "Founder Night II"));
+      await act(async () => buttonNamed(container, "Save changes").click());
+      await waitFor(() => container.querySelector('[role="alert"]') !== null);
+      expect(container.querySelector('[role="alert"]')?.textContent).toBe(
+        "This event has locked — its details are fixed now.",
+      );
     },
   );
 });
