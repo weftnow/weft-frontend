@@ -1,9 +1,14 @@
 import { fetchFromBackend } from "@/features/organizer-dashboard/api/server/dashboard.gateway";
+import { loadEvent } from "@/features/organizer-dashboard/api/server/event.server";
 import { requireTabContext } from "@/features/organizer-dashboard/api/server/tabPage.server";
 import { AttendeeTable } from "@/features/organizer-dashboard/components/AttendeeTable";
+import { ExportCsvButton } from "@/features/organizer-dashboard/components/ExportCsvButton";
 import { LockedTab } from "@/features/organizer-dashboard/components/LockedTab";
 import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
-import { attendeeListSchema } from "@/features/organizer-dashboard/schemas/dashboard.schema";
+import {
+  attendeeListSchema,
+  eventSummaryRowSchema,
+} from "@/features/organizer-dashboard/schemas/dashboard.schema";
 import styles from "@/features/organizer-dashboard/components/Dashboard.module.css";
 
 export const dynamic = "force-dynamic";
@@ -36,13 +41,25 @@ export default async function AttendeesPage({
   const parsed =
     outcome.status === "ok" ? attendeeListSchema.safeParse(outcome.data) : null;
 
+  // Only for naming the download. loadEvent is memoised per request and the
+  // layout has already called it, so this costs nothing.
+  const eventOutcome = await loadEvent(eventId, token);
+  const parsedEvent =
+    eventOutcome.status === "ok"
+      ? eventSummaryRowSchema.safeParse(eventOutcome.data)
+      : null;
+  const eventName = parsedEvent?.success ? parsedEvent.data.name : "event";
+
   return (
     <>
       <TabBar eventId={eventId} active="attendees" plan={plan} />
       {outcome.status === "planRequired" ? (
         <LockedTab feature="attendees" />
       ) : parsed?.success ? (
-        <AttendeeTable rows={parsed.data} />
+        <>
+          <ExportCsvButton rows={parsed.data} eventName={eventName} />
+          <AttendeeTable rows={parsed.data} />
+        </>
       ) : (
         <section className={`${styles.card} ${styles.wide}`}>
           <h2>We can&apos;t load your attendees right now.</h2>
