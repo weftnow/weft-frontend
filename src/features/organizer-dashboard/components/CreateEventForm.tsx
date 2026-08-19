@@ -19,6 +19,7 @@ import {
   type EventSummaryRow,
   type EventUpdateBody,
 } from "../schemas/dashboard.schema";
+import { SavingOverlay } from "./SavingOverlay";
 import styles from "./Dashboard.module.css";
 
 /** The sizes the matcher is built around. Mirrors Field(ge=4, le=6). */
@@ -292,6 +293,15 @@ export function CreateEventForm({
 
   return (
     <form className={styles.createPanes} noValidate onSubmit={submit}>
+      {/* The wait is long enough to need covering: the request is followed by a
+          full page load, and the button alone left a second or more of silence
+          at the moment a first-timer is least sure anything worked. */}
+      <SavingOverlay
+        active={submitting}
+        message={
+          editing ? "Saving your changes…" : "Setting up your evening…"
+        }
+      />
       <section className={styles.createMain}>
         {heading ? (
           <header className={styles.createHead}>
@@ -318,28 +328,37 @@ export function CreateEventForm({
           {/* Start, end and zone read as one control because they answer one
               question, so they share a border instead of each having their own. */}
           <div className={styles.createWhen}>
-            <input
-              aria-label="Starts"
-              className={styles.createWhenField}
-              disabled={submitting}
-              name="starts_at"
-              onChange={(changed) => setStartsAt(changed.target.value)}
-              type="datetime-local"
-              value={startsAt}
-            />
-            <input
-              aria-label="Ends"
-              className={styles.createWhenField}
-              disabled={submitting}
-              name="ends_at"
-              onChange={(changed) => {
-                setEndsAt(changed.target.value);
-                setError(null);
-              }}
-              ref={endsRef}
-              type="datetime-local"
-              value={endsAt}
-            />
+            {/* Named on screen, not only to a screen reader. Two identical
+                dd/mm/yyyy boxes sharing a border gave a sighted organizer
+                nothing but left-to-right order to go on, and the end time is
+                the optional one — the field most worth being able to skip
+                knowingly rather than by accident. */}
+            <label className={styles.createWhenSlot}>
+              <span className={styles.createWhenLabel}>Starts</span>
+              <input
+                className={styles.createWhenField}
+                disabled={submitting}
+                name="starts_at"
+                onChange={(changed) => setStartsAt(changed.target.value)}
+                type="datetime-local"
+                value={startsAt}
+              />
+            </label>
+            <label className={styles.createWhenSlot}>
+              <span className={styles.createWhenLabel}>Ends</span>
+              <input
+                className={styles.createWhenField}
+                disabled={submitting}
+                name="ends_at"
+                onChange={(changed) => {
+                  setEndsAt(changed.target.value);
+                  setError(null);
+                }}
+                ref={endsRef}
+                type="datetime-local"
+                value={endsAt}
+              />
+            </label>
             {/* Names `hostZone`, not the event's: the boxes to its left are
                 showing the viewer's wall-clock, and a chip that named the
                 stored zone would be inviting the viewer to "correct" a time

@@ -422,3 +422,44 @@ test("an event that locked mid-edit says so, rather than reading as a failure", 
     },
   );
 });
+
+test("the two date boxes say which is which on screen", async () => {
+  // They carried aria-labels and nothing visible, so a sighted organizer met
+  // two identical dd/mm/yyyy boxes with left-to-right order as the only clue —
+  // and asked what the second one was for.
+  await withForm(
+    async () => CREATED,
+    async (container) => {
+      const starts = container.querySelector('[name="starts_at"]')?.closest("label");
+      const ends = container.querySelector('[name="ends_at"]')?.closest("label");
+      expect(starts?.textContent).toContain("Starts");
+      expect(ends?.textContent).toContain("Ends");
+    },
+  );
+});
+
+test("pressing create covers the screen while the event is being made", async () => {
+  // Between the click and the new page painting there is a request and a full
+  // document load — a second or more in which the only sign of life used to be
+  // a small button reading "Saving…".
+  let release: (saved: EventSummaryRow) => void = () => {};
+  const pending = new Promise<EventSummaryRow>((resolve) => {
+    release = resolve;
+  });
+  await withForm(
+    () => pending,
+    async (container) => {
+      await act(async () => setInput(nameField(container), "Founder Night"));
+      expect(container.textContent).not.toContain("Setting up your evening");
+
+      await act(async () => buttonNamed(container, "Create event").click());
+      await waitFor(() =>
+        container.textContent?.includes("Setting up your evening") === true,
+      );
+
+      await act(async () => {
+        release(CREATED);
+      });
+    },
+  );
+});
