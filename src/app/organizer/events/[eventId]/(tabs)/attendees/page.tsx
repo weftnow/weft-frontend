@@ -5,7 +5,6 @@ import { AttendeeTable } from "@/features/organizer-dashboard/components/Attende
 import { EmptyState } from "@/features/organizer-dashboard/components/EmptyState";
 import { ExportCsvButton } from "@/features/organizer-dashboard/components/ExportCsvButton";
 import { LockedTab } from "@/features/organizer-dashboard/components/LockedTab";
-import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
 import {
   attendeeListSchema,
   eventSummaryRowSchema,
@@ -33,7 +32,7 @@ export default async function AttendeesPage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const { token, plan } = await requireTabContext(eventId);
+  const { token } = await requireTabContext(eventId);
 
   const outcome = await fetchFromBackend<unknown>(
     `/v1/events/${eventId}/responses`,
@@ -56,7 +55,6 @@ export default async function AttendeesPage({
 
   return (
     <>
-      <TabBar active="attendees" eventId={eventId} plan={plan} />
       <div className={styles.cardGrid}>
         {outcome.status === "planRequired" ? (
           <LockedTab feature="attendees" />

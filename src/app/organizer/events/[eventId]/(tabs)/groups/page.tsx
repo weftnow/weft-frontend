@@ -6,7 +6,6 @@ import {
   type GroupView,
 } from "@/features/organizer-dashboard/components/RoomMap";
 import { StatTiles } from "@/features/organizer-dashboard/components/StatTiles";
-import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
 import styles from "@/features/organizer-dashboard/components/Dashboard.module.css";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +35,6 @@ export default async function GroupsPage({
 
   return (
     <>
-      <TabBar active="groups" eventId={eventId} plan={plan} />
       <div className={styles.cardGrid}>
         {/*
           Gate on the plan, not on the shape of the data. Unlike Attendees and

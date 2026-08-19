@@ -4,7 +4,6 @@ import { BonusIntros } from "@/features/organizer-dashboard/components/BonusIntr
 import { EmptyState } from "@/features/organizer-dashboard/components/EmptyState";
 import { LockedTab } from "@/features/organizer-dashboard/components/LockedTab";
 import { OutcomeCards } from "@/features/organizer-dashboard/components/OutcomeCards";
-import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
 import {
   bonusIntroListSchema,
   outcomesSchema,
@@ -26,7 +25,7 @@ export default async function OutcomesPage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const { token, plan } = await requireTabContext(eventId);
+  const { token } = await requireTabContext(eventId);
 
   // Two independent reads, fired together. They answer different questions —
   // "did it work" and "who still needs introducing" — and the bonus list is
@@ -45,7 +44,6 @@ export default async function OutcomesPage({
 
   return (
     <>
-      <TabBar active="outcomes" eventId={eventId} plan={plan} />
       <div className={styles.cardGrid}>
         {outcome.status === "planRequired" ? (
           <LockedTab feature="outcomes" />
