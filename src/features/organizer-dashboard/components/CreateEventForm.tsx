@@ -109,13 +109,13 @@ function zoneLabel(zone: string): string {
 /**
  * The event screen: everything an organizer sets, on one surface.
  *
- * Two panes, following `src/create-event-demo/2.jpeg`. The left is what guests
- * read — the name, when and where, the description — with the name as an
- * oversized borderless field rather than a labelled box, because it is the
- * title of the thing being made and not one input among four. The right is the
- * settings rail: table size, capacity. They are separated by a firm border and
- * a change of background rather than by the reference's glow, which has nothing
- * to sit against on #fbfaf8.
+ * Two panes, following `public/placeholders/create-event-demo/2.jpeg`. The
+ * left is what guests read — the name, when and where, the description — with
+ * the name as an oversized borderless field rather than a labelled box,
+ * because it is the title of the thing being made and not one input among
+ * four. The right is the settings rail: table size, capacity. They are
+ * separated by a firm border and a change of background rather than by the
+ * reference's glow, which has nothing to sit against on #fbfaf8.
  *
  * `mode="edit"` reuses the whole screen rather than building a second one. The
  * differences are small and all of them are about what cannot change: table
