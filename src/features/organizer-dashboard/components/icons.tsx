@@ -1,7 +1,7 @@
 /**
  * The dashboard's icon set.
  *
- * Hand-authored rather than a package: eight glyphs do not justify a
+ * Hand-authored rather than a package: nine glyphs do not justify a
  * dependency, and drawing them here guarantees the one thing a mixed set never
  * gets right — a single stroke weight and cap style across every screen. All
  * of them inherit `currentColor` and size from the CSS, so a glyph never
@@ -27,6 +27,15 @@ export function ArrowLeftIcon() {
     <svg {...BASE}>
       <path d="M19 12H5" />
       <path d="m12 19-7-7 7-7" />
+    </svg>
+  );
+}
+
+export function ArrowRightIcon() {
+  return (
+    <svg {...BASE}>
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
     </svg>
   );
 }

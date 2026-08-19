@@ -14,10 +14,16 @@
  * Overview and the Live tab from drifting into two different-looking products.
  */
 
-.shell {
+.shell,
+.firstRun {
   /* Scoped to the dashboard rather than :root — these are this surface's
      decisions, and leaking them would put dashboard greys on the marketing
-     site. They resolve against the app-wide tokens in globals.css. */
+     site. They resolve against the app-wide tokens in globals.css.
+
+     .firstRun is on this list because the create-event form renders outside
+     the shell on the empty dashboard, and every --dash-* it reaches for was
+     undefined there: the panel lost its white and its border to an invalid
+     substitution. */
   --dash-bg: #fbfaf8;
   --dash-panel: #ffffff;
   --dash-line: rgb(18 18 18 / 8%);
@@ -43,7 +49,9 @@
   --dash-r-panel: 1.5rem;
   --dash-r-card: 1.1rem;
   --dash-r-tile: 0.8rem;
+}
 
+.shell {
   position: relative;
   display: grid;
   min-height: 100svh;
@@ -917,6 +925,13 @@
 
 .cardHead h2 { margin: 0; }
 
+/* Ember, not ink. The dashboard was the one surface still answering in black
+   while the auth screens and the marketing site had settled on the brand's
+   orange, so an organizer met a Weft button at sign-in and a different button
+   the moment they were inside. One primary action colour across the product.
+
+   Hover darkens toward ink rather than brightening: the resting state is
+   already the loudest colour we own, so there is nowhere up to go. */
 .primary {
   display: inline-flex;
   min-height: 2.75rem;
@@ -924,7 +939,7 @@
   justify-content: center;
   gap: 0.45rem;
   border-radius: 999px;
-  background: var(--color-ink);
+  background: var(--color-ember);
   padding: 0.6rem 1.35rem;
   color: var(--color-paper);
   font-family: inherit;
@@ -935,7 +950,7 @@
 }
 
 .primary:hover {
-  background: color-mix(in srgb, var(--color-ink) 88%, var(--color-ember));
+  background: color-mix(in srgb, var(--color-ember) 86%, var(--color-ink));
 }
 
 .primary:active { transform: scale(0.98); }
@@ -1353,9 +1368,12 @@
   white-space: nowrap;
 }
 
+/* The chosen table size wears the same ember as the button it sits beside: it
+   is the one decision on this form that shows its answer as a filled shape, and
+   in ink it read as a different product's control. */
 .createSize:has(input:checked) {
-  border-color: var(--color-ink);
-  background: var(--color-ink);
+  border-color: var(--color-ember);
+  background: var(--color-ember);
   color: var(--color-paper);
 }
 
@@ -1479,16 +1497,41 @@
 
 .createWhen > * + * { border-left: 1px solid var(--dash-line); }
 
+/* Each half of the joined control: its name above its box. The slot carries the
+   padding so the label and the field share one column edge. */
+.createWhenSlot {
+  display: grid;
+  min-width: 0;
+  gap: 0.1rem;
+  padding: 0.5rem 0.9rem 0.6rem;
+  cursor: pointer;
+}
+
+.createWhenLabel {
+  color: var(--dash-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
 /* Borderless inside the joined control: the wrapper already draws the box, and
    a second outline per box is what makes three dates look like three forms. */
 .createWhenField {
   min-width: 0;
   border: none;
   background: none;
-  padding: 0.8rem 0.9rem;
+  padding: 0;
   color: var(--color-ink);
   font-family: inherit;
   font-size: 0.9375rem;
+}
+
+/* The ring goes round the whole slot rather than the bare input: with the
+   padding moved out to the slot, an outline on the field alone would trace the
+   text and read as a selection rather than as focus. Inset so it stays inside
+   the joined control's own border. */
+.createWhenSlot:has(.createWhenField:focus-visible) {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: -3px;
 }
 
 .createZone {
@@ -1529,7 +1572,6 @@
   resize: vertical;
 }
 
-.createWhenField:focus-visible,
 .createInput:focus-visible,
 .createTextarea:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
@@ -1639,6 +1681,7 @@
 
    No margin and no self-alignment: it is a flex child of .pageHead, which
    already centres it against the title and pushes it to the far end. */
+/* The link twin of .primary — same colour decision, same reasoning. */
 .newEventButton {
   display: inline-flex;
   min-height: 2.75rem;
@@ -1646,7 +1689,7 @@
   justify-content: center;
   white-space: nowrap;
   border-radius: 999px;
-  background: var(--color-ink);
+  background: var(--color-ember);
   padding: 0.6rem 1.35rem;
   color: var(--color-paper);
   font-size: 0.9375rem;
@@ -1656,7 +1699,7 @@
 }
 
 .newEventButton:hover {
-  background: color-mix(in srgb, var(--color-ink) 88%, var(--color-ember));
+  background: color-mix(in srgb, var(--color-ember) 86%, var(--color-ink));
 }
 
 .newEventButton:active { transform: scale(0.98); }
@@ -1686,3 +1729,340 @@
 }
 
 .backLink:hover { color: var(--color-ink); }
+
+/* First run ---------------------------------------------------------------- */
+
+/* The screen a brand-new organizer lands on. Not the auth placeholder it used
+   to borrow: that centres its content in the viewport, which was right when the
+   form was the only thing here and drifts the form off-screen now that it is
+   the third element down. This starts at the top and lets the page grow. */
+.firstRun {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.25rem, 2.6vw, 2rem);
+  min-height: 100svh;
+  padding: clamp(2rem, 6vw, 4.5rem) clamp(1rem, 3vw, 2rem) clamp(3rem, 6vw, 5rem);
+  background: var(--color-bone);
+  color: var(--color-ink);
+}
+
+.firstRunHead {
+  display: flex;
+  width: min(64rem, 100%);
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  text-align: center;
+}
+
+.firstRunTitle {
+  margin: 0;
+  font-size: clamp(1.9rem, 4.2vw, 2.9rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.firstRunLede {
+  max-width: 44ch;
+  margin: 0;
+  color: var(--dash-muted);
+  /* Two short sentences that wrapped to leave "room." alone on its own line.
+     Balancing costs nothing here and the measure is far too short for the
+     performance caveat to apply. */
+  text-wrap: balance;
+}
+
+/* The arc. Five steps, only the first of which happens on this screen — the
+   point is that the other four exist and two of them belong to the guests.
+   Dots rather than 01/02/03: the order is already carried by reading order and
+   the connectors, and numbering would promise a checklist nothing ticks off. */
+.arc {
+  display: flex;
+  width: min(64rem, 100%);
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.arcStep {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--dash-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.arcStep::after {
+  content: "";
+  width: clamp(0.6rem, 2vw, 1.5rem);
+  height: 1px;
+  margin: 0 0.45rem;
+  background: var(--dash-line-firm);
+}
+
+.arcStep:last-child::after {
+  content: none;
+}
+
+/* The connectors only connect while the arc holds one line. Once it wraps they
+   strand a dash at the end of a row, pointing at nothing — so below the width
+   where five steps stop fitting, the dots and the spacing carry the sequence on
+   their own. */
+@media (max-width: 62rem) {
+  .arc {
+    gap: 0.55rem 1.1rem;
+  }
+
+  .arcStep::after {
+    content: none;
+  }
+}
+
+.arcDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--color-ink) 26%, transparent);
+}
+
+.arcStep[data-current="true"] {
+  color: var(--dash-ember-text);
+}
+
+.arcStep[data-current="true"] .arcDot {
+  background: var(--color-ember);
+  box-shadow: inset 0 0 0 1.5px var(--color-ember);
+}
+
+/* The sample night, offered rather than pushed: it sits below the arc and above
+   the form, quieter than the form's own button, so the primary action still
+   wins the eye. The dots are the real sample's real seats — a decorative row
+   would be a picture of a room, and this screen's whole job is to stop being
+   that. */
+.sampleCard {
+  display: flex;
+  width: min(64rem, 100%);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+  padding: 0.85rem 1.05rem;
+  border: 1px solid var(--dash-line-firm);
+  border-radius: var(--dash-r-card);
+  background: var(--dash-panel);
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.sampleCard:hover {
+  border-color: color-mix(in srgb, var(--color-ink) 45%, transparent);
+  box-shadow: 0 6px 18px rgb(18 18 18 / 7%);
+  transform: translateY(-1px);
+}
+
+.sampleCard:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: 2px;
+}
+
+.sampleRoom {
+  display: flex;
+  flex: none;
+  gap: 0.35rem;
+}
+
+.sampleTable {
+  display: flex;
+  gap: 0.16rem;
+  padding: 0.32rem 0.36rem;
+  border-radius: 0.42rem;
+  background: var(--dash-tile);
+}
+
+.sampleSeat {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--color-ember);
+}
+
+.sampleSeat[data-confirmed="false"] {
+  background: color-mix(in srgb, var(--color-ink) 20%, transparent);
+}
+
+.sampleText {
+  display: grid;
+  min-width: 0;
+  gap: 0.1rem;
+}
+
+.sampleTitle {
+  font-weight: 600;
+}
+
+.sampleMeta {
+  color: var(--dash-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.sampleGo {
+  display: grid;
+  margin-left: auto;
+  place-items: center;
+  color: var(--dash-muted);
+}
+
+.sampleGo svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.sampleCard:hover .sampleGo {
+  color: var(--dash-ember-text);
+  transform: translateX(2px);
+  transition: transform 160ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sampleCard,
+  .sampleCard:hover,
+  .sampleCard:hover .sampleGo {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* The sample dashboard ------------------------------------------------------ */
+
+/* Says what this is before anything below it can be mistaken for real. Ember
+   rather than a warning yellow: this is not a problem, it is a demonstration. */
+.sampleNotice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-ember) 30%, transparent);
+  border-radius: var(--dash-r-card);
+  background: color-mix(in srgb, var(--color-ember) 7%, white);
+  color: var(--dash-ember-text);
+  font-size: 0.9375rem;
+}
+
+.sampleNoticeBack {
+  margin-left: auto;
+  color: inherit;
+  font-weight: 600;
+}
+
+.sampleFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  grid-column: 1 / -1;
+}
+
+/* Saving overlay ----------------------------------------------------------- */
+
+/* Covers the whole viewport, not just the form: the wait ends in a full page
+   load, so anything that left the rest of the screen live would be promising
+   interactions that are about to be thrown away.
+
+   The wash is bone at 92% with a blur behind it rather than a solid screen —
+   the form is still there and still theirs, it is just no longer the thing to
+   look at. Not decoration: the blur is what stops two-column form text
+   competing with a centred mark for the eye. */
+.savingOverlay {
+  position: fixed;
+  z-index: 60;
+  display: grid;
+  inset: 0;
+  place-items: center;
+  padding: 2rem;
+  background: color-mix(in srgb, var(--color-bone) 92%, transparent);
+  backdrop-filter: blur(8px);
+  /* Held transparent for its first 120ms, so a request that fails almost
+     immediately never paints a cover at all. `backwards` is what applies the
+     keyframe's opacity during the delay rather than after it — without it the
+     overlay would appear at full strength and then fade in from nothing. */
+  animation: savingOverlayIn 260ms cubic-bezier(0.16, 1, 0.3, 1) 120ms backwards;
+}
+
+@keyframes savingOverlayIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The delay stays: it is there to avoid a flash, not to be decorative. Only the
+   fade is dropped. */
+@media (prefers-reduced-motion: reduce) {
+  .savingOverlay {
+    animation: savingOverlayIn 1ms linear 120ms backwards;
+  }
+}
+
+/* Tab loading skeleton ------------------------------------------------------ */
+
+/* Bars where the text will be, in the cards it will be in. The shimmer travels
+   rather than pulsing: a pulse reads as something blinking at you, a sweep
+   reads as something arriving — and it only ever runs while a fetch is in
+   flight, so there is no idle animation left on the screen. */
+.skeleton {
+  gap: 0.85rem;
+}
+
+.skeletonLine {
+  height: 0.85rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--dash-tile) 0%,
+    color-mix(in srgb, var(--color-ink) 7%, transparent) 50%,
+    var(--dash-tile) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonSweep 1.4s ease-in-out infinite;
+}
+
+.skeletonTitle {
+  width: 38%;
+  height: 1.1rem;
+}
+
+.skeletonShort {
+  width: 62%;
+}
+
+@keyframes skeletonSweep {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Reduced motion keeps the shape and drops the sweep: the bars still say "text
+   is coming here", which is the whole message. */
+@media (prefers-reduced-motion: reduce) {
+  .skeletonLine {
+    background: var(--dash-tile);
+    animation: none;
+  }
+}

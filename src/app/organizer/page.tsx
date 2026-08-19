@@ -5,6 +5,7 @@ import { readOrganizerSession } from "@/features/organizer-auth/api/server/organ
 import { fetchFromBackend } from "@/features/organizer-dashboard/api/server/dashboard.gateway";
 import { CreateEventForm } from "@/features/organizer-dashboard/components/CreateEventForm";
 import { DashboardShell } from "@/features/organizer-dashboard/components/DashboardShell";
+import { FirstEventIntro } from "@/features/organizer-dashboard/components/FirstEventIntro";
 import { formatEventDate } from "@/features/organizer-dashboard/model/eventDate.model";
 import {
   eventListSchema,
@@ -23,16 +24,24 @@ export const metadata: Metadata = {
 /**
  * An organizer with no events used to land on "No events yet. Create your first
  * event…" — an instruction the app gave them no way to follow, since nothing in
- * the frontend called POST /v1/events. The empty state is now the form itself:
+ * the frontend called POST /v1/events. The empty state became the form itself:
  * there is exactly one thing to do on this screen, so the screen is that thing.
+ *
+ * The form is still the screen, but it is no longer alone on it. A first-timer
+ * was being asked for a table size having never seen a Weft room, and creating
+ * the event is step one of five — the other four land over the following days,
+ * so a session that ends here ends with no feedback at all. FirstEventIntro
+ * supplies the arc and a finished night to look at; the form keeps the weight.
  */
 export function EventsList({ events }: { events: EventSummaryRow[] }) {
-  // The first event is the whole screen. There is exactly one thing to do here
-  // and no list to head it, so the form keeps the full-bleed auth shell rather
-  // than sitting in an empty dashboard panel.
+  // The first event is still the whole screen — no list to head it, no dashboard
+  // panel to sit in — but on its own surface now rather than the auth
+  // placeholder's, which centres its contents in the viewport and would push a
+  // form that is no longer the first element out of sight.
   if (events.length === 0) {
     return (
-      <main className={authStyles.dashboardPlaceholder}>
+      <main className={styles.firstRun}>
+        <FirstEventIntro />
         <CreateEventForm />
       </main>
     );
