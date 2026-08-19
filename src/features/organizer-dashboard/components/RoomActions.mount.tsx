@@ -8,7 +8,7 @@ const dom = new JSDOM("<!doctype html><html><body></body></html>", {
 });
 
 const posted: string[] = [];
-let lockFails = false;
+let requestFails = false;
 
 Object.assign(globalThis, {
   Element: dom.window.Element,
@@ -30,7 +30,7 @@ Object.assign(globalThis, {
 // fetch is recorded rather than mocked away silently.
 globalThis.fetch = (async (input: string) => {
   posted.push(String(input));
-  if (lockFails) return new Response("nope", { status: 503 });
+  if (requestFails) return new Response("nope", { status: 503 });
   return new Response(JSON.stringify({ status: "locked" }), {
     status: 202,
     headers: { "content-type": "application/json" },
@@ -41,6 +41,7 @@ const { act } = await import("react");
 const { createRoot } = await import("react-dom/client");
 const { QueryClient, QueryClientProvider } = await import("@tanstack/react-query");
 const { LockRoomCard } = await import("./LockRoomCard");
+const { RevealTablesCard } = await import("./RevealTablesCard");
 
 async function wait(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
@@ -155,7 +156,7 @@ test("a locked room stops offering to lock again", async () => {
 });
 
 test("a failed lock says nothing changed, and lets you retry", async () => {
-  lockFails = true;
+  requestFails = true;
   try {
     await withCard(12, async (container) => {
       await act(async () => buttonNamed(container, "Form groups now")!.click());
@@ -167,6 +168,79 @@ test("a failed lock says nothing changed, and lets you retry", async () => {
       expect(buttonNamed(container, "Yes, form groups")).toBeDefined();
     });
   } finally {
-    lockFails = false;
+    requestFails = false;
+  }
+});
+
+async function withRevealCard(run: (container: HTMLElement) => Promise<void>) {
+  posted.length = 0;
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  const container = dom.window.document.createElement("div");
+  dom.window.document.body.append(container);
+  const root: Root = createRoot(container);
+  await act(async () => {
+    root.render(
+      <QueryClientProvider client={client}>
+        <RevealTablesCard eventId="e1" />
+      </QueryClientProvider>,
+    );
+  });
+  try {
+    await run(container);
+  } finally {
+    await act(async () => root.unmount());
+    container.remove();
+  }
+}
+
+test("the first click asks rather than reveals", async () => {
+  await withRevealCard(async (container) => {
+    await act(async () => buttonNamed(container, "Reveal the tables")!.click());
+    await act(async () => wait(30));
+
+    expect(posted).toEqual([]);
+    expect(container.textContent).toContain("cannot be undone");
+    expect(buttonNamed(container, "Yes, reveal")).toBeDefined();
+  });
+});
+
+test("confirming is what sends the reveal", async () => {
+  await withRevealCard(async (container) => {
+    await act(async () => buttonNamed(container, "Reveal the tables")!.click());
+    await act(async () => buttonNamed(container, "Yes, reveal")!.click());
+    await waitFor(() => posted.length > 0, "the reveal request");
+    expect(posted[0]).toBe("/api/organizer/events/e1/reveal");
+  });
+});
+
+test("a revealed room stops offering to reveal", async () => {
+  // There is no un-reveal. A button still standing there would imply one.
+  await withRevealCard(async (container) => {
+    await act(async () => buttonNamed(container, "Reveal the tables")!.click());
+    await act(async () => buttonNamed(container, "Yes, reveal")!.click());
+    await waitFor(
+      () => container.textContent?.includes("The tables are out") === true,
+      "the revealed state",
+    );
+    expect(buttonNamed(container, "Reveal the tables")).toBeUndefined();
+  });
+});
+
+test("a failed reveal says nothing changed, and lets you retry", async () => {
+  requestFails = true;
+  try {
+    await withRevealCard(async (container) => {
+      await act(async () => buttonNamed(container, "Reveal the tables")!.click());
+      await act(async () => buttonNamed(container, "Yes, reveal")!.click());
+      await waitFor(
+        () => container.textContent?.includes("Nothing has changed") === true,
+        "the failure message",
+      );
+      expect(buttonNamed(container, "Yes, reveal")).toBeDefined();
+    });
+  } finally {
+    requestFails = false;
   }
 });

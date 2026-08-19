@@ -7,11 +7,11 @@ import { fileURLToPath } from "node:url";
  * not something to leave behind for whichever test file bun runs next.
  */
 test(
-  "lock room card passes in an isolated DOM",
+  "the room action cards pass in an isolated DOM",
   async () => {
     const projectRoot = fileURLToPath(new URL("../../../..", import.meta.url));
     const mountedSuite = fileURLToPath(
-      new URL("./LockRoomCard.mount.tsx", import.meta.url),
+      new URL("./RoomActions.mount.tsx", import.meta.url),
     );
     const subprocess = Bun.spawn({
       cmd: [process.execPath, "test", mountedSuite],

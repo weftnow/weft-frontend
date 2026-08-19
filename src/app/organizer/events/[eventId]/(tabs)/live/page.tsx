@@ -2,7 +2,6 @@ import { loadEvent } from "@/features/organizer-dashboard/api/server/event.serve
 import { requireTabContext } from "@/features/organizer-dashboard/api/server/tabPage.server";
 import { DashboardProvider } from "@/features/organizer-dashboard/components/DashboardProvider";
 import { LiveRoom } from "@/features/organizer-dashboard/components/LiveRoom";
-import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
 import { eventSummaryRowSchema } from "@/features/organizer-dashboard/schemas/dashboard.schema";
 import styles from "@/features/organizer-dashboard/components/Dashboard.module.css";
 
@@ -22,7 +21,7 @@ export default async function LivePage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const { token, summary, plan } = await requireTabContext(eventId);
+  const { token, summary } = await requireTabContext(eventId);
 
   const outcome = await loadEvent(eventId, token);
   const parsed =
@@ -31,7 +30,6 @@ export default async function LivePage({
 
   return (
     <>
-      <TabBar eventId={eventId} active="live" plan={plan} />
       <DashboardProvider>
         <div className={styles.cardGrid}>
           <LiveRoom
@@ -42,6 +40,9 @@ export default async function LivePage({
             // been through it, and offering the button again would suggest the
             // matching could be re-run.
             canLock={event?.state === "open"}
+            // The starting point only. LiveRoom promotes it to "revealable"
+            // off its own poll, because matching finishes after this renders.
+            state={event?.state ?? "open"}
             partitionError={event?.partition_error ?? null}
           />
         </div>
