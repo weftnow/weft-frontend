@@ -7,7 +7,6 @@ import { IntentChart } from "@/features/organizer-dashboard/components/IntentCha
 import { OverviewCards } from "@/features/organizer-dashboard/components/OverviewCards";
 import { ReadinessCard } from "@/features/organizer-dashboard/components/ReadinessCard";
 import { ShareFormLink } from "@/features/organizer-dashboard/components/ShareFormLink";
-import { TabBar } from "@/features/organizer-dashboard/components/TabBar";
 import { acceptsResponses } from "@/features/organizer-dashboard/model/eventState.model";
 import {
   eventSummaryRowSchema,
@@ -39,7 +38,7 @@ export default async function OverviewPage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const { token, summary, plan } = await requireTabContext(eventId);
+  const { token, summary } = await requireTabContext(eventId);
 
   const intentOutcome = await fetchFromBackend<unknown>(
     `/v1/events/${eventId}/intent`,
@@ -60,7 +59,6 @@ export default async function OverviewPage({
 
   return (
     <>
-      <TabBar active="overview" eventId={eventId} plan={plan} />
       <div className={styles.cardGrid}>
         {event?.form_token && acceptsResponses(event.state) ? (
           <ShareFormLink formToken={event.form_token} />

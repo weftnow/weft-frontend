@@ -55,6 +55,18 @@ export function lockEvent(eventId: string): Promise<{ status: string }> {
 }
 
 /**
+ * Arm the countdown. Every guest's phone shows their table five seconds later.
+ *
+ * Irreversible on the backend by design, so the card that calls this asks
+ * twice before it does.
+ */
+export function revealEvent(eventId: string): Promise<{ status: string }> {
+  return request<{ status: string }>(`/api/organizer/events/${eventId}/reveal`, {
+    method: "POST",
+  });
+}
+
+/**
  * Create an event and get it back, form token and all.
  *
  * No `validation` error code, deliberately. eventCreateSchema applies the same

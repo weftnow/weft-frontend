@@ -2,7 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { fetchGroups } from "../api/client/dashboard.client";
+import { revealable, type EventState } from "../model/eventState.model";
 import { LockRoomCard } from "./LockRoomCard";
+import { RevealTablesCard } from "./RevealTablesCard";
 import { RoomMap } from "./RoomMap";
 import { StatTiles } from "./StatTiles";
 import styles from "./Dashboard.module.css";
@@ -27,12 +29,14 @@ export function LiveRoom({
   checkedIn,
   submitted,
   canLock,
+  state,
   partitionError,
 }: {
   eventId: string;
   checkedIn: number;
   submitted: number;
   canLock: boolean;
+  state: EventState;
   partitionError: string | null;
 }) {
   const groups = useQuery({
@@ -44,6 +48,10 @@ export function LiveRoom({
   const rows = groups.data ?? [];
   const seats = rows.flatMap((group) => group.members);
   const confirmed = seats.filter((member) => member.confirmed).length;
+  // Read off the poll rather than off `state` alone: the page rendered before
+  // the partition worker finished, so the state it was given goes stale and the
+  // button would never appear. Tables in the map are the proof it landed.
+  const canReveal = revealable(state, rows.length > 0);
 
   return (
     <>
@@ -57,10 +65,12 @@ export function LiveRoom({
         </section>
       ) : null}
 
-      {/* Narrows to make room for the lock action only while that action
-          exists. An event past "open" has nothing to decide, so the counts
-          take the whole row rather than leaving a hole beside them. */}
-      <section className={`${styles.card} ${canLock ? styles.major : styles.wide}`}>
+      {/* Narrows to make room for whichever action is live — locking, then
+          revealing. With neither on offer there is nothing to decide, so the
+          counts take the whole row rather than leaving a hole beside them. */}
+      <section
+        className={`${styles.card} ${canLock || canReveal ? styles.major : styles.wide}`}
+      >
         <h2>The night so far</h2>
         <StatTiles
           lead
@@ -73,6 +83,7 @@ export function LiveRoom({
       </section>
 
       {canLock ? <LockRoomCard eventId={eventId} submitted={submitted} /> : null}
+      {canReveal ? <RevealTablesCard eventId={eventId} /> : null}
 
       <section className={`${styles.card} ${styles.wide}`}>
         <h2>The room</h2>

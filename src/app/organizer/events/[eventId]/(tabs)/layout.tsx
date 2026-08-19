@@ -11,6 +11,7 @@ import { readOrganizerSession } from "@/features/organizer-auth/api/server/organ
 import { loadEvent, loadSummary } from "@/features/organizer-dashboard/api/server/event.server";
 import { DashboardShell } from "@/features/organizer-dashboard/components/DashboardShell";
 import { EventHeader } from "@/features/organizer-dashboard/components/EventHeader";
+import { TabBarNav } from "@/features/organizer-dashboard/components/TabBarNav";
 import { acceptsResponses } from "@/features/organizer-dashboard/model/eventState.model";
 import {
   eventSummaryRowSchema,
@@ -22,11 +23,10 @@ export const dynamic = "force-dynamic";
 /**
  * The navigation rail and the event header.
  *
- * Each tab page renders its own TabBar, because a layout cannot read which
- * child segment rendered and so cannot say which tab is active. Every tab page
- * already fetches the summary for the organizer's plan, so passing `active`
- * from there costs nothing and avoids a client component with a mocked router
- * just to highlight one link.
+ * The tab bar lives here rather than in each of the five pages. A layout
+ * cannot read which child segment rendered, so TabBarNav takes the active tab
+ * from the path — which costs one small client component and buys a navigation
+ * that survives loading.tsx instead of vanishing with the page it belonged to.
  *
  * Both fetches here are the memoised ones every tab page also calls, so the
  * header's response count arrives without a request of its own.
@@ -72,6 +72,10 @@ export default async function EventLayout({
         startsAt={event?.success ? event.data.starts_at : null}
         state={event?.success ? event.data.state : null}
         submitted={summary?.success ? summary.data.submitted : null}
+      />
+      <TabBarNav
+        eventId={eventId}
+        plan={summary?.success ? summary.data.plan : "free"}
       />
       {children}
     </DashboardShell>

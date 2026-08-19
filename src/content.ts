@@ -317,6 +317,10 @@ export const content = {
     headline: [{ text: "The things", muted: "people ask." }],
     items: [
       {
+        q: "How is Weft different from other networking tools?",
+        a: "Most of them hand you a chat app and a list to scroll, and you still do the work of finding anyone worth meeting. Weft solves the whole room at once with our own scoring model, and it optimizes for the person who's least well matched at each table, not the average. You get a table to walk to, not an app to navigate.",
+      },
+      {
         q: "How is this different from matching by shared interests?",
         a: "Two people who both like hiking might have nothing else in common. Weft looks past hobbies to what actually predicts a good conversation: goals, expertise, and values together. Then it builds small groups around that.",
       },
