@@ -1,9 +1,10 @@
 import type { GroupView } from "../../components/RoomMap";
 import type { EventCreateBody, EventSummaryRow, EventUpdateBody } from "../../schemas/dashboard.schema";
-import type {
-  OrganizerMe,
-  PasswordChangeBody,
-  SettingsUpdateBody,
+import {
+  organizerMeSchema,
+  type OrganizerMe,
+  type PasswordChangeBody,
+  type SettingsUpdateBody,
 } from "@/features/organizer-settings/schemas/settings.schema";
 
 const REQUEST_TIMEOUT_MS = 8_000;
@@ -127,13 +128,23 @@ export function updateEvent(
  * settingsUpdateSchema applies the backend's own rules in the browser first,
  * so a rejection that gets this far means the two copies have drifted — our
  * bug, not a sentence to show the organizer.
+ *
+ * The response is parsed with organizerMeSchema rather than cast, unlike a
+ * plain `request<OrganizerMe>` call: this result gets written straight into
+ * `savedProfile`, which every later PATCH body is built from, so a shape
+ * that merely looked like OrganizerMe would poison every save after this
+ * one. `.parse` throws on a mismatch rather than returning a safeParse
+ * result — the caller's existing catch block already turns anything that
+ * is not a DashboardClientError into the same "couldn't save" copy, which
+ * is the right story for our own drift.
  */
-export function updateSettings(body: SettingsUpdateBody): Promise<OrganizerMe> {
-  return request<OrganizerMe>("/api/organizer/settings", {
+export async function updateSettings(body: SettingsUpdateBody): Promise<OrganizerMe> {
+  const data = await request<unknown>("/api/organizer/settings", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+  return organizerMeSchema.parse(data);
 }
 
 /**

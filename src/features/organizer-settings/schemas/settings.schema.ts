@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { timezoneSchema } from "@/features/organizer-auth/schemas/organizerAuth.schema";
-import { ORGANIZER_ROLES } from "@/features/organizer-auth/types/organizerAuth.types";
+import {
+  ORGANIZER_LANGUAGES,
+  ORGANIZER_ROLES,
+} from "@/features/organizer-auth/types/organizerAuth.types";
 
 /**
  * The backend's rules, restated in the browser.
@@ -47,7 +50,7 @@ export const settingsUpdateSchema = z
     // here: both screens send this to the same backend rule (ZoneInfo(value)
     // raising rejects it), so one refine keeps them from drifting apart.
     timezone: timezoneSchema,
-    default_language: z.enum(["en", "es"]),
+    default_language: z.enum(ORGANIZER_LANGUAGES),
     whatsapp: optionalText(40),
   })
   // Mirrors the backend's merged-row check. The form always sends every field,
@@ -59,8 +62,11 @@ export const settingsUpdateSchema = z
 
 export const passwordChangeSchema = z.object({
   current_password: z.string().min(1),
-  // Field(min_length=8) on the backend.
-  new_password: z.string().min(8),
+  // Field(min_length=8, max_length=72) on the backend. The ceiling is
+  // bcrypt's, not a policy choice — hashpw raises above 72 bytes, and a
+  // reject-before-sending here is what keeps that from ever reaching the
+  // network as an opaque failure.
+  new_password: z.string().min(8).max(72),
 });
 
 export type OrganizerMe = z.infer<typeof organizerMeSchema>;

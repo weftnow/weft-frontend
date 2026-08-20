@@ -48,10 +48,50 @@ const PLAN_UNLOCKS =
   "The paid plan unlocks attendee names, contact details and outcomes — " +
   "who sat where, and what came of the night.";
 
-/** Matches the tone of CreateEventForm's ERRORS map: nothing was lost. */
+/**
+ * Matches the tone of CreateEventForm's ERRORS map: nothing was lost.
+ *
+ * Reserved for what it was written for — a request that actually failed in
+ * transit, or a rejection settingsUpdateSchema/passwordChangeSchema did not
+ * anticipate, which means the browser's copy of the backend's rules has
+ * drifted and this is our bug, not the organizer's mistake. Anything the
+ * schemas *do* anticipate (a blank name, a missing role_other, a short
+ * password) gets its own sentence below instead — "try again" is wrong
+ * advice when retyping the same thing reproduces the same rejection.
+ */
 const SAVE_ERROR = "We couldn't save that. Your details are still here — try again.";
 const PASSWORD_INVALID_ERROR =
   "That isn't your current password. The rest of your settings are untouched.";
+const PASSWORD_CHANGED = "Your password was updated.";
+/** Shown as a hint before submission, not only after the fact via passwordErrorMessage. */
+const NEW_PASSWORD_HINT = "At least 8 characters.";
+
+/** Which field settingsUpdateSchema rejected, worded the way CreateEventForm's
+ * ERRORS map is. */
+function profileErrorMessage(
+  issue: { path: PropertyKey[]; message: string } | undefined,
+): string {
+  if (!issue) return SAVE_ERROR;
+  if (issue.path[0] === "organization_name") return "Give the organization a name.";
+  if (issue.path[0] === "contact_name") return "Give a contact name.";
+  // The refine that checks this already wrote the right sentence — reading
+  // it back here keeps this from ever saying something different from what
+  // the check itself says.
+  if (issue.path[0] === "role_other") return issue.message;
+  return SAVE_ERROR;
+}
+
+/** Same idea for passwordChangeSchema: only the new-password floor and
+ * ceiling get their own copy, both of which are visible on the box itself
+ * too (see NEW_PASSWORD_HINT and the input's maxLength). */
+function passwordErrorMessage(
+  issue: { path: PropertyKey[]; code?: string } | undefined,
+): string {
+  if (!issue || issue.path[0] !== "new_password") return SAVE_ERROR;
+  if (issue.code === "too_small") return "Your new password needs at least 8 characters.";
+  if (issue.code === "too_big") return "New passwords can be at most 72 characters.";
+  return SAVE_ERROR;
+}
 
 export type SettingsClient = {
   updateSettings(body: SettingsUpdateBody): Promise<OrganizerMe>;
@@ -116,6 +156,12 @@ export function SettingsCards({
   const [newPassword, setNewPassword] = useState("");
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  // Both boxes clear on a successful change, which alone looks identical to
+  // an accidental reset — this is what tells the organizer the save actually
+  // happened. Cleared the moment either box is edited again: it describes a
+  // save that already occurred, and stops being true the instant a new
+  // attempt starts.
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
   const passwordInFlight = useRef(false);
 
   // The zone stored on the organizer's row might not be one Intl still lists
@@ -160,7 +206,7 @@ export function SettingsCards({
 
     const parsed = settingsUpdateSchema.safeParse(buildBody());
     if (!parsed.success) {
-      setError(SAVE_ERROR);
+      setError(profileErrorMessage(parsed.error.issues[0]));
       return;
     }
 
@@ -219,7 +265,7 @@ export function SettingsCards({
       new_password: newPassword,
     });
     if (!parsed.success) {
-      setPasswordError(SAVE_ERROR);
+      setPasswordError(passwordErrorMessage(parsed.error.issues[0]));
       return;
     }
 
@@ -230,6 +276,7 @@ export function SettingsCards({
       await client.changePassword(parsed.data);
       setCurrentPassword("");
       setNewPassword("");
+      setPasswordSuccess(true);
     } catch (reason) {
       if (reason instanceof DashboardClientError) {
         if (reason.code === "unauthorized") {
@@ -350,26 +397,36 @@ export function SettingsCards({
       >
         <h2>Defaults</h2>
         <div className={styles.fields}>
-          <label className={styles.field}>
-            <span>Timezone</span>
-            <select
-              className={styles.select}
-              disabled={defaultsSubmitting}
-              name="timezone"
-              onChange={(changed) => setTimezone(changed.target.value)}
-              value={timezone}
-            >
-              {timezoneOptions.map((zone) => (
-                <option key={zone} value={zone}>
-                  {zone}
-                </option>
-              ))}
-            </select>
-            <p className={styles.fieldCaption}>
+          {/* The caption is a sibling of the label, not nested inside it:
+              <label>'s content model is phrasing content, and a <p> inside
+              one gets read by a screen reader as part of the select's own
+              name. aria-describedby says the same thing without the invalid
+              nesting. Both the outer div and the label reuse .field's grid so
+              the visual spacing — label stacked tight over its caption, span
+              stacked tight over the select — is unchanged. */}
+          <div className={styles.field}>
+            <label className={styles.field}>
+              <span>Timezone</span>
+              <select
+                aria-describedby="timezone-caption"
+                className={styles.select}
+                disabled={defaultsSubmitting}
+                name="timezone"
+                onChange={(changed) => setTimezone(changed.target.value)}
+                value={timezone}
+              >
+                {timezoneOptions.map((zone) => (
+                  <option key={zone} value={zone}>
+                    {zone}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className={styles.fieldCaption} id="timezone-caption">
               Events that don&apos;t set their own timezone use this one — changing it
               moves when they start and lock.
             </p>
-          </label>
+          </div>
           <label className={styles.field}>
             <span>Language</span>
             <select
@@ -413,26 +470,45 @@ export function SettingsCards({
               className={styles.input}
               disabled={passwordSubmitting}
               name="current_password"
-              onChange={(changed) => setCurrentPassword(changed.target.value)}
+              onChange={(changed) => {
+                setCurrentPassword(changed.target.value);
+                setPasswordSuccess(false);
+              }}
               type="password"
               value={currentPassword}
             />
           </label>
-          <label className={styles.field}>
-            <span>New password</span>
-            <input
-              autoComplete="new-password"
-              className={styles.input}
-              disabled={passwordSubmitting}
-              name="new_password"
-              onChange={(changed) => setNewPassword(changed.target.value)}
-              type="password"
-              value={newPassword}
-            />
-          </label>
+          {/* The caption is a sibling of the label, for the same HTML-validity
+              reason as the timezone field's above. */}
+          <div className={styles.field}>
+            <label className={styles.field}>
+              <span>New password</span>
+              <input
+                aria-describedby="new-password-hint"
+                autoComplete="new-password"
+                className={styles.input}
+                disabled={passwordSubmitting}
+                maxLength={72}
+                minLength={8}
+                name="new_password"
+                onChange={(changed) => {
+                  setNewPassword(changed.target.value);
+                  setPasswordSuccess(false);
+                }}
+                type="password"
+                value={newPassword}
+              />
+            </label>
+            <p className={styles.fieldCaption} id="new-password-hint">
+              {NEW_PASSWORD_HINT}
+            </p>
+          </div>
         </div>
         {passwordError ? (
           <p className={dashStyles.errorNote} role="alert">{passwordError}</p>
+        ) : null}
+        {passwordSuccess ? (
+          <p className={styles.successNote} role="status">{PASSWORD_CHANGED}</p>
         ) : null}
         <div className={dashStyles.actionRow}>
           <button className={dashStyles.primary} disabled={passwordSubmitting} type="submit">

@@ -60,6 +60,15 @@
   line-height: 1.5;
 }
 
+/* The one card whose success is otherwise invisible: both password boxes
+   clear the same way a failed attempt would leave them, so this is what
+   tells the two apart. Same shape as Dashboard's .errorNote, .dash-go
+   instead of .dash-stop. */
+.successNote {
+  margin-top: 0.75rem;
+  color: var(--dash-go);
+}
+
 .planName {
   margin: 0 0 0.15rem;
   font-size: 1.375rem;
