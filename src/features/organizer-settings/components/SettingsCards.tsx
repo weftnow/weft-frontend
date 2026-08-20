@@ -208,8 +208,14 @@ export function SettingsCards({
 
   return (
     <div className={dashStyles.cardGrid}>
+      {/*
+        Full width rather than sharing a row: with up to five fields
+        (including role_other) this is the card with the most to hold, and
+        `.major` at four of six columns was leaving Defaults stranded alone
+        on the row below it with three empty columns beside it.
+      */}
       <form
-        className={`${dashStyles.card} ${dashStyles.major}`}
+        className={`${dashStyles.card} ${dashStyles.wide}`}
         noValidate
         onSubmit={submitOrganization}
       >
@@ -393,7 +399,7 @@ export function SettingsCards({
         </div>
       </form>
 
-      <section className={`${dashStyles.card} ${dashStyles.half}`}>
+      <section className={`${dashStyles.card} ${dashStyles.wide}`}>
         <h2>Your plan</h2>
         <p className={styles.planName}>{organizer.plan}</p>
         <p className={dashStyles.caption}>{PLAN_UNLOCKS}</p>
