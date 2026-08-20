@@ -158,9 +158,10 @@ export function SettingsCards({
   const [passwordError, setPasswordError] = useState<string | null>(null);
   // Both boxes clear on a successful change, which alone looks identical to
   // an accidental reset — this is what tells the organizer the save actually
-  // happened. Cleared the moment either box is edited again: it describes a
-  // save that already occurred, and stops being true the instant a new
-  // attempt starts.
+  // happened. Cleared the moment either box is edited again, or the moment a
+  // later submit fails for any reason: it describes a save that already
+  // occurred, and a stale banner from a previous success must not sit
+  // alongside a fresh error saying the opposite.
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const passwordInFlight = useRef(false);
 
@@ -266,6 +267,7 @@ export function SettingsCards({
     });
     if (!parsed.success) {
       setPasswordError(passwordErrorMessage(parsed.error.issues[0]));
+      setPasswordSuccess(false);
       return;
     }
 
@@ -285,10 +287,12 @@ export function SettingsCards({
         }
         if (reason.code === "invalidPassword") {
           setPasswordError(PASSWORD_INVALID_ERROR);
+          setPasswordSuccess(false);
           return;
         }
       }
       setPasswordError(SAVE_ERROR);
+      setPasswordSuccess(false);
     } finally {
       passwordInFlight.current = false;
       setPasswordSubmitting(false);
