@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { timezoneSchema } from "@/features/organizer-auth/schemas/organizerAuth.schema";
 import { ORGANIZER_ROLES } from "@/features/organizer-auth/types/organizerAuth.types";
 
 /**
@@ -42,7 +43,10 @@ export const settingsUpdateSchema = z
     organization_name: trimmedName,
     role: z.enum(ORGANIZER_ROLES),
     role_other: optionalText(200),
-    timezone: z.string().min(1).max(64),
+    // Shared with organizer-auth's registration form rather than re-checked
+    // here: both screens send this to the same backend rule (ZoneInfo(value)
+    // raising rejects it), so one refine keeps them from drifting apart.
+    timezone: timezoneSchema,
     default_language: z.enum(["en", "es"]),
     whatsapp: optionalText(40),
   })

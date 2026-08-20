@@ -16,8 +16,9 @@ const ME = {
 
 describe("organizerMeSchema", () => {
   test("rejects a body with no plan, since the plan card would render blank", () => {
-    const { plan: _plan, ...withoutPlan } = ME;
-    expect(organizerMeSchema.safeParse(withoutPlan).success).toBe(false);
+    expect(
+      organizerMeSchema.safeParse({ ...ME, plan: undefined }).success,
+    ).toBe(false);
   });
 });
 
