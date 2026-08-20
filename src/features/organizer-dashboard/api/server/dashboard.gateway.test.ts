@@ -42,4 +42,26 @@ describe("fetchFromBackend", () => {
     );
     expect(outcome).toEqual({ status: "unauthorized" });
   });
+
+  test("maps 400 to badRequest, carrying the code the UI keys off", async () => {
+    process.env.WEFT_B2B_API_URL = "http://backend";
+    const outcome = await fetchFromBackend(
+      "/v1/auth/password",
+      "token",
+      { method: "POST" },
+      stubFetch(400, { detail: "current password is incorrect", code: "invalid_password" }),
+    );
+    expect(outcome).toEqual({ status: "badRequest", code: "invalid_password" });
+  });
+
+  test("a 204 is ok with no body, not a parse failure", async () => {
+    process.env.WEFT_B2B_API_URL = "http://backend";
+    const outcome = await fetchFromBackend(
+      "/v1/auth/password",
+      "token",
+      { method: "POST" },
+      (async () => new Response(null, { status: 204 })) as unknown as typeof fetch,
+    );
+    expect(outcome).toEqual({ status: "ok", data: null });
+  });
 });
