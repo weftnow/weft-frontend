@@ -16,7 +16,13 @@ const email = z.string().trim().email().max(320);
 const role = z.enum(ORGANIZER_ROLES);
 const roleOtherText = z.string().trim().min(1).max(200);
 const language = z.enum(ORGANIZER_LANGUAGES);
-const timezone = z.string().trim().min(1).max(64).refine((value) => {
+
+/**
+ * A valid IANA zone, max 64 — mirrors the backend, which constructs
+ * `ZoneInfo(value)` and rejects anything that raises. Exported so
+ * organizer-settings can reuse it rather than duplicating the refine.
+ */
+export const timezoneSchema = z.string().trim().min(1).max(64).refine((value) => {
   try {
     new Intl.DateTimeFormat("en-US", { timeZone: value }).format();
     return true;
@@ -34,7 +40,7 @@ export const registrationRequestSchema = z.object({
   role_other: roleOtherText.nullable(),
   email,
   password: z.string().min(8).max(72),
-  timezone,
+  timezone: timezoneSchema,
   default_language: language,
 }).strict()
   .refine(
@@ -110,7 +116,7 @@ export function resolveBrowserTimezone(
     Intl.DateTimeFormat().resolvedOptions().timeZone,
 ): string {
   try {
-    const parsed = timezone.safeParse(readTimezone());
+    const parsed = timezoneSchema.safeParse(readTimezone());
     return parsed.success ? parsed.data : "UTC";
   } catch {
     return "UTC";

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarIcon, LogOutIcon } from "./icons";
+import { CalendarIcon, LogOutIcon, SettingsIcon } from "./icons";
 import styles from "./Dashboard.module.css";
 
 /**
@@ -21,7 +21,7 @@ export function DashboardShell({
   active = "events",
   children,
 }: {
-  active?: "events";
+  active?: "events" | "settings";
   children: React.ReactNode;
 }) {
   return (
@@ -48,6 +48,14 @@ export function DashboardShell({
           >
             <CalendarIcon />
             Events
+          </Link>
+          <Link
+            aria-current={active === "settings" ? "page" : undefined}
+            className={styles.navItem}
+            href="/organizer/settings"
+          >
+            <SettingsIcon />
+            Settings
           </Link>
         </nav>
 

@@ -20,6 +20,11 @@ export type DashboardOutcome<T> =
   // one means "we're down", this one means "you're too late", and telling an
   // organizer the wrong one sends them to refresh instead of to reload.
   | { status: "conflict" }
+  // A rejection the organizer caused and can fix — today only a wrong current
+  // password, which is the one thing on the settings screen the browser
+  // cannot check before asking. Distinct from `unavailable` because that
+  // sentence is "we're down", and this one is "that isn't your password".
+  | { status: "badRequest"; code: string }
   | { status: "unavailable" };
 
 function backendBaseUrl(): string | null {
@@ -59,10 +64,24 @@ export async function fetchFromBackend<T>(
   if (response.status === 402) return { status: "planRequired" };
   if (response.status === 404) return { status: "notFound" };
   if (response.status === 409) return { status: "conflict" };
+  if (response.status === 400) {
+    // The DomainError body is {detail, code}. A 400 without one is still the
+    // organizer's request to fix, so it reports badRequest rather than
+    // falling through to "we're down".
+    const body = (await response.json().catch(() => null)) as { code?: unknown } | null;
+    return {
+      status: "badRequest",
+      code: typeof body?.code === "string" ? body.code : "unknown",
+    };
+  }
   if (!response.ok) {
     console.error("dashboard request failed", response.status);
     return { status: "unavailable" };
   }
+
+  // 204: the request succeeded and there is nothing to say. Reading a body
+  // here would throw and turn a successful save into "we're down".
+  if (response.status === 204) return { status: "ok", data: null as T };
 
   try {
     return { status: "ok", data: (await response.json()) as T };

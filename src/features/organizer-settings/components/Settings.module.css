@@ -1,0 +1,78 @@
+/*
+ * Settings screen styling.
+ *
+ * This is deliberately thin. The cards, the grid, the buttons and the error
+ * text all come from Dashboard.module.css's .card/.cardGrid/.primary/
+ * .errorNote — this file only adds what that one does not already cover:
+ * labelled fields and the native selects the timezone and role pickers use.
+ * The custom properties below (--dash-line-firm, --dash-r-tile, and so on)
+ * are declared on .shell in Dashboard.module.css and reach here through the
+ * DOM, not the stylesheet — SettingsCards only ever renders inside it.
+ */
+
+.fields {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.input,
+.select {
+  width: 100%;
+  border: 1px solid var(--dash-line-firm);
+  border-radius: var(--dash-r-tile);
+  padding: 0.7rem 0.85rem;
+  background: var(--dash-panel);
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 400;
+}
+
+.select { cursor: pointer; }
+
+.input:focus-visible,
+.select:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-signal) 70%, white);
+  outline-offset: 2px;
+}
+
+.input:disabled,
+.select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Belongs to the field above it, the same idiom as Dashboard's
+   `.card h2 + .caption`: the gap closes so the sentence reads as part of the
+   control it explains rather than a new paragraph. */
+.fieldCaption {
+  margin: 0.1rem 0 0;
+  font-weight: 400;
+  color: var(--dash-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+/* The one card whose success is otherwise invisible: both password boxes
+   clear the same way a failed attempt would leave them, so this is what
+   tells the two apart. Same shape as Dashboard's .errorNote, .dash-go
+   instead of .dash-stop. */
+.successNote {
+  margin-top: 0.75rem;
+  color: var(--dash-go);
+}
+
+.planName {
+  margin: 0 0 0.15rem;
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: capitalize;
+}

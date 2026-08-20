@@ -1,5 +1,11 @@
 import type { GroupView } from "../../components/RoomMap";
 import type { EventCreateBody, EventSummaryRow, EventUpdateBody } from "../../schemas/dashboard.schema";
+import {
+  organizerMeSchema,
+  type OrganizerMe,
+  type PasswordChangeBody,
+  type SettingsUpdateBody,
+} from "@/features/organizer-settings/schemas/settings.schema";
 
 const REQUEST_TIMEOUT_MS = 8_000;
 
@@ -13,7 +19,14 @@ const REQUEST_TIMEOUT_MS = 8_000;
  */
 export class DashboardClientError extends Error {
   constructor(
-    readonly code: "unauthorized" | "planRequired" | "unavailable" | "conflict",
+    readonly code:
+      | "unauthorized"
+      | "planRequired"
+      | "unavailable"
+      | "conflict"
+      // The only settings rejection the browser cannot pre-check: whether the
+      // current password is right is something only the server knows.
+      | "invalidPassword",
   ) {
     super(code);
     this.name = "DashboardClientError";
@@ -39,6 +52,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   // An event that locked while the edit form was open. The organizer did
   // nothing wrong and needs a different sentence from "we're down".
   if (response.status === 409) throw new DashboardClientError("conflict");
+  if (response.status === 400) {
+    const body = (await response.json().catch(() => null)) as { code?: unknown } | null;
+    throw new DashboardClientError(
+      body?.code === "invalid_password" ? "invalidPassword" : "unavailable",
+    );
+  }
   if (!response.ok) throw new DashboardClientError("unavailable");
 
   return (await response.json()) as T;
@@ -97,6 +116,44 @@ export function updateEvent(
 ): Promise<EventSummaryRow> {
   return request<EventSummaryRow>(`/api/organizer/events/${eventId}`, {
     method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * Save the profile and defaults.
+ *
+ * No `validation` error code, for the same reason createEvent has none:
+ * settingsUpdateSchema applies the backend's own rules in the browser first,
+ * so a rejection that gets this far means the two copies have drifted — our
+ * bug, not a sentence to show the organizer.
+ *
+ * The response is parsed with organizerMeSchema rather than cast, unlike a
+ * plain `request<OrganizerMe>` call: this result gets written straight into
+ * `savedProfile`, which every later PATCH body is built from, so a shape
+ * that merely looked like OrganizerMe would poison every save after this
+ * one. `.parse` throws on a mismatch rather than returning a safeParse
+ * result — the caller's existing catch block already turns anything that
+ * is not a DashboardClientError into the same "couldn't save" copy, which
+ * is the right story for our own drift.
+ */
+export async function updateSettings(body: SettingsUpdateBody): Promise<OrganizerMe> {
+  const data = await request<unknown>("/api/organizer/settings", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return organizerMeSchema.parse(data);
+}
+
+/**
+ * Change the password. The one call here that can fail for a reason the
+ * organizer caused and can fix, hence `invalidPassword` above.
+ */
+export async function changePassword(body: PasswordChangeBody): Promise<void> {
+  await request<null>("/api/organizer/settings/password", {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
