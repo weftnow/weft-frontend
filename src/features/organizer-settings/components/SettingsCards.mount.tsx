@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import type { Root } from "react-dom/client";
 import { JSDOM } from "jsdom";
-import type { OrganizerMe } from "../schemas/settings.schema";
+import type { OrganizerMe, SettingsUpdateBody } from "../schemas/settings.schema";
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   pretendToBeVisual: true,
@@ -114,6 +114,48 @@ test("a rejected password change leaves the organization card's unsaved edit alo
     expect(container.querySelector('[role="alert"]')?.textContent).toBe(
       "That isn't your current password. The rest of your settings are untouched.",
     );
+    expect(orgName.value).toBe("Acme Collective");
+  } finally {
+    await act(async () => root.unmount());
+    container.remove();
+  }
+});
+
+test("saving Defaults sends Organization's last-saved name, not an unsaved edit", async () => {
+  // Regression cover for the inverse of the case above: a *successful* save
+  // on one card must not silently commit the other card's unconfirmed edit.
+  // Failing to save a mistake is recoverable; writing one nobody asked for
+  // is not.
+  const calls: SettingsUpdateBody[] = [];
+  const container = dom.window.document.createElement("div");
+  dom.window.document.body.append(container);
+  const root: Root = createRoot(container);
+  await act(async () => {
+    root.render(
+      <SettingsCards
+        client={{
+          updateSettings: async (body) => {
+            calls.push(body);
+            return { ...ORGANIZER, ...body };
+          },
+          changePassword: async () => {},
+        }}
+        organizer={ORGANIZER}
+      />,
+    );
+  });
+
+  try {
+    const orgName = fieldNamed<HTMLInputElement>(container, "organization_name");
+    // Edited, never submitted on the Organization card.
+    await act(async () => setInput(orgName, "Acme Collective"));
+
+    await act(async () => buttonNamed(container, "Save defaults").click());
+    await waitFor(() => calls.length > 0);
+
+    expect(calls[0]?.organization_name).toBe(ORGANIZER.organization_name);
+    // And the box itself is untouched by the Defaults round trip — the
+    // organizer's unconfirmed edit is still sitting exactly where they left it.
     expect(orgName.value).toBe("Acme Collective");
   } finally {
     await act(async () => root.unmount());

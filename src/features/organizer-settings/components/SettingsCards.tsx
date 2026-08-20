@@ -63,12 +63,20 @@ export type SettingsClient = {
  *
  * Organization and Defaults both write the same backend resource — PATCH
  * /v1/auth/me replaces the whole row, the same "one form sends everything"
- * trade settingsUpdateSchema's refine documents — so every submit here sends
- * the complete set of profile fields, not just the ones on the card that was
- * clicked. What stays independent per card is the *save*: each has its own
- * submitting flag and its own error string, so a role_other left blank on
- * Organization does not paint an error onto Defaults, and a wrong password
- * never touches either.
+ * trade settingsUpdateSchema's refine documents — so every submit here still
+ * sends the complete set of profile fields, not just the ones on the card
+ * that was clicked. But "complete" does not mean "current": the fields that
+ * belong to the *other* card are read from `savedProfile` — the last row the
+ * backend actually confirmed — not from that card's live state. Otherwise
+ * clicking Save on Defaults while an unsaved Organization edit sits in its
+ * box would silently write that edit too, which is worse than the failure
+ * this independence was built to prevent: a save that never asked for
+ * confirmation succeeding is a bigger problem than one that fails loudly.
+ *
+ * What stays independent per card beyond that is the *save* itself: each has
+ * its own submitting flag and its own error string, so a role_other left
+ * blank on Organization does not paint an error onto Defaults, and a wrong
+ * password never touches either.
  */
 export function SettingsCards({
   organizer,
@@ -86,6 +94,15 @@ export function SettingsCards({
   const [defaultLanguage, setDefaultLanguage] = useState<OrganizerLanguage>(
     organizer.default_language as OrganizerLanguage,
   );
+
+  // The last row the backend actually confirmed. PATCH /v1/auth/me replaces
+  // the whole row, so whichever card is submitted still has to send a value
+  // for every field — but the *other* card's fields come from here, not from
+  // its live state. Without this split, saving Defaults while an unsaved
+  // Organization edit sits in its box would write that unsaved edit too: a
+  // successful save on one card silently committing data the organizer never
+  // confirmed on the other.
+  const [savedProfile, setSavedProfile] = useState<OrganizerMe>(organizer);
 
   const [orgSubmitting, setOrgSubmitting] = useState(false);
   const [orgError, setOrgError] = useState<string | null>(null);
@@ -110,12 +127,24 @@ export function SettingsCards({
     ? TIMEZONES
     : [organizer.timezone, ...TIMEZONES];
 
-  function applySaved(saved: OrganizerMe) {
+  /**
+   * Only ever called with the response to *this card's own* submit, so only
+   * this card's own live fields are safe to overwrite with it — the response
+   * also echoes back the other card's fields (the PATCH always returns the
+   * whole row), and writing those into the other card's live state would
+   * clobber whatever the organizer is mid-typing there.
+   */
+  function applySavedOrganization(saved: OrganizerMe) {
+    setSavedProfile(saved);
     setOrganizationName(saved.organization_name);
     setContactName(saved.contact_name);
     setRole(saved.role as OrganizerRole);
     setRoleOther(saved.role_other ?? "");
     setWhatsapp(saved.whatsapp ?? "");
+  }
+
+  function applySavedDefaults(saved: OrganizerMe) {
+    setSavedProfile(saved);
     setTimezone(saved.timezone);
     setDefaultLanguage(saved.default_language as OrganizerLanguage);
   }
@@ -124,18 +153,12 @@ export function SettingsCards({
     inFlight: RefObject<boolean>,
     setSubmitting: (value: boolean) => void,
     setError: (value: string | null) => void,
+    buildBody: () => unknown,
+    onSaved: (saved: OrganizerMe) => void,
   ) {
     if (inFlight.current) return;
 
-    const parsed = settingsUpdateSchema.safeParse({
-      organization_name: organizationName,
-      contact_name: contactName,
-      role,
-      role_other: roleOther,
-      whatsapp,
-      timezone,
-      default_language: defaultLanguage,
-    });
+    const parsed = settingsUpdateSchema.safeParse(buildBody());
     if (!parsed.success) {
       setError(SAVE_ERROR);
       return;
@@ -145,7 +168,7 @@ export function SettingsCards({
     setSubmitting(true);
     setError(null);
     try {
-      applySaved(await client.updateSettings(parsed.data));
+      onSaved(await client.updateSettings(parsed.data));
     } catch (reason) {
       if (reason instanceof DashboardClientError && reason.code === "unauthorized") {
         window.location.assign("/organizer/login");
@@ -160,12 +183,31 @@ export function SettingsCards({
 
   async function submitOrganization(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await saveProfile(orgInFlight, setOrgSubmitting, setOrgError);
+    // This card's own fields as they currently sit in the boxes; the other
+    // card's fields as they were last confirmed saved — never as they
+    // currently sit in Defaults' own unsaved edit buffer.
+    await saveProfile(orgInFlight, setOrgSubmitting, setOrgError, () => ({
+      organization_name: organizationName,
+      contact_name: contactName,
+      role,
+      role_other: roleOther,
+      whatsapp,
+      timezone: savedProfile.timezone,
+      default_language: savedProfile.default_language,
+    }), applySavedOrganization);
   }
 
   async function submitDefaults(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await saveProfile(defaultsInFlight, setDefaultsSubmitting, setDefaultsError);
+    await saveProfile(defaultsInFlight, setDefaultsSubmitting, setDefaultsError, () => ({
+      organization_name: savedProfile.organization_name,
+      contact_name: savedProfile.contact_name,
+      role: savedProfile.role,
+      role_other: savedProfile.role_other ?? "",
+      whatsapp: savedProfile.whatsapp ?? "",
+      timezone,
+      default_language: defaultLanguage,
+    }), applySavedDefaults);
   }
 
   async function submitPassword(event: FormEvent<HTMLFormElement>) {
