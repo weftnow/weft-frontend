@@ -11,18 +11,27 @@ export function GroupRevealError({
   messages: GroupRevealMessages;
   onAction: () => void;
 }) {
+  // An ended event is the one failure with no action attached: retrying
+  // cannot help and the questionnaire it would send them back to is closed
+  // too, so it renders without a button rather than with a dead one.
   const copy =
-    error === "no_session"
+    error === "event_over"
       ? {
-          actionLabel: messages.restartQuestionnaire,
-          body: messages.missingSessionBody,
-          title: messages.missingSessionTitle,
+          actionLabel: null,
+          body: messages.eventOverBody,
+          title: messages.eventOverTitle,
         }
-      : {
-          actionLabel: messages.retry,
-          body: messages.unavailableBody,
-          title: messages.unavailableTitle,
-        };
+      : error === "no_session"
+        ? {
+            actionLabel: messages.restartQuestionnaire,
+            body: messages.missingSessionBody,
+            title: messages.missingSessionTitle,
+          }
+        : {
+            actionLabel: messages.retry,
+            body: messages.unavailableBody,
+            title: messages.unavailableTitle,
+          };
 
   return (
     <main className="questionnaire-shell questionnaire-state">
@@ -38,13 +47,15 @@ export function GroupRevealError({
           {copy.body}
         </p>
       </div>
-      <button
-        className="mt-2 min-h-11 rounded-full bg-ink px-6 py-3 text-sm font-bold text-paper focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
-        onClick={onAction}
-        type="button"
-      >
-        {copy.actionLabel}
-      </button>
+      {copy.actionLabel === null ? null : (
+        <button
+          className="mt-2 min-h-11 rounded-full bg-ink px-6 py-3 text-sm font-bold text-paper focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-signal"
+          onClick={onAction}
+          type="button"
+        >
+          {copy.actionLabel}
+        </button>
+      )}
     </main>
   );
 }

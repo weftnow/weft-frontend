@@ -1,7 +1,7 @@
 import "server-only";
 
 export class AttendeeSessionGatewayError extends Error {
-  constructor(readonly code: "no_session" | "unavailable") { super(code); }
+  constructor(readonly code: "no_session" | "event_over" | "unavailable") { super(code); }
 }
 
 const baseUrl = () => {
@@ -14,6 +14,10 @@ export async function resolveAttendeeSession(formToken: string, cookieHeader: st
   try {
     const base = baseUrl();
     const response = await fetchImpl(new URL(`/f/${encodeURIComponent(formToken)}/resume`, base), { headers: cookieHeader ? { Cookie: cookieHeader } : {}, redirect: "manual", cache: "no-store", signal: AbortSignal.timeout(8_000) });
+    // 410 means the link was real and its event has ended. Kept apart from
+    // no_session because there is nowhere to send this guest back to: the
+    // questionnaire that no_session offers is closed too.
+    if (response.status === 410) throw new AttendeeSessionGatewayError("event_over");
     if (response.status === 401 || response.status === 404) throw new AttendeeSessionGatewayError("no_session");
     const location = response.headers.get("location");
     if (response.status !== 302 || !location) throw new AttendeeSessionGatewayError("unavailable");

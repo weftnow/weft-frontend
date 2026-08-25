@@ -34,3 +34,19 @@ test("treats an expired or missing session as no_session", async () => {
 test("refuses a redirect that names no event rather than guessing one", async () => {
   expect(await codeOf(new Response(null, { status: 302, headers: { location: "/a/minted-token" } }))).toBe("unavailable");
 });
+
+test("a room past its window reads as the event being over", async () => {
+  // 410 is the backend saying the link was real and its event has ended.
+  // Distinct from no_session: there is no questionnaire to send them back to.
+  process.env.WEFT_B2B_API_URL = "https://b2b.test";
+  const fetchImpl = (async () =>
+    Response.json({ code: "event_over" }, { status: 410 })) as typeof fetch;
+
+  try {
+    await resolveAttendeeSession("token-valid-123456", null, fetchImpl);
+    throw new Error("expected the session resolve to reject");
+  } catch (error) {
+    expect(error).toBeInstanceOf(AttendeeSessionGatewayError);
+    expect((error as AttendeeSessionGatewayError).code).toBe("event_over");
+  }
+});

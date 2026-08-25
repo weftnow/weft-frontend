@@ -140,3 +140,13 @@ test("counts down before the host's reveal moment", () => {
   expect(html).toContain("Your circle appears in 5");
   expect(html).not.toContain("Start guided conversations");
 });
+
+test("an ended event says so and offers nothing to retry", () => {
+  // Retrying cannot help and the questionnaire is closed too, so the screen
+  // that would normally offer one of those buttons offers neither.
+  const html = renderView({ error: "event_over" });
+
+  expect(html).toContain(groupRevealMessages.en.eventOverTitle);
+  expect(html).not.toContain(groupRevealMessages.en.retry);
+  expect(html).not.toContain(groupRevealMessages.en.restartQuestionnaire);
+});

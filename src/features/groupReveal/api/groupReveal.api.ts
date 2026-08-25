@@ -1,7 +1,7 @@
 import { groupRevealSchema, type GroupReveal } from "../schemas/groupReveal.schema";
 export interface GroupRevealClient { load(formToken: string): Promise<{ status: "waiting" } | { status: "ready"; group: GroupReveal }>; confirm(formToken: string): Promise<void>; }
 
-export type GroupRevealLoadErrorKind = "no_session" | "unavailable";
+export type GroupRevealLoadErrorKind = "no_session" | "event_over" | "unavailable";
 
 export class GroupRevealLoadError extends Error {
   constructor(readonly kind: GroupRevealLoadErrorKind) {
@@ -11,6 +11,9 @@ export class GroupRevealLoadError extends Error {
 }
 
 async function readLoadErrorKind(response: Response): Promise<GroupRevealLoadErrorKind> {
+  // Read off the status alone: an ended event has no body worth trusting and
+  // nothing about it is retryable, so it never falls back to "unavailable".
+  if (response.status === 410) return "event_over";
   if (response.status !== 401) return "unavailable";
 
   try {
