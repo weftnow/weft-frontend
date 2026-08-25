@@ -68,6 +68,14 @@ async function mapFailure(
   response: Response,
   operation: "load" | "submit",
 ): Promise<QuestionnaireFailure> {
+  // The event is over: the link was real and its room has closed. Checked
+  // before the log line because this is a link reaching the end of its life,
+  // not a failure -- every rescanned QR code from a past event would otherwise
+  // report itself as a gateway error. Reuses the closed-sign-ups copy rather
+  // than earning its own, because that is exactly what the guest holding a
+  // spent code needs to be told.
+  if (response.status === 410) return { status: "notAccepting" };
+
   // Deliberately generic: never log the URL, token, body, or upstream detail.
   console.error(`questionnaire gateway ${operation} failed`, response.status);
 

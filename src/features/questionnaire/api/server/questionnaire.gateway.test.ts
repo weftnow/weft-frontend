@@ -153,3 +153,17 @@ test("treats thrown fetches, 5xx, invalid JSON, and missing cookies as unavailab
     ).status,
   ).toBe("unavailable");
 });
+
+test("a spent link reads as the event having already started", async () => {
+  // The backend answers 410 once the room is locked or its window has shut.
+  // A QR code outlives its event, so this is the ordinary end of a link's
+  // life, not an error -- it lands on the copy that already exists for a
+  // closed sign-up rather than the generic "something went wrong".
+  process.env.WEFT_B2B_API_URL = "https://b2b.example.test";
+  const fetchImpl = async () =>
+    Response.json({ detail: "this event is over", code: "event_over" }, { status: 410 });
+
+  const outcome = await loadQuestionnaire("token-valid-123456", undefined, fetchImpl);
+
+  expect(outcome.status).toBe("notAccepting");
+});

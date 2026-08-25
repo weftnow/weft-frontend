@@ -66,3 +66,16 @@ test("maps rejected fetches to unavailable", async () => {
     expect((error as GroupRevealLoadError).kind).toBe("unavailable");
   }
 });
+
+test("maps an ended event to event_over rather than a retryable failure", async () => {
+  globalThis.fetch = (async () =>
+    Response.json({ code: "event_over" }, { status: 410 })) as typeof fetch;
+
+  try {
+    await groupRevealClient.load("token-valid-123456");
+    throw new Error("expected group load to reject");
+  } catch (error) {
+    expect(error).toBeInstanceOf(GroupRevealLoadError);
+    expect((error as GroupRevealLoadError).kind).toBe("event_over");
+  }
+});
