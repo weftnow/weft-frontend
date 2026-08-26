@@ -15,6 +15,12 @@ export const eventFeedbackSubmissionSchema = z.object({
   // spaces is not a filled-in field.
   improvement: z.string().trim().min(1).max(2000),
   /**
+   * Which of the two matching platforms this guest prefers. Required, and
+   * closed to exactly these two values — the same pair the backend accepts, so
+   * a third option added on one side alone fails here rather than at the API.
+   */
+  platformPreference: z.enum(["gomatch", "weft"]),
+  /**
    * Refs of the tablemates this guest would meet again. Empty is a real
    * answer — "nobody" is allowed and is not the same as skipping the question.
    *
@@ -27,6 +33,11 @@ export const eventFeedbackSubmissionSchema = z.object({
 });
 
 export type EventFeedbackSubmission = z.infer<typeof eventFeedbackSubmissionSchema>;
+
+/** The two platforms, in the order the form shows them. */
+export const PLATFORM_PREFERENCES = ["gomatch", "weft"] as const;
+
+export type PlatformPreference = (typeof PLATFORM_PREFERENCES)[number];
 
 export const tablemateSchema = z.object({
   displayName: z.string().min(1),

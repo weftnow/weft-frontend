@@ -21,12 +21,25 @@ function form(overrides: Partial<Parameters<typeof EventFeedbackForm>[0]> = {}) 
   );
 }
 
-test("asks all four questions on one screen", () => {
+test("asks every question on one screen", () => {
   const html = renderToStaticMarkup(form());
   expect(html).toContain("recommend Weft to a friend");
   expect(html).toContain("Did you enjoy the session today?");
+  expect(html).toContain("Which matching platform today do you prefer?");
   expect(html).toContain("like to meet again?");
   expect(html).toContain("What could we do better?");
+});
+
+test("the platform question offers both names and starts unanswered", () => {
+  const html = renderToStaticMarkup(form());
+  // The brand names as written, not the wire values.
+  expect(html).toContain(">GoMatch<");
+  expect(html).toContain(">Weft<");
+  expect(html).toContain('aria-label="GoMatch, not selected"');
+  expect(html).toContain('aria-label="Weft, not selected"');
+  // Nothing is pre-picked: a default here would be a vote nobody cast.
+  expect(html).not.toContain('aria-label="GoMatch, selected"');
+  expect(html).not.toContain('aria-label="Weft, selected"');
 });
 
 test("both scales run 1 to 5 and neither offers a zero", () => {
@@ -79,7 +92,7 @@ test("send starts visibly disabled rather than hidden", () => {
   const html = renderToStaticMarkup(form());
   expect(html).toContain("disabled");
   expect(html).toContain("Send");
-  expect(html).toContain("Answer all three to send.");
+  expect(html).toContain("Answer all four to send.");
 });
 
 test("a failed send says the answers are still there", () => {
@@ -92,6 +105,9 @@ test("speaks Spanish when the session does", () => {
   const html = renderToStaticMarkup(form({ language: "es" }));
   expect(html).toContain("recomiendes Weft a un amigo");
   expect(html).toContain("¿Disfrutaste la sesión de hoy?");
+  expect(html).toContain("¿Qué plataforma de matching prefieres hoy?");
+  // Brand names are not translated.
+  expect(html).toContain(">GoMatch<");
   expect(html).toContain("volver a ver?");
   expect(html).toContain("¿Qué podríamos mejorar?");
   expect(html).toContain("1 es lo más bajo, 5 lo más alto.");

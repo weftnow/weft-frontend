@@ -7,6 +7,13 @@
  */
 
 import type { ConversationLanguage } from "@/features/conversation/i18n/conversation.messages";
+import type { PlatformPreference } from "../schemas/eventFeedback.schema";
+
+/** Brand names. The same in both languages, on purpose. */
+const PLATFORM_NAMES: Record<PlatformPreference, string> = {
+  gomatch: "GoMatch",
+  weft: "Weft",
+};
 
 export type EventFeedbackMessages = {
   heading: string;
@@ -19,6 +26,10 @@ export type EventFeedbackMessages = {
   ratingLow: string;
   ratingHigh: string;
   ratingOption(rating: number): string;
+  platformQuestion: string;
+  /** The brand names themselves, so neither is translated by accident. */
+  platformOptionLabel(platform: PlatformPreference): string;
+  platformOption(platform: PlatformPreference, selected: boolean): string;
   meetAgainQuestion: string;
   meetAgainHint: string;
   meetAgainOption(name: string, selected: boolean): string;
@@ -51,6 +62,10 @@ export const eventFeedbackMessages = {
     ratingLow: "1 · Not really",
     ratingHigh: "5 · Loved it",
     ratingOption: (rating) => `${rating} out of 5`,
+    platformQuestion: "Which matching platform today do you prefer?",
+    platformOptionLabel: (platform) => PLATFORM_NAMES[platform],
+    platformOption: (platform, selected) =>
+      `${PLATFORM_NAMES[platform]}, ${selected ? "selected" : "not selected"}`,
     meetAgainQuestion: "Anyone here you’d like to meet again?",
     meetAgainHint: "Tap everyone you’d like to see again. Skip if nobody.",
     meetAgainOption: (name, selected) =>
@@ -59,7 +74,7 @@ export const eventFeedbackMessages = {
     improvementPlaceholder: "Tell us anything.",
     submit: "Send",
     submitting: "Sending…",
-    incomplete: "Answer all three to send.",
+    incomplete: "Answer all four to send.",
     failed: "We couldn’t send that. Your answers are still here — try again.",
     retry: "Try again",
     thanksHeading: "Thanks.",
@@ -78,6 +93,10 @@ export const eventFeedbackMessages = {
     ratingLow: "1 · La verdad no",
     ratingHigh: "5 · Me encantó",
     ratingOption: (rating) => `${rating} de 5`,
+    platformQuestion: "¿Qué plataforma de matching prefieres hoy?",
+    platformOptionLabel: (platform) => PLATFORM_NAMES[platform],
+    platformOption: (platform, selected) =>
+      `${PLATFORM_NAMES[platform]}, ${selected ? "seleccionada" : "sin seleccionar"}`,
     meetAgainQuestion: "¿Hay alguien aquí que te gustaría volver a ver?",
     meetAgainHint: "Toca a quien quieras volver a ver. Sáltalo si nadie.",
     meetAgainOption: (name, selected) =>
@@ -86,7 +105,7 @@ export const eventFeedbackMessages = {
     improvementPlaceholder: "Cuéntanos lo que sea.",
     submit: "Enviar",
     submitting: "Enviando…",
-    incomplete: "Responde las tres para enviar.",
+    incomplete: "Responde las cuatro para enviar.",
     failed: "No pudimos enviarlo. Tus respuestas siguen aquí — inténtalo de nuevo.",
     retry: "Intentar de nuevo",
     thanksHeading: "Gracias.",

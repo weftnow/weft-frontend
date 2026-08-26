@@ -133,6 +133,40 @@
   outline-offset: 3px;
 }
 
+/* Two names, not five digits: equal halves, each wide enough for a word. */
+.platforms {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/*
+ * Same selected treatment as the scale buttons, but in the body font: these
+ * are brand names, and the mono face is there for numerals.
+ */
+.platform {
+  min-height: 2.75rem;
+  border: 1px solid rgb(18 18 18 / 18%);
+  border-radius: 0.6rem;
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.platform[aria-pressed="true"] {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-bone);
+}
+
+.platform:focus-visible {
+  outline: 3px solid var(--color-signal);
+  outline-offset: 3px;
+}
+
 .scaleEnds {
   display: flex;
   justify-content: space-between;
