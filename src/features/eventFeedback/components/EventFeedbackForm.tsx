@@ -3,7 +3,11 @@
 import { useId, useState } from "react";
 import type { ConversationLanguage } from "@/features/conversation/i18n/conversation.messages";
 import { eventFeedbackMessagesFor } from "../i18n/eventFeedback.messages";
-import type { EventFeedbackSubmission } from "../schemas/eventFeedback.schema";
+import {
+  PLATFORM_PREFERENCES,
+  type EventFeedbackSubmission,
+  type PlatformPreference,
+} from "../schemas/eventFeedback.schema";
 import styles from "./EventFeedback.module.css";
 
 /** Both questions run 1-5, low to high, so the two scales read the same way. */
@@ -20,9 +24,10 @@ export type EventFeedbackFormProps = {
 };
 
 /**
- * The three scored answers are required, which is a product decision made
- * knowing it costs some submissions. Send stays visibly disabled until they are
- * filled so that "not yet" never reads as "broken".
+ * The two scales, the platform choice and the written answer are all required,
+ * which is a product decision made knowing it costs some submissions. Send
+ * stays visibly disabled until they are filled so that "not yet" never reads as
+ * "broken".
  *
  * Meet-again is deliberately not required: "nobody" is a real answer, and there
  * is no way to distinguish it from "skipped" without asking a question nobody
@@ -42,18 +47,23 @@ export function EventFeedbackForm({
   const headingId = useId();
   const recommendId = useId();
   const ratingId = useId();
+  const platformId = useId();
   const meetAgainId = useId();
   const improvementId = useId();
 
   const [recommendScore, setRecommendScore] = useState<number | null>(null);
   const [rating, setRating] = useState<number | null>(null);
+  const [platformPreference, setPlatformPreference] = useState<PlatformPreference | null>(null);
   const [improvement, setImprovement] = useState("");
   // Keyed by ref, not by name: a table with two Marias has two buttons, and
   // tapping one must not light up the other.
   const [meetAgainRefs, setMeetAgainRefs] = useState<string[]>([]);
 
   const complete =
-    recommendScore !== null && rating !== null && improvement.trim().length > 0;
+    recommendScore !== null &&
+    rating !== null &&
+    platformPreference !== null &&
+    improvement.trim().length > 0;
 
   function toggleMeetAgain(ref: string) {
     setMeetAgainRefs((current) =>
@@ -67,6 +77,7 @@ export function EventFeedbackForm({
     onSubmit({
       recommendScore: recommendScore as number,
       rating: rating as number,
+      platformPreference: platformPreference as PlatformPreference,
       improvement: improvement.trim(),
       meetAgainRefs,
     });
@@ -126,6 +137,26 @@ export function EventFeedbackForm({
             <span>{messages.ratingLow}</span>
             <span>{messages.ratingHigh}</span>
           </p>
+        </fieldset>
+
+        <fieldset aria-labelledby={platformId} className={styles.field}>
+          <legend className={styles.question} id={platformId}>
+            {messages.platformQuestion}
+          </legend>
+          <div className={styles.platforms}>
+            {PLATFORM_PREFERENCES.map((platform) => (
+              <button
+                aria-label={messages.platformOption(platform, platformPreference === platform)}
+                aria-pressed={platformPreference === platform}
+                className={styles.platform}
+                key={platform}
+                onClick={() => setPlatformPreference(platform)}
+                type="button"
+              >
+                {messages.platformOptionLabel(platform)}
+              </button>
+            ))}
+          </div>
         </fieldset>
 
         {tablemates.length > 0 ? (

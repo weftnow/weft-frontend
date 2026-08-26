@@ -39,6 +39,7 @@ const ANSWERS = {
   recommendScore: 4,
   rating: 5,
   improvement: "More time.",
+  platformPreference: "gomatch" as const,
   meetAgainRefs: [] as string[],
 };
 
@@ -102,7 +103,14 @@ test("sends the answers under the backend's snake_case names", async () => {
 
   await api.submit(EVENT_ID, ANSWERS);
 
-  expect(body).toEqual({ recommend_score: 4, rating: 5, improvement: "More time." });
+  expect(body).toEqual({
+    recommend_score: 4,
+    rating: 5,
+    improvement: "More time.",
+    // Renamed on the way out: this gateway is the only place that knows the
+    // backend's snake_case, and a silently dropped field would lose the vote.
+    platform_preference: "gomatch",
+  });
 });
 
 test("meet-again lands before the one-shot write, so a retry cannot strand it", async () => {

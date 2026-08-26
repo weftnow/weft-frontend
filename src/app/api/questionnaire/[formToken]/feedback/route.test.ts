@@ -41,7 +41,12 @@ test("reports nothing submitted for a fresh session", async () => {
 test("records a submission and then reports it", async () => {
   const guest = token("records");
   const posted = await POST(
-    submission({ recommendScore: 4, rating: 5, improvement: "More time at the end." }),
+    submission({
+      recommendScore: 4,
+      rating: 5,
+      improvement: "More time at the end.",
+      platformPreference: "weft",
+    }),
     params(guest),
   );
   expect(posted.status).toBe(201);
@@ -52,7 +57,12 @@ test("records a submission and then reports it", async () => {
 
 test("a second submission is a 409, not a 500", async () => {
   const guest = token("twice");
-  const body = { recommendScore: 3, rating: 3, improvement: "The room was loud." };
+  const body = {
+    recommendScore: 3,
+    rating: 3,
+    improvement: "The room was loud.",
+    platformPreference: "gomatch",
+  };
 
   expect((await POST(submission(body), params(guest))).status).toBe(201);
 
@@ -62,16 +72,20 @@ test("a second submission is a 409, not a 500", async () => {
 });
 
 test("out-of-range and empty answers are rejected before the repository", async () => {
+  const ok = { platformPreference: "weft" };
   const bad = [
-    { recommendScore: 6, rating: 3, improvement: "x" },
-    { recommendScore: 0, rating: 3, improvement: "x" },
-    { recommendScore: 5, rating: 0, improvement: "x" },
-    { recommendScore: 5, rating: 6, improvement: "x" },
-    { recommendScore: 5, rating: 3, improvement: "   " },
-    { recommendScore: 5, rating: 3, improvement: "x".repeat(2001) },
-    { rating: 3, improvement: "x" },
-    { recommendScore: 5, improvement: "x" },
-    { recommendScore: 5, rating: 3 },
+    { recommendScore: 6, rating: 3, improvement: "x", ...ok },
+    { recommendScore: 0, rating: 3, improvement: "x", ...ok },
+    { recommendScore: 5, rating: 0, improvement: "x", ...ok },
+    { recommendScore: 5, rating: 6, improvement: "x", ...ok },
+    { recommendScore: 5, rating: 3, improvement: "   ", ...ok },
+    { recommendScore: 5, rating: 3, improvement: "x".repeat(2001), ...ok },
+    { rating: 3, improvement: "x", ...ok },
+    { recommendScore: 5, improvement: "x", ...ok },
+    { recommendScore: 5, rating: 3, ...ok },
+    // The platform question is required and closed to the two names.
+    { recommendScore: 5, rating: 3, improvement: "x" },
+    { recommendScore: 5, rating: 3, improvement: "x", platformPreference: "neither" },
   ];
 
   for (const body of bad) {
@@ -87,6 +101,7 @@ test("meet-again refs are accepted, and omitting them is a valid answer", async 
       recommendScore: 5,
       rating: 5,
       improvement: "Nothing.",
+      platformPreference: "gomatch",
       meetAgainRefs: ["ref-ana", "ref-beto"],
     }),
     params(token("refs")),
@@ -95,7 +110,12 @@ test("meet-again refs are accepted, and omitting them is a valid answer", async 
 
   // "Nobody" is a real answer, not a missing field.
   const without = await POST(
-    submission({ recommendScore: 5, rating: 5, improvement: "Nothing." }),
+    submission({
+      recommendScore: 5,
+      rating: 5,
+      improvement: "Nothing.",
+      platformPreference: "gomatch",
+    }),
     params(token("no-refs")),
   );
   expect(without.status).toBe(201);
@@ -125,7 +145,12 @@ test("a source-configuration failure is a 503 with a code, never a 500", async (
     expect(await read.json()).toEqual({ code: "conversation_not_configured" });
 
     const write = await POST(
-      submission({ recommendScore: 5, rating: 3, improvement: "x" }),
+      submission({
+        recommendScore: 5,
+        rating: 3,
+        improvement: "x",
+        platformPreference: "weft",
+      }),
       params(FORM_TOKEN),
     );
     expect(write.status).toBe(503);
