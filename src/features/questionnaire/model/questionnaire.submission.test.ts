@@ -9,9 +9,9 @@ const questionnaireEn = mapQuestionnaireDefinition(formDefinitionSchema.parse(ba
 test("builds the flat FastAPI body and preserves numeric choices", () => {
   const body = buildFormSubmission(questionnaireEn, {
     name: "Ana",
-    email: null,
+    email: "ana@fintech.co",
     phone: "+57 300 000 0000",
-    company: null,
+    company: "Weft",
     t1: "Raise a seed round",
     t2: "A LatAm fintech angel",
     s1_situation: "own_business",
@@ -19,7 +19,7 @@ test("builds the flat FastAPI body and preserves numeric choices", () => {
     s2: 3,
     s3: "up",
     s4: ["raise_capital"],
-    s5: [],
+    s5: ["experience"],
     s6: 2,
     s7: 2,
     s8: 1,
@@ -29,7 +29,7 @@ test("builds the flat FastAPI body and preserves numeric choices", () => {
   expect(body.form_version).toBe("v1");
   expect(body.language).toBe("en");
   expect(body.s2).toBe(3);
-  expect(body.email).toBeNull();
+  expect(body.email).toBe("ana@fintech.co");
 });
 
 test("rejects an incomplete answer set", () => {

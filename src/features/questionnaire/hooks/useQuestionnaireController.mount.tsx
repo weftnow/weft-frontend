@@ -59,7 +59,7 @@ const spanishDraft = {
 
 const COMPLETE_ANSWERS: Record<string, unknown> = {
   name: "Ana",
-  email: null,
+  email: "ana@fintech.co",
   phone: "+57 300 000 0000",
   company: "Weft",
   t1: "Raise a seed round for my fintech",
