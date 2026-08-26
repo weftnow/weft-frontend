@@ -8,6 +8,7 @@ const ROW = {
   phone: null,
   checked_in: true,
   submitted_at: "2026-08-21T19:00:00Z",
+  link_token: "lt",
   answers: { company: "Fintech SA", t1: "raise a seed round for my fintech" },
 };
 

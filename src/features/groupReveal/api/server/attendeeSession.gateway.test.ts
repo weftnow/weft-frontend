@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { AttendeeSessionGatewayError, resolveAttendeeSession } from "./attendeeSession.gateway";
+import { AttendeeSessionGatewayError, claimAttendeeLink, resolveAttendeeSession } from "./attendeeSession.gateway";
 
 const EVENT_ID = "12345678-1234-1234-1234-1234567890ab";
 
@@ -49,4 +49,22 @@ test("a room past its window reads as the event being over", async () => {
     expect(error).toBeInstanceOf(AttendeeSessionGatewayError);
     expect((error as AttendeeSessionGatewayError).code).toBe("event_over");
   }
+});
+
+test("a claimed link returns the form token and the cookie to replant", async () => {
+  process.env.WEFT_B2B_API_URL = "https://b2b.test";
+  const claim = await claimAttendeeLink("lt", async (url) => {
+    expect(String(url)).toBe("https://b2b.test/l/lt");
+    return new Response(JSON.stringify({ form_token: "ft", event_id: EVENT_ID }), {
+      status: 200,
+      headers: { "content-type": "application/json", "set-cookie": "weft_attendee_abc=xyz; Path=/; HttpOnly" },
+    });
+  });
+  expect(claim.formToken).toBe("ft");
+  expect(claim.setCookie).toContain("weft_attendee_abc=xyz");
+});
+
+test("a link whose event has ended is event_over, not no_session", async () => {
+  process.env.WEFT_B2B_API_URL = "https://b2b.test";
+  expect(claimAttendeeLink("lt", async () => new Response(null, { status: 410 }))).rejects.toThrow("event_over");
 });

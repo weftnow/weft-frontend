@@ -2,8 +2,9 @@ export type GroupRevealLanguage = "en" | "es";
 
 export const groupRevealMessages = {
   en: {
-    waiting: "Weft is preparing your group.",
-    waitingDetail: "Keep this page open. Your table will appear here shortly.",
+    waiting: "You're in.",
+    waitingDetail:
+      "Your answers are saved. We'll send you a link when your table is ready \u2014 open it then to see your group.",
     countdown: "Your circle appears in {seconds}",
     errorEyebrow: "Weft questionnaire",
     unavailableTitle: "We couldn't load your group right now.",
@@ -43,8 +44,9 @@ export const groupRevealMessages = {
     confirmationError: "We couldn't confirm your group. Tap again to continue anyway.",
   },
   es: {
-    waiting: "Weft está preparando tu grupo.",
-    waitingDetail: "Mantén esta página abierta. Tu mesa aparecerá pronto.",
+    waiting: "Ya estás dentro.",
+    waitingDetail:
+      "Tus respuestas están guardadas. Te enviaremos un enlace cuando tu mesa esté lista; ábrelo entonces para ver tu grupo.",
     countdown: "Tu círculo aparece en {seconds}",
     errorEyebrow: "Cuestionario de Weft",
     unavailableTitle: "No pudimos cargar tu grupo ahora.",
