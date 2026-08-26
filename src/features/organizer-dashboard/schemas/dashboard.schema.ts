@@ -155,6 +155,9 @@ export const attendeeRowSchema = z.object({
   checked_in: z.boolean(),
   submitted_at: z.string(),
   answers: z.record(z.string(), z.unknown()),
+  // The handle this guest can be sent. Not a CSV column: toCsv lists its
+  // seven explicitly, and a contact export gets mailed around.
+  link_token: z.string(),
 });
 
 export const attendeeListSchema = z.array(attendeeRowSchema);

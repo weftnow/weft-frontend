@@ -433,10 +433,13 @@
   text-align: center;
 }
 
-.waitingLoader {
-  position: relative;
-  width: 100%;
-  height: clamp(14rem, 38vh, 16rem);
+.waitingStatus {
+  margin: 0 0 0.6rem;
+  color: rgb(18 18 18);
+  font-size: clamp(1.35rem, 4vw, 1.6rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
 .waitingDetail {

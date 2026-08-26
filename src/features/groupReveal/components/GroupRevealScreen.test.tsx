@@ -52,12 +52,12 @@ test("selects Weft's branded presentation for the group-waiting state", () => {
   const html = renderView();
 
   expect(html).toContain("questionnaire-shell questionnaire-state");
-  expect(html).toContain("weave-loader-mark--spin");
   expect(html).toContain('src="/icon.svg"');
-  expect(html).toContain("Weft is preparing your group.");
-  expect(html).toContain(
-    "Keep this page open. Your table will appear here shortly.",
-  );
+  expect(html).toContain("You&#x27;re in.");
+  expect(html).toContain("Your answers are saved.");
+  // A spin is a promise that the wait is seconds long. At a conference it is
+  // hours, and the tab is closed long before the host presses anything.
+  expect(html).not.toContain("weave-loader-mark--spin");
 });
 
 test("presents temporary group failures in the branded questionnaire state", () => {

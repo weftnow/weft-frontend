@@ -1,5 +1,6 @@
 import type { AttendeeRow } from "../schemas/dashboard.schema";
 import { EmptyState } from "./EmptyState";
+import { SendLinkCell } from "./SendLinkCell";
 import { CheckIcon, UsersIcon } from "./icons";
 import styles from "./Dashboard.module.css";
 
@@ -39,6 +40,7 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
             <th scope="col">Email</th>
             <th scope="col">Phone</th>
             <th scope="col">Checked in</th>
+            <th scope="col">Send</th>
           </tr>
         </thead>
         <tbody>
@@ -65,6 +67,9 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
                 ) : (
                   "No"
                 )}
+              </td>
+              <td>
+                <SendLinkCell linkToken={row.link_token} phone={row.phone} />
               </td>
             </tr>
           ))}

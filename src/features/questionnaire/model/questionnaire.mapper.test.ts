@@ -31,7 +31,7 @@ test("maps backend text semantics into focused UI metadata", () => {
   expect(email.multiline).toBe(false);
   expect(email.inputFormat).toBe("email");
   expect(email.maxLength).toBe(254);
-  expect(email.required).toBe(false);
+  expect(email.required).toBe(true);
 
   const purpose = questionnaire.questions.find((q) => q.id === "t1");
   if (purpose?.type !== "text") throw new Error("t1 was not a text question");

@@ -18,7 +18,7 @@ export const backendFormEn: FormDefinitionDto = {
     {
       key: "email",
       type: "short_text",
-      required: false,
+      required: true,
       label: "Email",
       format: "email",
       max_length: 254,
@@ -26,7 +26,7 @@ export const backendFormEn: FormDefinitionDto = {
     {
       key: "phone",
       type: "short_text",
-      required: false,
+      required: true,
       label: "Phone",
       format: "tel",
       max_length: 32,
@@ -34,7 +34,7 @@ export const backendFormEn: FormDefinitionDto = {
     {
       key: "company",
       type: "short_text",
-      required: false,
+      required: true,
       label: "Company",
       placeholder: "Where you work",
       format: "organization",
@@ -131,9 +131,9 @@ export const backendFormEn: FormDefinitionDto = {
     {
       key: "s5",
       type: "multi_choice",
-      required: false,
+      required: true,
       label: "So what can you bring?",
-      min_select: 0,
+      min_select: 1,
       options: [
         { value: "experience", label: "Experience in my field" },
         { value: "intros", label: "Intros to the right people" },
@@ -252,7 +252,7 @@ export const backendFormEs: FormDefinitionDto = {
     {
       key: "email",
       type: "short_text",
-      required: false,
+      required: true,
       label: "Correo",
       format: "email",
       max_length: 254,
@@ -260,7 +260,7 @@ export const backendFormEs: FormDefinitionDto = {
     {
       key: "phone",
       type: "short_text",
-      required: false,
+      required: true,
       label: "Teléfono",
       format: "tel",
       max_length: 32,
@@ -268,7 +268,7 @@ export const backendFormEs: FormDefinitionDto = {
     {
       key: "company",
       type: "short_text",
-      required: false,
+      required: true,
       label: "Empresa",
       placeholder: "Dónde trabajas",
       format: "organization",
@@ -368,9 +368,9 @@ export const backendFormEs: FormDefinitionDto = {
     {
       key: "s5",
       type: "multi_choice",
-      required: false,
+      required: true,
       label: "¿Y qué puedes aportar?",
-      min_select: 0,
+      min_select: 1,
       options: [
         { value: "experience", label: "Experiencia en lo mío" },
         {

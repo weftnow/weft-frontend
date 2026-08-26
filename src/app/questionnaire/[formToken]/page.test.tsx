@@ -19,9 +19,16 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
 });
 
-test("tokenless questionnaire explains how to enter", () => {
-  const html = renderToStaticMarkup(<QuestionnairePage />);
-  expect(html).toContain("Open your event link");
+test("tokenless questionnaire explains how to enter", async () => {
+  const page = await QuestionnairePage({ searchParams: Promise.resolve({}) });
+  expect(renderToStaticMarkup(page)).toContain("Open your event link");
+});
+
+test("a spent link is told to ask the organizer for a new one", async () => {
+  // Where /l/[linkToken] sends a link whose event is over. The copy already
+  // names the recovery, and the organizer is the only one who can start it.
+  const page = await QuestionnairePage({ searchParams: Promise.resolve({ reason: "invalid" }) });
+  expect(renderToStaticMarkup(page)).toContain("Ask the event organizer for a new link");
 });
 
 test("event page is dynamic, private, and composes a server-loaded definition", async () => {
