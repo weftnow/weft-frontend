@@ -3,11 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MediaPlaceholder, type MediaAsset } from "./MediaPlaceholder";
 
 const video: MediaAsset = {
-  src: "/placeholders/weft/video1.mp4",
+  src: "/images/event-evening-tables.mp4",
   width: 1080,
   height: 1350,
   alt: "Sample testimonial clip",
-  placeholder: false,
   type: "video",
 };
 

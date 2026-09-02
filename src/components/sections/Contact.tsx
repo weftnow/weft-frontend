@@ -26,6 +26,14 @@ export function Contact() {
         <div className="mt-12 grid gap-5 lg:grid-cols-[minmax(0,1.28fr)_minmax(280px,0.72fr)] lg:items-stretch">
           <div className="rounded-[2rem] bg-paper px-7 py-12 shadow-[var(--shadow-media)] sm:px-10 lg:px-14 lg:py-16 xl:px-16">
             <p className="max-w-md text-base leading-relaxed text-ink/62">{contact.body}</p>
+            {/*
+              Cold visitors assume enterprise pricing and never write in, so the
+              shape of the number goes above the form even while the number
+              itself is still off the page.
+            */}
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-ink/45">
+              {contact.pricing}
+            </p>
 
             <form
               className="mt-10 grid gap-6"
@@ -102,7 +110,6 @@ export function Contact() {
               <span aria-disabled="true" className="font-meta text-[9px] text-ink/32">
                 Terms
               </span>
-              <span className="font-meta text-[9px] text-ink/32">Routes coming soon</span>
             </div>
           </div>
           <p className="font-meta text-[9px] text-ink/42 md:text-right">

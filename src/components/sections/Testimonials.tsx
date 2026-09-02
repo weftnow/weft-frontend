@@ -8,18 +8,24 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { MediaPlaceholder, type MediaAsset } from "@/components/ui/MediaPlaceholder";
 import { getTestimonialScrollTarget } from "@/lib/interactions";
 
-type QuoteTestimonial = {
-  type: "quote";
-  quote: string;
+// A story owns its own avatar. Photos used to live in a parallel array that
+// was sliced alongside the quotes, so one insert would have put a stranger's
+// face next to a real customer's name.
+type Attribution = {
   name: string;
   title: string;
+  photo?: MediaAsset;
+  initials?: string;
 };
 
-type VideoTestimonial = {
+type QuoteTestimonial = Attribution & {
+  type: "quote";
+  quote: string;
+};
+
+type VideoTestimonial = Attribution & {
   type: "video";
   video: MediaAsset;
-  name: string;
-  title: string;
 };
 
 type TestimonialItem = QuoteTestimonial | VideoTestimonial;
@@ -29,7 +35,6 @@ export function Testimonials() {
   const items = testimonials.items as readonly TestimonialItem[];
   const feature = testimonials.items[0];
   const railItems = items.slice(1);
-  const railAvatars = media.testimonialAvatars.slice(1);
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const scrollToDirection = (direction: 1 | -1) => {
@@ -133,10 +138,9 @@ export function Testimonials() {
 
         <div className="testimonial-rail-viewport" ref={viewportRef}>
           <div className="testimonial-rail-track">
-            {railItems.map((story, index) => (
+            {railItems.map((story) => (
               <TestimonialCard
                 key={story.type === "quote" ? story.quote : story.video.src}
-                media={railAvatars[index]}
                 story={story}
               />
             ))}
@@ -173,13 +177,7 @@ function ChevronIcon({ direction }: { direction: "left" | "right" }) {
   );
 }
 
-function TestimonialCard({
-  media,
-  story,
-}: {
-  media: (typeof content.media.testimonialAvatars)[number];
-  story: TestimonialItem;
-}) {
+function TestimonialCard({ story }: { story: TestimonialItem }) {
   return (
     <article className="testimonial-rail-card bg-white" data-testimonial-card tabIndex={0}>
       {story.type === "video" ? (
@@ -201,13 +199,30 @@ function TestimonialCard({
       )}
 
       <div className="testimonial-rail-footer">
-        <MediaPlaceholder className="testimonial-rail-avatar" media={media} sizes="48px" />
+        {story.photo ? (
+          <MediaPlaceholder
+            className="testimonial-rail-avatar"
+            media={story.photo}
+            sizes="48px"
+          />
+        ) : (
+          <InitialsAvatar initials={story.initials ?? ""} />
+        )}
         <div className="min-w-0">
           <p className="font-medium text-ink">{story.name}</p>
           <p className="font-meta mt-1 text-[10px] leading-relaxed text-ink/68">{story.title}</p>
         </div>
       </div>
     </article>
+  );
+}
+
+/** Stands in when we have no photo of the person who actually said it. */
+function InitialsAvatar({ initials }: { initials: string }) {
+  return (
+    <span aria-hidden="true" className="testimonial-rail-avatar testimonial-rail-initials">
+      {initials}
+    </span>
   );
 }
 

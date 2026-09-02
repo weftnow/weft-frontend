@@ -60,7 +60,7 @@ export function Hero() {
           initial={reduce ? false : { opacity: 0, transform: "translate3d(0, 10px, 0)" }}
           transition={{ delay: reduce ? 0 : supportingDelay, duration: 0.4, ease: heroEase }}
         >
-          <Eyebrow>{hero.proofLabel}</Eyebrow>
+          <Eyebrow>{hero.eyebrow}</Eyebrow>
         </motion.div>
 
         <motion.h1 aria-label={headline} className="font-display text-balance hero-title" initial={false}>
@@ -109,16 +109,23 @@ export function Hero() {
           {hero.sub}
         </motion.p>
 
+        {/*
+          Organizers buy Weft, so the loud button is theirs: it jumps to the
+          "Let's talk" form at the bottom. The attendee demo stays reachable as
+          the quieter second action.
+        */}
         <motion.div className="hero-actions hero-actions--initial" initial={false}>
-          <PremiumButton href="/match" tone="ember">
+          <PremiumButton href={hero.ctaPrimaryHref} tone="ember">
             {hero.ctaPrimary}
           </PremiumButton>
-          {/*
-          <a className="hero-secondary-link" href="#how">
-            <span>{hero.ctaSecondary}</span>
-            <span aria-hidden="true">↘</span>
-          </a>
-          */}
+          <PremiumButton
+            className="premium-cta--quiet"
+            hand={false}
+            href={hero.ctaSecondaryHref}
+            tone="paper"
+          >
+            {hero.ctaSecondary}
+          </PremiumButton>
         </motion.div>
 
 

@@ -23,4 +23,16 @@ test("contact panel renders its four contact rows and labelled fields", () => {
   expect(html).toContain("Privacy");
   expect(html).toContain("Terms");
   expect(html.includes('href="#"')).toBe(false);
+  expect(html.includes("Routes coming soon")).toBe(false);
+});
+
+// A cold visitor with no price on the page assumes enterprise money and never
+// fills the form in, so the shape of the number sits above it.
+test("the pricing anchor sits above the form", () => {
+  const html = renderToStaticMarkup(<Contact />);
+
+  expect(html).toContain(
+    "Flat pricing by event size. One number, agreed before your event, no per-guest surprises.",
+  );
+  expect(html.indexOf("Flat pricing by event size") < html.indexOf("<form")).toBe(true);
 });
