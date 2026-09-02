@@ -5,9 +5,9 @@ import { Testimonials } from "./Testimonials";
 test("testimonials renders an arrow-controlled review rail", () => {
   const html = renderToStaticMarkup(<Testimonials />);
 
-  expect(html).toContain("Placeholder portrait for the featured event outcome");
-  expect(html).toContain("Placeholder portrait for the second testimonial");
-  expect(html).toContain("Placeholder portrait for the third testimonial");
+  expect(html).toContain("Attendees sitting together around a cafe table at an event");
+  expect(html).toContain("Portrait of Typhaine Morvan, CEO of Bali Exception Sales");
+  expect(html).toContain("Portrait of Ayu Sudana, founder of Uttama Hospitality");
   expect(html).toContain("Turn random networking into real connection");
   expect(html).toContain("Make your event impossible to forget");
   expect(html).toContain("Prove your event created real value");
@@ -27,10 +27,20 @@ test("testimonials renders an arrow-controlled review rail", () => {
   expect(html).toContain('aria-label="Previous story"');
   expect(html).toContain('aria-label="Next story"');
 
-  expect(html.includes("Placeholder testimonials")).toBe(false);
+  expect(html.toLowerCase().includes("placeholder portrait")).toBe(false);
   expect(html.includes("testimonial-rail-set")).toBe(false);
   expect(html.includes("testimonial-rail-card--wide")).toBe(false);
 
   const cardMatches = html.match(/data-testimonial-card="true"/g) ?? [];
   expect(cardMatches).toHaveLength(4);
+});
+
+// Nate has a real quote and no photo of him, so his card shows initials rather
+// than a stock face borrowed from a photo library.
+test("a story without a photo of its author falls back to initials", () => {
+  const html = renderToStaticMarkup(<Testimonials />);
+
+  expect(html).toContain("testimonial-rail-initials");
+  expect(html).toContain(">NN<");
+  expect(html).toContain("Nate Nwajei");
 });

@@ -8,21 +8,18 @@ const portraits = [
     width: 100,
     height: 100,
     alt: "Portrait one",
-    placeholder: true,
   },
   {
     src: "/b.png",
     width: 100,
     height: 100,
     alt: "Portrait two",
-    placeholder: true,
   },
   {
     src: "/c.png",
     width: 100,
     height: 100,
     alt: "Portrait three",
-    placeholder: true,
   },
 ] as const;
 

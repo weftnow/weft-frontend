@@ -4,7 +4,6 @@ import { content } from "@/content";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Counter } from "@/components/ui/Counter";
 import { PortraitStack } from "@/components/ui/PortraitStack";
 
 export function Reveal() {
@@ -30,18 +29,13 @@ export function Reveal() {
             lines={reveal.headline}
             className="mt-4 text-4xl text-ink md:text-5xl"
           />
+          {/*
+            The three count-up stats that used to sit here were invented
+            numbers, and they server-rendered as 0%, 0.0x and 0.0/5 for anyone
+            reading the page without JavaScript. They stay out until a measured
+            figure exists to put in the markup.
+          */}
           <p className="mt-6 max-w-md text-base leading-relaxed text-ink/60">{reveal.body}</p>
-
-          <div className="mt-10 grid grid-cols-1 gap-7 border-t border-ink/10 pt-8 sm:grid-cols-3 sm:gap-6">
-            {reveal.stats.map((s, i) => (
-              <div key={i}>
-                <div className="font-display text-3xl font-bold text-ink md:text-4xl">
-                  <Counter value={s.value} suffix={s.suffix} />
-                </div>
-                <p className="mt-2 text-xs leading-snug text-ink/50">{s.label}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </SectionShell>

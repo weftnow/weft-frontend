@@ -5,7 +5,6 @@ export type MediaAsset = {
   readonly width: number;
   readonly height: number;
   readonly alt: string;
-  readonly placeholder: boolean;
   readonly type?: "image" | "video";
 };
 
