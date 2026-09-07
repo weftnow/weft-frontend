@@ -75,6 +75,7 @@ export function GroupRevealView({
     return (
       <GroupRevealWaiting
         detail={messages.waitingDetail}
+        fallback={messages.waitingFallback}
         status={messages.waiting}
       />
     );

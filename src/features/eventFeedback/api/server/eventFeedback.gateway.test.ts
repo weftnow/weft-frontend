@@ -39,7 +39,6 @@ const ANSWERS = {
   recommendScore: 4,
   rating: 5,
   improvement: "More time.",
-  platformPreference: "gomatch" as const,
   meetAgainRefs: [] as string[],
 };
 
@@ -109,7 +108,6 @@ test("sends the answers under the backend's snake_case names", async () => {
     improvement: "More time.",
     // Renamed on the way out: this gateway is the only place that knows the
     // backend's snake_case, and a silently dropped field would lose the vote.
-    platform_preference: "gomatch",
   });
 });
 

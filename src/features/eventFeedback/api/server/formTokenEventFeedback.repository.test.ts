@@ -12,7 +12,6 @@ const ANSWERS = {
   recommendScore: 4,
   rating: 5,
   improvement: "More time at the end.",
-  platformPreference: "weft" as const,
   meetAgainRefs: [] as string[],
 };
 
@@ -72,7 +71,6 @@ test("submits with the token /resume minted, never the cookie's session handle",
     recommend_score: 4,
     rating: 5,
     improvement: "More time at the end.",
-    platform_preference: "weft",
   });
 });
 

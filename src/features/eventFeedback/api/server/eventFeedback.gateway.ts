@@ -182,7 +182,6 @@ export function createEventFeedbackGateway(
             recommend_score: answers.recommendScore,
             rating: answers.rating,
             improvement: answers.improvement,
-            platform_preference: answers.platformPreference,
           }),
         },
         fetchImpl,
