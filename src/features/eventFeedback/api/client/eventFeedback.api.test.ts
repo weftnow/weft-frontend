@@ -7,7 +7,6 @@ const ANSWERS = {
   recommendScore: 4,
   rating: 5,
   improvement: "More time at the end.",
-  platformPreference: "weft" as const,
   meetAgainRefs: [] as string[],
 };
 
