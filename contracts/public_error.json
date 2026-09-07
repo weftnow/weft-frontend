@@ -1,0 +1,55 @@
+{
+  "contract": "public_error",
+  "description": "The envelope every DomainError leaves as, from register_exception_handlers. `code` is an open vocabulary on purpose — see PublicErrorOut.",
+  "valid": [
+    {
+      "why": "a conflict: the event already moved on, so the answer is refresh rather than retry",
+      "payload": {
+        "detail": "event is already locked",
+        "code": "domain_error"
+      }
+    },
+    {
+      "why": "a spent attendee link, which is a 410 and not an authorization failure",
+      "payload": {
+        "detail": "this event has ended",
+        "code": "event_over"
+      }
+    },
+    {
+      "why": "the paywall, which the dashboard keys its upgrade state off",
+      "payload": {
+        "detail": "this data is not included in your plan",
+        "code": "plan_required"
+      }
+    },
+    {
+      "why": "a code this contract has never seen, which must still parse: a new DomainError must not break a deployed browser",
+      "payload": {
+        "detail": "matching is already running for this event",
+        "code": "matching_run_active"
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "no code, leaving the client nothing to branch on but prose",
+      "payload": { "detail": "event is already locked" }
+    },
+    {
+      "why": "no detail",
+      "payload": { "code": "domain_error" }
+    },
+    {
+      "why": "FastAPI's own validation envelope, where detail is a list of errors rather than a sentence",
+      "payload": {
+        "detail": [{ "loc": ["body", "name"], "msg": "field required" }],
+        "code": "domain_error"
+      }
+    },
+    {
+      "why": "an empty envelope",
+      "payload": {}
+    }
+  ]
+}
