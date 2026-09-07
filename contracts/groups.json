@@ -1,0 +1,87 @@
+{
+  "contract": "groups",
+  "description": "The room map, as GET /v1/events/{event_id}/groups returns it. A list, so the empty case is a real answer and not an error.",
+  "valid": [
+    {
+      "why": "an empty room: a valid successful response, and the only thing that may render 'No tables yet'",
+      "payload": []
+    },
+    {
+      "why": "two seated tables for a paid organizer, who is sent names",
+      "payload": [
+        {
+          "index": 0,
+          "colour": "amber",
+          "members": [
+            { "display_name": "Ana", "confirmed": true },
+            { "display_name": "Bea", "confirmed": false },
+            { "display_name": "Caro", "confirmed": false }
+          ]
+        },
+        {
+          "index": 1,
+          "colour": "teal",
+          "members": [
+            { "display_name": "Dani", "confirmed": true },
+            { "display_name": "Eli", "confirmed": true }
+          ]
+        }
+      ]
+    },
+    {
+      "why": "the same room for a free organizer: the shape of the tables without a single name",
+      "payload": [
+        {
+          "index": 0,
+          "colour": "amber",
+          "members": [
+            { "display_name": null, "confirmed": true },
+            { "display_name": null, "confirmed": false }
+          ]
+        }
+      ]
+    },
+    {
+      "why": "a table with no members yet is still a table",
+      "payload": [{ "index": 0, "colour": "amber", "members": [] }]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "a bare object where the list belongs",
+      "payload": { "index": 0, "colour": "amber", "members": [] }
+    },
+    {
+      "why": "a table with no place in the room",
+      "payload": [{ "index": null, "colour": "amber", "members": [] }]
+    },
+    {
+      "why": "no colour, which is how a table is told apart across the room",
+      "payload": [{ "index": 0, "members": [] }]
+    },
+    {
+      "why": "members missing entirely rather than empty",
+      "payload": [{ "index": 0, "colour": "amber" }]
+    },
+    {
+      "why": "a member who has not said whether they found their group",
+      "payload": [
+        { "index": 0, "colour": "amber", "members": [{ "display_name": "Ana" }] }
+      ]
+    },
+    {
+      "why": "a display name that is not a name",
+      "payload": [
+        {
+          "index": 0,
+          "colour": "amber",
+          "members": [{ "display_name": 7, "confirmed": true }]
+        }
+      ]
+    },
+    {
+      "why": "members as an object rather than a list, which iterates as nothing instead of failing",
+      "payload": [{ "index": 0, "colour": "amber", "members": { "0": "Ana" } }]
+    }
+  ]
+}
