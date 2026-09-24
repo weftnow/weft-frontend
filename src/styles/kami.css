@@ -1,0 +1,2232 @@
+/*
+ * The homepage's visual world, scoped to `.kami`.
+ *
+ * Deliberately not in globals.css and deliberately not on `body`: the
+ * organizer dashboard, the questionnaire and the reveal all inherit
+ * `--font-display` (Comfortaa) from globals, and this page's serif/sans pair
+ * would rewrite every one of them. Everything here hangs off the `.kami`
+ * wrapper on the homepage's <main>, so the redesign cannot leak sideways.
+ */
+
+.kami {
+  /* Surfaces. The hero sits on a cooler, slightly grey wash and the body
+   * settles onto bone, which is what separates the staged top of the page
+   * from the read of it. */
+  --kami-canvas: #f7f5f2;
+  --kami-stage: #f2f1ef;
+  --kami-card: #ffffff;
+  --kami-ink: #121212;
+  --kami-ink-70: rgb(18 18 18 / 82%);
+  --kami-ink-55: rgb(18 18 18 / 68%);
+  --kami-ink-35: rgb(18 18 18 / 60%);
+  --kami-rule: rgb(18 18 18 / 8%);
+
+  /* One accent, and it is load-bearing: the thread, the step icons, the
+   * marginalia arrows. Nothing else gets to be orange. */
+  --kami-accent: #f4511e;
+
+  /*
+   * Porcelain, not paper. Every raised surface is a glazed tile in a bright,
+   * even room: no single lamp, so the body stays one calm milky tone and the
+   * light shows only where glossy glaze always catches it, at the edges. A
+   * bright lacquered band runs the whole rim, and a heavy, warm contact
+   * shadow gives the tile its weight.
+   * The canvas stays matte bisque so the glaze has something to shine against.
+   *
+   * Shadows are tinted toward fired clay (a warm umber), never neutral grey:
+   * grey shadow under a warm-white body is what makes a tile read as a card.
+   */
+  --kami-clay: 72 52 34;
+  --kami-glaze: #faf7f2;
+  --kami-rim:
+    inset 0 0 0 1px rgb(255 255 255 / 100%),
+    inset 0 0 0 1.5px rgb(255 255 255 / 60%),
+    inset 0 0 8px 1px rgb(255 255 255 / 85%);
+  --kami-lift:
+    var(--kami-rim),
+    0 0 0 1px rgb(var(--kami-clay) / 6%),
+    0 1px 1px rgb(var(--kami-clay) / 12%),
+    0 2px 4px rgb(var(--kami-clay) / 10%),
+    0 6px 12px -6px rgb(var(--kami-clay) / 18%);
+  --kami-lift-high:
+    var(--kami-rim),
+    0 0 0 1px rgb(var(--kami-clay) / 6%),
+    0 1px 2px rgb(var(--kami-clay) / 12%),
+    0 3px 6px -1px rgb(var(--kami-clay) / 12%),
+    0 10px 18px -10px rgb(var(--kami-clay) / 24%);
+
+  /* A well pressed into the glaze: shaded evenly round its lip, catching the
+   * light at its floor. Icon tiles, call keys and the chart tray sit in these. */
+  --kami-well-fill: #f1ece4;
+  --kami-well:
+    inset 0 0 0 1px rgb(var(--kami-clay) / 7%),
+    inset 0 0 6px rgb(var(--kami-clay) / 12%);
+  /* A pressed control: the same well, sunk a little deeper. */
+  --kami-well-pressed:
+    inset 0 0 0 1px rgb(var(--kami-clay) / 10%),
+    inset 0 0 10px 1px rgb(var(--kami-clay) / 18%);
+
+  /* The two coloured glazes. Tenmoku black for the primary action, a
+   * persimmon glaze for the accent disc; like the tiles, they catch light
+   * only at the rim. */
+  --kami-glaze-ink: #141312;
+  --kami-glaze-accent: var(--kami-accent);
+
+  --kami-radius: 22px;
+  --kami-radius-sm: 14px;
+
+  /* Rhythm. One section beat and one column gutter, so every row of the
+   * page breathes by the same amount and the banner and contact block stop
+   * reading as tighter than the sections above them. */
+  --kami-beat: clamp(5rem, 2.75rem + 8vw, 10rem);
+  --kami-gutter: clamp(2.75rem, 1rem + 4vw, 6rem);
+
+  /* Three faces, declared once. Newsreader is a transitional serif with real
+   * optical sizing, so the same family carries a 5rem hero and a 0.95rem
+   * dashboard figure without either looking like the other stretched. */
+  --kami-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --kami-sans: "Instrument Sans", system-ui, -apple-system, sans-serif;
+  --kami-hand-face: "Caveat", "Segoe Script", cursive;
+
+  background: var(--kami-canvas);
+  color: var(--kami-ink);
+  font-family: var(--kami-sans);
+}
+
+/* ---------------------------------------------------------------- type --- */
+
+.kami-display {
+  font-family: var(--kami-serif);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+  color: var(--kami-ink);
+}
+
+/* Section headlines break on purpose, two lines, left-aligned. The comp's
+ * rhythm depends on the break landing where the sense does, so the copy
+ * carries its own line array rather than trusting a wrap. */
+.kami-display--section {
+  /* Capped so the longest authored line ("the next one smarter.") still
+   * fits the argument column on one line at the widest wrap. */
+  font-size: clamp(2.05rem, 1.35rem + 2.2vw, 2.75rem);
+  /* The copy carries its own breaks; balancing on top of them adds a second,
+   * unwanted set. */
+  text-wrap: normal;
+}
+
+/* Every argument column is a size container, so a headline can also be held
+ * to its column's width: where a column is narrower than the viewport-based
+ * size assumes, the authored lines broke a second time. ~9.4cqi is where the
+ * longest line just fits. */
+.kami-room__say,
+.kami-journey__head > :first-child,
+.kami-real__say,
+.kami-proof__say,
+.kami-climb__head,
+.kami-slab__say {
+  container-type: inline-size;
+}
+
+@container (max-width: 34rem) {
+  .kami-display--section {
+    font-size: max(1.7rem, min(2.75rem, 9.4cqi));
+  }
+}
+
+.kami-display--hero {
+  font-size: clamp(2.9rem, 1.7rem + 5.4vw, 5.2rem);
+  letter-spacing: -0.03em;
+}
+
+.kami-display--finale {
+  font-size: clamp(2.2rem, 1.2rem + 3.4vw, 3.9rem);
+  line-height: 1.08;
+  letter-spacing: -0.028em;
+  text-wrap: normal;
+}
+
+.kami-display--finale em {
+  font-style: italic;
+  color: var(--kami-ink-70);
+}
+
+.kami-eyebrow {
+  display: block;
+  font-family: var(--kami-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--kami-ink-35);
+  margin-bottom: 1.6rem;
+}
+
+.kami-body {
+  font-size: clamp(1rem, 0.95rem + 0.2vw, 1.0875rem);
+  line-height: 1.62;
+  color: var(--kami-ink-55);
+  max-width: 38ch;
+}
+
+.kami-lede {
+  font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.22rem);
+  line-height: 1.6;
+  color: var(--kami-ink-70);
+  max-width: 58ch;
+  margin-inline: auto;
+  text-wrap: balance;
+}
+
+.kami-note {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--kami-ink-35);
+  /* Wide enough to hold the three "no"s on one line, which is the whole point
+   * of the sentence -- balanced onto two it broke mid-phrase. */
+  max-width: 70ch;
+  margin-inline: auto;
+  text-wrap: balance;
+}
+
+/* Handwriting in the margins. A second voice, never load-bearing copy —
+ * it is decorative to a screen reader and hidden from it. */
+.kami-hand {
+  font-family: var(--kami-hand-face);
+  font-size: clamp(1.1rem, 0.95rem + 0.5vw, 1.4rem);
+  line-height: 1.2;
+  color: var(--kami-ink-55);
+  transform: rotate(-4deg);
+  pointer-events: none;
+  user-select: none;
+}
+
+.kami-hand--right {
+  transform: rotate(3.5deg);
+}
+
+/* Each note carries its own line breaks. A narrow gutter re-wrapping them
+ * is how "It starts with / a / conversation." happened. */
+.kami-hand > span {
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- layout -- */
+
+.kami-section {
+  position: relative;
+  width: 100%;
+  padding-inline: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .kami-section {
+    padding-inline: 2.5rem;
+  }
+}
+
+.kami-wrap {
+  position: relative;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 68rem;
+}
+
+/* ---------------------------------------------------------------- cards -- */
+
+.kami-card {
+  background: var(--kami-card);
+  border-radius: var(--kami-radius);
+  box-shadow: var(--kami-lift);
+}
+
+.kami-card--tight {
+  border-radius: var(--kami-radius-sm);
+}
+
+/* ------------------------------------------------------------------ cta -- */
+
+.kami-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 0.75rem 0.75rem 1.5rem;
+  border-radius: 999px;
+  background: var(--kami-ink);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+  transition:
+    box-shadow 120ms ease-out,
+    background 120ms ease-out,
+    transform 120ms ease-out;
+  box-shadow: 0 1px 2px rgb(18 18 18 / 12%), 0 8px 20px -12px rgb(18 18 18 / 45%);
+}
+
+.kami-cta__arrow {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  background: var(--kami-accent);
+  color: #fff;
+  flex-shrink: 0;
+  transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.kami-cta:hover .kami-cta__arrow {
+  transform: translateX(2px);
+}
+
+.kami-cta--ghost {
+  background: transparent;
+  color: var(--kami-ink);
+  box-shadow: none;
+  padding-left: 0;
+}
+
+.kami-cta--ghost .kami-cta__arrow {
+  background: var(--kami-card);
+  color: var(--kami-ink);
+  box-shadow: var(--kami-lift);
+  width: 2.1rem;
+  height: 2.1rem;
+}
+
+.kami-textlink {
+  font-size: 0.95rem;
+  color: var(--kami-ink-55);
+  text-decoration: none;
+  text-underline-offset: 4px;
+  transition: color 160ms ease;
+}
+
+.kami-textlink:hover {
+  color: var(--kami-ink);
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------- thread -- */
+
+/*
+ * The orange spine. One segment per section gap rather than a single
+ * page-length path: a full-page path would need every section's measured
+ * offset to stay glued to the artwork, and would have to be redrawn at every
+ * breakpoint where the two-column rows stack. A segment only has to know its
+ * own box.
+ *
+ * It is ornament, so it is aria-hidden and it disappears rather than
+ * rearranges below the two-column breakpoint, where a diagonal thread across
+ * a stacked column reads as a stray line.
+ */
+.kami-thread {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  overflow: visible;
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .kami-thread {
+    display: block;
+  }
+}
+
+.kami-thread path {
+  fill: none;
+  stroke: var(--kami-accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ----------------------------------------------------------------- hero -- */
+
+.kami-hero {
+  position: relative;
+  /* Measured from under the sticky header, which already contributes its own
+   * ~66px. The old value stacked a further 144px on top and left the eyebrow
+   * sitting a fifth of the way down the viewport. */
+  padding-top: clamp(2.25rem, 1.25rem + 2.5vw, 3.75rem);
+  padding-bottom: 0;
+  text-align: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--kami-canvas) 0%, var(--kami-stage) 72%, var(--kami-stage) 100%);
+}
+
+/*
+ * Two vast, barely-there arcs sweeping in from the top corners. They are what
+ * makes the character read as staged under a light rather than pasted onto
+ * beige — drop them and the hero collapses into a cutout.
+ */
+.kami-hero__arc {
+  position: absolute;
+  top: -38%;
+  width: 78vw;
+  height: 128%;
+  border-radius: 50%;
+  border: 1px solid rgb(18 18 18 / 4%);
+  background: radial-gradient(closest-side, rgb(255 255 255 / 55%), transparent 78%);
+  pointer-events: none;
+}
+
+.kami-hero__arc--left {
+  left: -34vw;
+}
+
+.kami-hero__arc--right {
+  right: -34vw;
+}
+
+.kami-hero__stage {
+  position: relative;
+  margin-top: clamp(2rem, 1rem + 4vw, 3.5rem);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: clamp(16rem, 12rem + 18vw, 24rem);
+}
+
+.kami-hero__figure {
+  position: relative;
+  width: clamp(11rem, 8rem + 14vw, 17rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The pool of light the character stands in. */
+.kami-hero__podium {
+  position: relative;
+  width: clamp(14rem, 10rem + 18vw, 22rem);
+  height: clamp(2.2rem, 1.6rem + 2vw, 3.2rem);
+  margin-top: -0.75rem;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #fff 0%, #fff 58%, rgb(255 255 255 / 0%) 100%);
+  box-shadow: 0 -18px 40px -24px rgb(18 18 18 / 22%);
+}
+
+.kami-hero__bubble {
+  position: absolute;
+  left: calc(50% + clamp(4.5rem, 3rem + 6vw, 8rem));
+  top: clamp(1rem, 0.5rem + 2vw, 3rem);
+  width: min(19rem, 42vw);
+  padding: 1.2rem 1.4rem;
+  text-align: left;
+  border-radius: 18px 18px 18px 4px;
+  background: var(--kami-card);
+  box-shadow: var(--kami-lift-high);
+}
+
+.kami-hero__bubble-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.kami-hero__bubble-body {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--kami-ink-55);
+}
+
+/* A voice waveform, drawn rather than imported. */
+.kami-wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 0.85rem;
+  margin-bottom: 0.6rem;
+}
+
+.kami-wave span {
+  width: 2px;
+  border-radius: 1px;
+  background: var(--kami-accent);
+  animation: kami-wave 1.1s ease-in-out infinite;
+}
+
+@keyframes kami-wave {
+  0%, 100% { height: 22%; opacity: 0.55; }
+  50% { height: 100%; opacity: 1; }
+}
+
+/* ------------------------------------------------------------ challenge -- */
+
+.kami-person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.kami-person__frame {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 7.5rem;
+  border-radius: 18px;
+  display: block;
+  overflow: hidden;
+  background: var(--kami-card);
+  box-shadow: var(--kami-lift);
+  padding: 5px;
+}
+
+.kami-person__frame > * {
+  width: 100%;
+  height: 100%;
+  border-radius: 13px;
+  overflow: hidden;
+  display: block;
+  object-fit: cover;
+  /* These are full-length portraits going into a square tile. Centred, the
+   * crop lands on a collarbone; each one names its own face height in
+   * content.ts instead. */
+  object-position: var(--kami-focus, 50% 50%);
+}
+
+.kami-person__role {
+  font-size: 0.82rem;
+  color: var(--kami-ink-55);
+  text-align: center;
+  letter-spacing: -0.005em;
+}
+
+/* ------------------------------------------------------------ call card -- */
+
+.kami-call {
+  width: min(18.5rem, 100%);
+  padding: 1.6rem 1.5rem 1.3rem;
+  background: var(--kami-card);
+  border-radius: var(--kami-radius);
+  box-shadow: var(--kami-lift-high);
+  text-align: center;
+}
+
+.kami-call__avatar {
+  width: 4.6rem;
+  height: 4.6rem;
+  margin: 0 auto 0.85rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--kami-canvas);
+  box-shadow: 0 0 0 4px #fff, 0 0 0 5px var(--kami-rule);
+}
+
+.kami-call__avatar > * {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kami-call__name {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.kami-call__role {
+  font-size: 0.84rem;
+  color: var(--kami-ink-35);
+  margin-top: 0.15rem;
+}
+
+.kami-call__controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1.1rem;
+}
+
+.kami-call__key {
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 999px;
+  background: var(--kami-canvas);
+  color: var(--kami-ink-70);
+}
+
+.kami-call__key--end {
+  width: 2.9rem;
+  height: 2.9rem;
+  background: var(--kami-accent);
+  color: #fff;
+  box-shadow: 0 6px 16px -8px rgb(244 81 30 / 70%);
+}
+
+/* ------------------------------------------------------- real picture --- */
+
+.kami-scene {
+  position: relative;
+  border-radius: var(--kami-radius);
+  overflow: hidden;
+  background: var(--kami-ink);
+  box-shadow: var(--kami-lift-high);
+  aspect-ratio: 4 / 3;
+}
+
+.kami-scene > img,
+.kami-scene > video,
+.kami-scene > .kami-pending {
+  width: 100%;
+  height: 100%;
+  /* The only event photo we have is portrait, so the frame is squarer than the
+   * comp's and the crop is biased up to keep faces rather than midriffs. */
+  object-fit: cover;
+  object-position: 50% 28%;
+  display: block;
+  margin: 0;
+}
+
+.kami-scene__mark {
+  position: absolute;
+  left: 1.1rem;
+  bottom: 1.1rem;
+  font-family: var(--kami-serif);
+  font-size: 1.15rem;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.kami-scene__badge {
+  position: absolute;
+  right: 1.1rem;
+  bottom: 1.1rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--kami-radius-sm);
+  background: rgb(255 255 255 / 94%);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--kami-lift);
+  min-width: 13rem;
+}
+
+.kami-scene__badge-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.45rem;
+}
+
+.kami-scene__pair {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.84rem;
+  color: var(--kami-ink-70);
+}
+
+.kami-scene__dot {
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 999px;
+  background: var(--kami-canvas);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--kami-ink-55);
+}
+
+.kami-scene__link {
+  color: var(--kami-accent);
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------ dashboard -- */
+
+/*
+ * Built in markup, not shipped as a screenshot: a picture of a dashboard goes
+ * stale the moment the real one changes, and it cannot be read by anyone using
+ * a screen reader. The numbers are sample data and say so in the DOM.
+ */
+.kami-dash {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--kami-card);
+  border-radius: var(--kami-radius);
+  box-shadow: var(--kami-lift-high);
+  overflow: hidden;
+  font-size: 0.82rem;
+}
+
+.kami-dash__rail {
+  padding: 1.1rem 0.75rem;
+  border-right: 1px solid var(--kami-rule);
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .kami-dash {
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+  }
+
+  .kami-dash__rail {
+    display: block;
+  }
+}
+
+.kami-dash__brand {
+  font-family: var(--kami-serif);
+  font-size: 1.2rem;
+  padding-inline: 0.5rem;
+  margin-bottom: 1.1rem;
+}
+
+.kami-dash__navitem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.5rem;
+  border-radius: 8px;
+  color: var(--kami-ink-35);
+}
+
+.kami-dash__navitem[data-active="true"] {
+  background: color-mix(in srgb, var(--kami-accent) 9%, transparent);
+  color: var(--kami-accent);
+  font-weight: 500;
+}
+
+.kami-dash__body {
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  min-width: 0;
+}
+
+.kami-dash__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (max-width: 420px) {
+  .kami-dash__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.kami-dash__stat-label {
+  color: var(--kami-ink-35);
+  font-size: 0.74rem;
+  margin-bottom: 0.25rem;
+}
+
+.kami-dash__stat-value {
+  font-family: var(--kami-serif);
+  font-size: clamp(1.4rem, 1.1rem + 0.9vw, 1.95rem);
+  letter-spacing: -0.02em;
+}
+
+.kami-dash__panel {
+  border: 1px solid var(--kami-rule);
+  border-radius: 12px;
+  padding: 0.8rem;
+}
+
+.kami-dash__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.kami-dash__delta {
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  background: var(--kami-ink);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.kami-dash__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 560px) {
+  .kami-dash__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.kami-dash__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-block: 0.22rem;
+  color: var(--kami-ink-70);
+}
+
+.kami-dash__row b {
+  margin-left: auto;
+  font-weight: 500;
+  color: var(--kami-ink);
+}
+
+.kami-dash__swatch {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 2px;
+  background: var(--kami-accent);
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------- footer -- */
+
+.kami-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1rem 1.5rem;
+  padding-block: 2.5rem 3.5rem;
+  border-top: 1px solid var(--kami-rule);
+}
+
+.kami-footer__wordmark .kami-lockup__word {
+  font-size: 1.4rem;
+}
+
+.kami-footer__tagline {
+  font-size: 0.875rem;
+  color: var(--kami-ink-35);
+}
+
+.kami-footer__links {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.kami-footer__links a {
+  font-size: 0.875rem;
+  color: var(--kami-ink-55);
+  text-decoration: none;
+}
+
+.kami-footer__links a:hover {
+  color: var(--kami-ink);
+}
+
+/* ------------------------------------------------------------ reduced --- */
+
+@media (prefers-reduced-motion: reduce) {
+  .kami-wave span {
+    animation: none;
+    height: 60%;
+  }
+
+  .kami-cta,
+  .kami-cta__arrow {
+    transition: none;
+  }
+}
+
+/* ======================================================= remaining parts == */
+
+.kami-thread svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Stand-in for imagery we have not shot yet. Deliberately plain and labelled:
+ * an obvious gap is easier to act on than a borrowed photo that looks shipped. */
+.kami-pending {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 4rem;
+  padding: 0.5rem;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgb(18 18 18 / 2.5%) 0 6px,
+      transparent 6px 12px
+    ),
+    var(--kami-stage);
+  box-shadow: inset 0 0 0 1px var(--kami-rule);
+  border-radius: inherit;
+}
+
+.kami-pending span {
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--kami-ink-35);
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* ------------------------------------------------------------------ nav -- */
+
+.kami-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: background-color 260ms ease, box-shadow 260ms ease;
+}
+
+.kami-nav[data-scrolled="true"] {
+  background: rgb(247 245 242 / 82%);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 var(--kami-rule);
+}
+
+.kami-nav__inner {
+  margin-inline: auto;
+  max-width: 72rem;
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .kami-nav__inner {
+    padding-inline: 2.5rem;
+  }
+}
+
+.kami-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  color: var(--kami-ink);
+  text-decoration: none;
+}
+
+.kami-nav__brand .kami-lockup__word {
+  font-size: 1.2rem;
+}
+
+.kami-nav__links {
+  display: none;
+  gap: 1.75rem;
+}
+
+@media (min-width: 900px) {
+  .kami-nav__links {
+    display: flex;
+  }
+}
+
+.kami-nav__links a {
+  font-size: 0.9rem;
+  color: var(--kami-ink-55);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.kami-nav__links a:hover {
+  color: var(--kami-ink);
+}
+
+.kami-nav__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.kami-nav__signin {
+  display: none;
+  font-size: 0.9rem;
+  color: var(--kami-ink-55);
+  text-decoration: none;
+}
+
+.kami-nav__signin:hover {
+  color: var(--kami-ink);
+}
+
+@media (min-width: 900px) {
+  .kami-nav__signin {
+    display: inline;
+  }
+}
+
+.kami-nav__cta {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .kami-nav__cta {
+    display: inline-flex;
+  }
+}
+
+.kami-nav__toggle {
+  display: grid;
+  gap: 5px;
+  padding: 0.5rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+@media (min-width: 900px) {
+  .kami-nav__toggle {
+    display: none;
+  }
+}
+
+.kami-nav__toggle span {
+  display: block;
+  width: 20px;
+  height: 1.5px;
+  background: var(--kami-ink);
+  transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.kami-nav__toggle span[data-open="true"]:first-child {
+  transform: translateY(3.25px) rotate(45deg);
+}
+
+.kami-nav__toggle span[data-open="true"]:last-child {
+  transform: translateY(-3.25px) rotate(-45deg);
+}
+
+.kami-nav__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.5rem 1.75rem;
+  background: rgb(247 245 242 / 96%);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 var(--kami-rule);
+}
+
+.kami-nav__panel a {
+  font-size: 1.05rem;
+  color: var(--kami-ink-70);
+  text-decoration: none;
+}
+
+.kami-nav__panel .kami-cta {
+  align-self: flex-start;
+}
+
+/* ----------------------------------------------------------------- hero -- */
+
+.kami-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.kami-hero__kami {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  /* No radius and no fixed ratio now the render is a cut-out: a corner radius
+   * on a transparent figure only clips its own feet, and the file's own 942x1195
+   * decides the height. */
+  filter: drop-shadow(0 18px 22px rgb(var(--kami-clay, 18 18 18) / 18%));
+}
+
+.kami-hero__aside {
+  position: absolute;
+  left: 0;
+  top: 22%;
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--kami-accent);
+}
+
+@media (min-width: 900px) {
+  .kami-hero__aside {
+    display: flex;
+  }
+}
+
+.kami-hero__aside .kami-hand {
+  color: var(--kami-ink-55);
+}
+
+.kami-hero__arrow {
+  width: 3.2rem;
+  flex-shrink: 0;
+  transform: rotate(8deg);
+}
+
+.kami-dash__chart {
+  width: 100%;
+  height: 4.2rem;
+}
+
+/* --------------------------------------------------------------- footer -- */
+
+.kami-footer__copyright {
+  flex-basis: 100%;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--kami-ink-35);
+}
+
+/* The ghost CTA leads with its disc, so the padding mirrors the solid one. */
+.kami-cta--ghost {
+  padding: 0.5rem 1.1rem 0.5rem 0.5rem;
+}
+
+
+/* ---------------------------------------------------------- hero, phone -- */
+
+@media (max-width: 767px) {
+  .kami-hero__stage {
+    flex-direction: column;
+    align-items: center;
+    min-height: 0;
+    /* The hero clips its overflow; without room below, the stacked bubble's
+     * foot and shadow are sliced off at the section edge. */
+    padding-bottom: 2.5rem;
+  }
+
+  .kami-hero__bubble {
+    position: static;
+    width: min(20rem, 100%);
+    margin-top: 1.5rem;
+    border-radius: 18px 18px 18px 4px;
+  }
+
+  .kami-hero__figure {
+    width: clamp(9rem, 40vw, 13rem);
+  }
+}
+
+/* ============================================================ ceramic === */
+
+/*
+ * The material pass. Layout above decides where things sit; this block
+ * decides what they are made of. Kept in one place so the glaze reads as one
+ * firing rather than a dozen slightly different whites.
+ */
+
+/* Matte bisque under everything: a faint fired-clay grain so the glazed
+ * tiles have an unglazed ground to sit on. Fixed so it never swims. */
+.kami {
+  background-color: var(--kami-canvas);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .28 0 0 0 0 .2 0 0 0 0 .13 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+}
+
+/* Glazed tiles. The hero bubble takes the glaze but not the positioning:
+ * it is absolutely placed beside Kami, and `relative` here would drop it back
+ * into the stage's flex row and drag Kami off centre. */
+.kami-hero__bubble {
+  z-index: 1;
+  background: var(--kami-glaze);
+  isolation: isolate;
+}
+
+@media (max-width: 767px) {
+  /* Stacked under Kami here, with the desktop offsets cleared. */
+  .kami-hero__bubble {
+    position: relative;
+    left: auto;
+    top: auto;
+  }
+}
+
+.kami-card,
+.kami-stage,
+.kami-call,
+.kami-dash,
+.kami-person__frame,
+.kami-stage__bead,
+.kami-city__bead,
+.kami-cta--ghost .kami-cta__arrow {
+  position: relative;
+  background: var(--kami-glaze);
+  isolation: isolate;
+}
+
+/* Tiles that hold imagery keep the glaze as a rim. */.kami-person__frame {
+  padding: 6px;
+  border-radius: 20px;
+}
+
+.kami-person__frame > * {
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--kami-clay) / 8%),
+    0 1px 2px rgb(var(--kami-clay) / 14%);
+}
+
+/* Wells pressed into the glaze. */
+.kami-stage__scene,
+.kami-call__key,
+.kami-scene__dot,
+.kami-intro__person {
+  background: var(--kami-well-fill);
+  box-shadow: var(--kami-well);
+}
+
+.kami-dash__panel {
+  border: 0;
+  background: var(--kami-well-fill);
+  box-shadow: var(--kami-well);
+}
+
+.kami-dash__rail {
+  border-right: 0;
+  box-shadow: inset -1px 0 0 rgb(var(--kami-clay) / 7%);
+}
+
+.kami-dash__navitem[data-active="true"] {
+  background: var(--kami-well-fill);
+  box-shadow: var(--kami-well);
+}
+
+/* The avatar is set into the tile like an inlay: a porcelain collar, then
+ * a shaded seat. */
+.kami-call__avatar {
+  box-shadow:
+    0 0 0 4px #fdfbf7,
+    0 0 0 5px rgb(var(--kami-clay) / 8%),
+    0 2px 6px -2px rgb(var(--kami-clay) / 30%);
+}
+
+/* Glazed controls. */
+.kami-cta {
+  background: var(--kami-glaze-ink);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 16%),
+    inset 0 0 8px rgb(255 255 255 / 10%),
+    0 1px 1px rgb(var(--kami-clay) / 35%),
+    0 3px 6px -2px rgb(var(--kami-clay) / 40%);
+}
+
+/*
+ * Two states only: raised at rest (and on hover), set into the surface
+ * while pressed. Pressing drops the contact shadow and shades the rim
+ * evenly inward, so the control sinks flush rather than lifting.
+ */
+.kami-cta:active {
+  background: #2b2825;
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 70%),
+    inset 0 0 12px 3px rgb(0 0 0 / 85%),
+    0 0 0 1px rgb(255 255 255 / 70%);
+  transform: scale(0.985);
+}
+
+.kami-cta__arrow,
+.kami-call__key--end {
+  background: var(--kami-glaze-accent);
+}
+
+.kami-cta__arrow,
+.kami-call__key--end {
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 35%),
+    inset 0 0 6px rgb(255 255 255 / 25%),
+    0 1px 3px -1px rgb(214 63 16 / 60%);
+}
+
+.kami-cta--ghost,
+.kami-cta--ghost:hover,
+.kami-cta--ghost:active {
+  background: transparent;
+  box-shadow: none;
+}
+
+.kami-cta--ghost .kami-cta__arrow {
+  box-shadow: var(--kami-lift);
+  transition:
+    transform 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 120ms ease-out,
+    background 120ms ease-out;
+}
+
+.kami-cta--ghost:active .kami-cta__arrow {
+  background: var(--kami-well-fill);
+  box-shadow: var(--kami-well-pressed);
+}
+
+.kami-dash__delta {
+  background: var(--kami-glaze-ink);
+}
+
+/* The dark scene is a black-glazed tile: same lit rim, darker body. */
+.kami-scene {
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 10%),
+    0 0 0 1px rgb(var(--kami-clay) / 10%),
+    0 1px 2px rgb(var(--kami-clay) / 16%),
+    0 10px 20px -10px rgb(var(--kami-clay) / 30%);
+}
+
+.kami-scene__badge {
+  background: var(--kami-glaze);
+  backdrop-filter: none;
+}
+
+/* Pending imagery sits in a well until it is shot, not on a flat stripe. */
+.kami-city__frame {
+  box-shadow: var(--kami-well);
+  background: var(--kami-well-fill);
+}
+
+/* Hero: the character stands on a porcelain plinth rather than a pool of
+ * light — one even glazed tone that softens out at its edge. */
+.kami-hero__podium {
+  background: radial-gradient(closest-side, #f6f2ec 0%, #f6f2ec 80%, rgb(246 242 236 / 0%) 100%);
+  box-shadow: 0 4px 10px -6px rgb(var(--kami-clay) / 35%);
+}
+
+.kami-stage > *,
+.kami-call > *,
+.kami-dash > * {
+  position: relative;
+  z-index: 3;
+}
+
+/* -------------------------------------------------------- footer, phone -- */
+
+/* On a phone the links get their own row and a two-up grid, so four short
+ * labels never wrap into three-and-an-orphan. */
+@media (max-width: 767px) {
+  .kami-footer__links {
+    margin-left: 0;
+    flex-basis: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    gap: 0.85rem 2.5rem;
+    margin-top: 0.75rem;
+  }
+}
+
+/* ============================================================ sections === */
+
+/*
+ * Each section has its own composition, chosen from what it says, so the page
+ * stops reading as one row pattern repeated six times:
+ *
+ *   challenge   the room, from above: argument centred, guests around it
+ *   how         a left-to-right journey along the thread
+ *   real        the page turns round: photo leads, copy settles at its foot
+ *   impact      staged and centred, the dashboard as the character
+ *   network     a rising line of cities
+ *   finale      a statement with nothing to click, then the black-glaze slab
+ *
+ * Everything in a section's wrap sits above that section's thread, so the
+ * line only ever shows on bare canvas and passes under the tiles. The hero
+ * keeps its own stacking.
+ */
+.kami-section:not(.kami-hero) > .kami-wrap {
+  z-index: 1;
+}
+
+.kami-room,
+.kami-journey,
+.kami-real,
+.kami-proof,
+.kami-climb {
+  padding-block: calc(var(--kami-beat) / 2);
+}
+
+/* The header's action steps aside while the page shows one of its own. */
+.kami-nav__cta {
+  transition:
+    opacity 200ms ease-out,
+    transform 260ms cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s linear 0s;
+}
+
+.kami-nav__cta[data-echoed="true"] {
+  opacity: 0;
+  transform: translateY(-4px);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 160ms ease-out,
+    transform 200ms ease-out,
+    visibility 0s linear 200ms;
+}
+
+/* ------------------------------------------------------- challenge room -- */
+
+.kami-room__say {
+  position: relative;
+  z-index: 2;
+}
+
+.kami-room__people {
+  margin-top: 2.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem 1rem;
+}
+
+.kami-person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.kami-person__frame {
+  width: 100%;
+  max-width: 7rem;
+  aspect-ratio: 1 / 1;
+}
+
+.kami-room__misses,
+.kami-room__aside {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .kami-room {
+    display: grid;
+    place-items: center;
+    min-height: 44rem;
+  }
+
+  /* A size container has no width of its own, so it is given one. */
+  .kami-room__say {
+    width: min(30rem, 100%);
+    text-align: center;
+  }
+
+  .kami-room__say .kami-body {
+    margin-inline: auto;
+  }
+
+  .kami-room__aside {
+    display: block;
+    margin-top: 2rem;
+  }
+
+  .kami-room__people {
+    position: absolute;
+    inset: calc(var(--kami-beat) / 2) 0;
+    margin: 0;
+    display: block;
+  }
+
+  .kami-person {
+    position: absolute;
+  }
+
+  .kami-person__frame {
+    width: var(--size);
+    max-width: none;
+  }
+
+  /* Near and far: the bigger frames stand closer to the reader. */
+  .kami-person:nth-child(1) { --size: 8.5rem; left: 2%;  top: 4%; }
+  .kami-person:nth-child(2) { --size: 6.5rem; left: 13%; top: 54%; }
+  .kami-person:nth-child(3) { --size: 6rem;   right: 6%; top: 0%; }
+  .kami-person:nth-child(4) { --size: 8.5rem; right: 0;  top: 40%; }
+  .kami-person:nth-child(5) { --size: 5.5rem; left: 26%; bottom: 0; }
+  .kami-person:nth-child(6) { --size: 6rem;   right: 22%; bottom: 2%; }
+
+  .kami-room__misses {
+    display: block;
+    position: absolute;
+    inset: calc(var(--kami-beat) / 2) 0;
+    width: 100%;
+    height: calc(100% - var(--kami-beat));
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .kami-room__misses path {
+    fill: none;
+    stroke: rgb(var(--kami-clay) / 30%);
+    stroke-width: 1.2;
+    stroke-dasharray: 2 6;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+/* ------------------------------------------------------------- journey -- */
+
+.kami-journey__head {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.kami-journey__aside {
+  display: none;
+  align-items: flex-end;
+  gap: 0.4rem;
+  margin-top: 1.5rem;
+  color: var(--kami-accent);
+}
+
+.kami-journey__aside .kami-hand {
+  color: var(--kami-ink-55);
+}
+
+/* Drawn pointing right; turned to point down at the first scene. */
+.kami-journey__arrow {
+  width: 2.8rem;
+  flex-shrink: 0;
+  transform: rotate(62deg) translate(0.4rem, -0.2rem);
+}
+
+@media (min-width: 900px) {
+  .kami-journey__head {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: end;
+    gap: var(--kami-gutter);
+  }
+}
+
+@media (min-width: 1100px) {
+  .kami-journey__aside {
+    display: flex;
+  }
+}
+
+.kami-journey__track {
+  --scene-h: 13.5rem;
+  --bead: 2.1rem;
+  --bead-gap: 1.6rem;
+  position: relative;
+  margin-top: clamp(3rem, 1.5rem + 4vw, 5rem);
+}
+
+/* Across the row of beads, edge to edge. */
+.kami-journey__thread {
+  left: 0;
+  right: 0;
+  top: calc(var(--scene-h) + var(--bead-gap) + var(--bead) / 2 - 1px);
+  height: 2px;
+}
+
+.kami-journey__steps {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3rem;
+}
+
+@media (min-width: 900px) {
+  .kami-journey__steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1.25rem, 0.5rem + 1.5vw, 2rem);
+  }
+}
+
+/* Not a card: the scene is a well pressed into the canvas, and the words sit
+ * on the canvas under it, so three steps never read as three same-size
+ * boxes. */
+.kami-stage {
+  background: none;
+  isolation: auto;
+}
+
+.kami-stage__scene {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: var(--scene-h);
+  border-radius: var(--kami-radius);
+  overflow: hidden;
+}
+
+.kami-stage__bead {
+  display: grid;
+  place-items: center;
+  width: var(--bead);
+  height: var(--bead);
+  margin: var(--bead-gap) 0 1.25rem;
+  border-radius: 999px;
+  box-shadow: var(--kami-lift);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--kami-ink-70);
+}
+
+.kami-stage__title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.06rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.45rem;
+}
+
+.kami-stage__icon {
+  color: var(--kami-accent);
+  display: grid;
+  flex-shrink: 0;
+}
+
+.kami-stage__body {
+  font-size: 0.95rem;
+  line-height: 1.58;
+  color: var(--kami-ink-55);
+  max-width: 34ch;
+}
+
+/* Scene 01: the call card, standing in its well. */
+.kami-call {
+  width: min(15rem, 82%);
+  padding: 1.2rem 1.1rem 1rem;
+}
+
+.kami-call__avatar {
+  width: 3.6rem;
+  height: 3.6rem;
+  margin-bottom: 0.65rem;
+}
+
+.kami-call__name {
+  font-size: 0.92rem;
+}
+
+.kami-call__role {
+  font-size: 0.78rem;
+}
+
+.kami-call__controls {
+  margin-top: 0.85rem;
+  gap: 0.5rem;
+}
+
+.kami-call__key {
+  width: 1.95rem;
+  height: 1.95rem;
+}
+
+.kami-call__key--end {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+/* Scene 02: one guest, two picked out of the room. */
+.kami-match {
+  position: absolute;
+  inset: 12% 10%;
+}
+
+.kami-match svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.kami-match line {
+  stroke: var(--kami-accent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.kami-match__dot,
+.kami-match__guest {
+  position: absolute;
+  translate: -50% -50%;
+  border-radius: 999px;
+  background: var(--kami-glaze);
+  box-shadow: var(--kami-lift);
+}
+
+.kami-match__dot {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.kami-match__dot[data-picked="true"] {
+  width: 1.6rem;
+  height: 1.6rem;
+  box-shadow:
+    var(--kami-lift),
+    0 0 0 3px rgb(244 81 30 / 22%);
+}
+
+.kami-match__guest {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  color: var(--kami-accent);
+  box-shadow: var(--kami-lift-high);
+}
+
+/* Scene 03: the introduction, as the host would say it. */
+.kami-intro {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.kami-intro__person {
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 999px;
+  background: var(--kami-glaze);
+  box-shadow: var(--kami-lift-high);
+  font-family: var(--kami-serif);
+  font-size: 1.35rem;
+  color: var(--kami-ink-70);
+}
+
+.kami-intro__join {
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 999px;
+  background: var(--kami-glaze-accent);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 35%),
+    0 1px 3px -1px rgb(214 63 16 / 60%);
+}
+
+.kami-intro__line {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+  text-align: center;
+  font-family: var(--kami-serif);
+  font-style: italic;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+  color: var(--kami-ink-70);
+}
+
+/* ---------------------------------------------------------------- real -- */
+
+.kami-real {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3rem;
+}
+
+.kami-real__photo {
+  position: relative;
+}
+
+.kami-real .kami-scene__badge {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+}
+
+.kami-real__aside {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 3.5rem;
+  color: var(--kami-accent);
+}
+
+.kami-real__aside .kami-hand {
+  color: var(--kami-ink-55);
+}
+
+.kami-real__arrow {
+  width: 3rem;
+  flex-shrink: 0;
+  transform: scaleX(-1) rotate(-12deg);
+}
+
+@media (min-width: 900px) {
+  .kami-real {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+    gap: var(--kami-gutter);
+    align-items: end;
+  }
+
+  .kami-real .kami-scene {
+    aspect-ratio: 4 / 5;
+  }
+
+  /* Across the seam: on the photo, reaching into the gutter, never onto the
+   * copy. */
+  .kami-real .kami-scene__badge {
+    right: calc(var(--kami-gutter) / -2);
+    bottom: 3.5rem;
+  }
+
+  .kami-real__say {
+    padding-bottom: 1rem;
+  }
+
+  .kami-real__aside {
+    display: inline-flex;
+  }
+
+  .kami-real__say .kami-display--large {
+    font-size: max(2.4rem, min(3.7rem, 11.6cqi));
+    line-height: 1;
+  }
+}
+
+/* --------------------------------------------------------------- proof -- */
+
+.kami-proof__say {
+  max-width: 40rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.kami-proof__say .kami-body {
+  margin-inline: auto;
+  max-width: 46ch;
+}
+
+.kami-proof__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem 1.75rem;
+  margin-top: 2.25rem;
+}
+
+.kami-proof__stage {
+  position: relative;
+  max-width: 60rem;
+  margin: clamp(3.5rem, 2rem + 4vw, 5.5rem) auto 0;
+}
+
+.kami-proof__stage .kami-dash {
+  z-index: 1;
+}
+
+/* The same porcelain plinth Kami stands on in the hero, under the product. */
+.kami-proof__plinth {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: -1.6rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #f3eee7 0%, #f3eee7 72%, rgb(243 238 231 / 0%) 100%);
+  box-shadow: 0 6px 14px -8px rgb(var(--kami-clay) / 30%);
+}
+
+.kami-proof__aside {
+  display: none;
+  position: absolute;
+  right: 1.5rem;
+  bottom: calc(100% + 0.5rem);
+  align-items: flex-end;
+  gap: 0.35rem;
+  color: var(--kami-accent);
+}
+
+.kami-proof__aside .kami-hand {
+  color: var(--kami-ink-55);
+}
+
+.kami-proof__arrow {
+  width: 2.6rem;
+  flex-shrink: 0;
+  transform: rotate(70deg) translate(0.6rem, 0);
+}
+
+@media (min-width: 1100px) {
+  .kami-proof__aside {
+    display: flex;
+  }
+}
+
+@media (min-width: 640px) {
+  .kami-proof .kami-dash {
+    grid-template-columns: 11rem minmax(0, 1fr);
+  }
+
+  .kami-proof .kami-dash__body {
+    padding: 1.75rem;
+    gap: 1.4rem;
+  }
+}
+
+/* --------------------------------------------------------------- climb -- */
+
+.kami-climb {
+  --rise: 5.75rem;
+  --gap: 1.5rem;
+}
+
+.kami-climb__row {
+  position: relative;
+  margin-top: 2.5rem;
+}
+
+.kami-climb__cities {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.75rem 1.1rem;
+}
+
+.kami-city {
+  display: flex;
+  flex-direction: column;
+}
+
+.kami-city__frame {
+  display: block;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--kami-radius);
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+}
+
+.kami-city__frame > * {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Set per city in content.ts -- see the note on `focus` there. */
+  object-position: var(--kami-focus, 50% 50%);
+  display: block;
+}
+
+.kami-city__name {
+  font-size: 0.9rem;
+  color: var(--kami-ink-55);
+}
+
+.kami-city__bead {
+  display: none;
+}
+
+.kami-climb__foot {
+  margin-top: 2.5rem;
+}
+
+.kami-climb__aside {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .kami-climb {
+    position: relative;
+  }
+
+  .kami-climb__head {
+    position: absolute;
+    z-index: 2;
+    top: calc(var(--kami-beat) / 2);
+    left: 0;
+    width: 50%;
+  }
+
+  .kami-climb__row {
+    margin-top: 0;
+  }
+
+  .kami-climb__cities {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--gap);
+  }
+
+  /* Each city a step higher than the one before. */
+  .kami-city:nth-child(1) { margin-top: calc(var(--rise) * 3); }
+  .kami-city:nth-child(2) { margin-top: calc(var(--rise) * 2); }
+  .kami-city:nth-child(3) { margin-top: var(--rise); }
+
+  .kami-city {
+    align-items: center;
+  }
+
+  .kami-city__frame {
+    width: 100%;
+  }
+
+  .kami-city__bead {
+    display: block;
+    width: 0.8rem;
+    height: 0.8rem;
+    margin-top: 0.9rem;
+    border-radius: 999px;
+    box-shadow:
+      var(--kami-lift),
+      0 0 0 3px rgb(244 81 30 / 20%);
+  }
+
+  /* Bead centre to bead centre: columns are even, so a straight line through
+   * the first and last passes through all four. */
+  .kami-climb__thread {
+    left: calc((100% - 3 * var(--gap)) / 8);
+    right: calc((100% - 3 * var(--gap)) / 8);
+    bottom: 0.4rem;
+    height: calc(var(--rise) * 3);
+  }
+
+  /* The open corner the climb leaves bottom right. */
+  .kami-climb__foot {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    bottom: calc(var(--kami-beat) / 2 + 0.5rem);
+    width: calc(50% - var(--gap) / 2);
+    margin: 0;
+  }
+
+  .kami-climb__aside {
+    display: block;
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 2rem);
+  }
+}
+
+/* -------------------------------------------------------------- finale -- */
+
+.kami-finale {
+  position: relative;
+  padding-top: var(--kami-beat);
+  text-align: center;
+}
+
+.kami-finale__thread {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(var(--kami-beat) - 0.25rem);
+}
+
+.kami-finale__mark {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 4.25rem;
+  height: 4.25rem;
+  margin-bottom: 2rem;
+  border-radius: 999px;
+  background: var(--kami-glaze);
+  box-shadow: var(--kami-lift-high);
+  color: var(--kami-accent);
+}
+
+/* ---------------------------------------------------------------- slab -- */
+
+/*
+ * The one tile fired in the black glaze. Same lit rim as every porcelain
+ * tile, darker body, so it belongs to the set and still reads as the end.
+ */
+.kami-slab {
+  --slab-ink: #f5f1ea;
+  --slab-ink-muted: rgb(245 241 234 / 70%);
+  --slab-rule: rgb(245 241 234 / 11%);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.75rem;
+  margin: clamp(4rem, 2rem + 6vw, 7rem) 0 var(--kami-beat);
+  padding: clamp(2rem, 1rem + 4vw, 4.5rem);
+  border-radius: calc(var(--kami-radius) + 10px);
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgb(255 255 255 / 6%), transparent 60%),
+    var(--kami-glaze-ink);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 9%),
+    inset 0 1px 0 rgb(255 255 255 / 14%),
+    inset 0 0 18px rgb(255 255 255 / 4%),
+    0 1px 2px rgb(var(--kami-clay) / 22%),
+    0 30px 60px -30px rgb(var(--kami-clay) / 55%);
+  color: var(--slab-ink);
+}
+
+@media (min-width: 900px) {
+  .kami-slab {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 2.5rem var(--kami-gutter);
+    align-items: end;
+  }
+}
+
+.kami-slab .kami-eyebrow {
+  color: var(--slab-ink-muted);
+}
+
+.kami-slab .kami-display {
+  color: var(--slab-ink);
+}
+
+.kami-slab .kami-body {
+  color: var(--slab-ink-muted);
+}
+
+.kami-slab__cta {
+  margin-top: 2.25rem;
+}
+
+/* The primary action in porcelain on the black glaze. */
+.kami-cta--light,
+.kami-cta--light:hover {
+  background: var(--slab-ink, #f5f1ea);
+  color: var(--kami-ink);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 90%),
+    inset 0 0 8px rgb(255 255 255 / 70%),
+    0 1px 2px rgb(0 0 0 / 40%);
+}
+
+.kami-cta--light:active {
+  background: #dcd6cc;
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--kami-clay) / 20%),
+    inset 0 0 10px 2px rgb(var(--kami-clay) / 30%);
+}
+
+.kami-slab__links {
+  display: grid;
+}
+
+.kami-slab__links li + li a {
+  border-top: 1px solid var(--slab-rule);
+}
+
+.kami-slab__links a {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 1.15rem;
+  color: var(--slab-ink);
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.kami-slab__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--slab-ink-muted);
+}
+
+.kami-slab__value {
+  font-size: 1.02rem;
+  overflow-wrap: anywhere;
+}
+
+.kami-slab__go {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--slab-rule);
+  color: var(--slab-ink-muted);
+  transition:
+    background 160ms ease-out,
+    color 160ms ease-out,
+    transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.kami-slab__links a:hover .kami-slab__go {
+  background: var(--kami-glaze-accent);
+  color: #fff;
+  transform: translateX(2px);
+}
+
+.kami-slab__links a:focus-visible,
+.kami-cta:focus-visible {
+  outline: 2px solid var(--kami-accent);
+  outline-offset: 3px;
+}
+
+.kami-slab__pricing {
+  grid-column: 1 / -1;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--slab-rule);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--slab-ink-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kami-nav__cta,
+  .kami-nav__cta[data-echoed="true"],
+  .kami-slab__go {
+    transition: none;
+  }
+}
+
+/* On a phone the label takes its own line, so a number or an address never
+ * breaks mid-word beside it. */
+@media (max-width: 639px) {
+  .kami-slab__links a {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 0.3rem;
+  }
+
+  .kami-slab__label {
+    grid-column: 1 / -1;
+  }
+
+  .kami-slab__value {
+    overflow-wrap: normal;
+  }
+}
+
+/* The slab's padding leaves its headline the narrowest column on the page;
+ * let it scale a step further so the authored break holds on a phone. */
+@container (max-width: 22rem) {
+  .kami-slab .kami-display--section {
+    font-size: max(1.45rem, 8.4cqi);
+  }
+}
+
+
+/* --------------------------------------------------------------- lockup -- */
+
+/*
+ * The brand lockup: the knot, then the word.
+ *
+ * The knot takes the accent and the word takes ink, which is the logo as
+ * supplied. The mark is the recognisable half, so it never shrinks below 20px
+ * -- the four crossings close up and it reads as a blob under that.
+ */
+.kami-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kami-lockup__mark {
+  color: var(--kami-accent);
+  flex-shrink: 0;
+}
+
+.kami-lockup__word {
+  font-family: var(--kami-sans);
+  font-weight: 600;
+  font-size: 1.2rem;
+  letter-spacing: -0.022em;
+  line-height: 1;
+  color: var(--kami-ink);
+}
