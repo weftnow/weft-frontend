@@ -50,7 +50,7 @@ export const content = {
   hero: {
     eyebrow: "For curated business events",
     headline: "Meet Kami.",
-    sub: "Stop manually orchestrating who meets who at your events. Kami learns why each guest came and makes sure they're introduced to the right people, so you can stop playing matchmaker and focus on what actually matters.",
+    sub: "Most people leave events without meeting the people they came for. Kami asks each guest who they're hoping to meet, then introduces them, so everyone finds their people.",
     note: "No speed networking. No attendee app. No hoping people find each other.",
     ctaPrimary: { label: "Bring Weft to your next event", href: "#contact" },
     ctaSecondary: { label: "See how it works", href: "#how" },
