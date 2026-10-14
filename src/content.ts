@@ -316,10 +316,10 @@ export const content = {
       "Flat pricing by event size. One number, agreed before your event, no per-guest surprises.",
     links: [
       {
-        label: "WhatsApp",
-        value: "+57 314 513 5153",
-        href: "https://wa.me/573145135153",
-        external: true,
+        label: "Phone",
+        value: "+1 628 221 0543",
+        href: "tel:+16282210543",
+        external: false,
       },
       {
         label: "Email",
