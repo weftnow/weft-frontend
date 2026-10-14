@@ -50,7 +50,7 @@ export const content = {
   hero: {
     eyebrow: "For curated business events",
     headline: "Meet Kami.",
-    sub: "Most people leave events without meeting the people they came for. Kami asks each guest who they're hoping to meet, then introduces them, so everyone finds their people.",
+    sub: "Most guests leave your event without meeting the people they came for. With Kami, every guest meets them. Kami asks who they're hoping to meet and makes the introduction.",
     note: "No speed networking. No attendee app. No hoping people find each other.",
     ctaPrimary: { label: "Bring Weft to your next event", href: "#contact" },
     ctaSecondary: { label: "See how it works", href: "#how" },
