@@ -451,6 +451,17 @@
   text-wrap: balance;
 }
 
+/* The fallback for a closed tab. Quieter than the detail above it, because it
+   only matters to the minority who need it. */
+.waitingFallback {
+  max-width: 26rem;
+  margin: 0.85rem 0 0;
+  color: rgb(18 18 18 / 44%);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  text-wrap: balance;
+}
+
 .countdownStage {
   display: flex;
   min-height: 60svh;

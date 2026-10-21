@@ -45,7 +45,6 @@ test("records a submission and then reports it", async () => {
       recommendScore: 4,
       rating: 5,
       improvement: "More time at the end.",
-      platformPreference: "weft",
     }),
     params(guest),
   );
@@ -61,7 +60,6 @@ test("a second submission is a 409, not a 500", async () => {
     recommendScore: 3,
     rating: 3,
     improvement: "The room was loud.",
-    platformPreference: "gomatch",
   };
 
   expect((await POST(submission(body), params(guest))).status).toBe(201);
@@ -72,20 +70,16 @@ test("a second submission is a 409, not a 500", async () => {
 });
 
 test("out-of-range and empty answers are rejected before the repository", async () => {
-  const ok = { platformPreference: "weft" };
   const bad = [
-    { recommendScore: 6, rating: 3, improvement: "x", ...ok },
-    { recommendScore: 0, rating: 3, improvement: "x", ...ok },
-    { recommendScore: 5, rating: 0, improvement: "x", ...ok },
-    { recommendScore: 5, rating: 6, improvement: "x", ...ok },
-    { recommendScore: 5, rating: 3, improvement: "   ", ...ok },
-    { recommendScore: 5, rating: 3, improvement: "x".repeat(2001), ...ok },
-    { rating: 3, improvement: "x", ...ok },
-    { recommendScore: 5, improvement: "x", ...ok },
-    { recommendScore: 5, rating: 3, ...ok },
-    // The platform question is required and closed to the two names.
-    { recommendScore: 5, rating: 3, improvement: "x" },
-    { recommendScore: 5, rating: 3, improvement: "x", platformPreference: "neither" },
+    { recommendScore: 6, rating: 3, improvement: "x" },
+    { recommendScore: 0, rating: 3, improvement: "x" },
+    { recommendScore: 5, rating: 0, improvement: "x" },
+    { recommendScore: 5, rating: 6, improvement: "x" },
+    { recommendScore: 5, rating: 3, improvement: "   " },
+    { recommendScore: 5, rating: 3, improvement: "x".repeat(2001) },
+    { rating: 3, improvement: "x" },
+    { recommendScore: 5, improvement: "x" },
+    { recommendScore: 5, rating: 3 },
   ];
 
   for (const body of bad) {
@@ -101,7 +95,6 @@ test("meet-again refs are accepted, and omitting them is a valid answer", async 
       recommendScore: 5,
       rating: 5,
       improvement: "Nothing.",
-      platformPreference: "gomatch",
       meetAgainRefs: ["ref-ana", "ref-beto"],
     }),
     params(token("refs")),
@@ -114,7 +107,6 @@ test("meet-again refs are accepted, and omitting them is a valid answer", async 
       recommendScore: 5,
       rating: 5,
       improvement: "Nothing.",
-      platformPreference: "gomatch",
     }),
     params(token("no-refs")),
   );
@@ -149,7 +141,6 @@ test("a source-configuration failure is a 503 with a code, never a 500", async (
         recommendScore: 5,
         rating: 3,
         improvement: "x",
-        platformPreference: "weft",
       }),
       params(FORM_TOKEN),
     );

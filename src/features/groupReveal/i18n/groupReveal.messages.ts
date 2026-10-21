@@ -4,7 +4,9 @@ export const groupRevealMessages = {
   en: {
     waiting: "You're in.",
     waitingDetail:
-      "Your answers are saved. We'll send you a link when your table is ready \u2014 open it then to see your group.",
+      "Your answers are saved. Keep this page open \u2014 your table appears here the moment the host is ready.",
+    waitingFallback:
+      "Closed it by accident? We'll send you a link you can open instead.",
     countdown: "Your circle appears in {seconds}",
     errorEyebrow: "Weft questionnaire",
     unavailableTitle: "We couldn't load your group right now.",
@@ -46,7 +48,9 @@ export const groupRevealMessages = {
   es: {
     waiting: "Ya estás dentro.",
     waitingDetail:
-      "Tus respuestas están guardadas. Te enviaremos un enlace cuando tu mesa esté lista; ábrelo entonces para ver tu grupo.",
+      "Tus respuestas están guardadas. Deja esta página abierta: tu mesa aparecerá aquí en cuanto el anfitrión esté listo.",
+    waitingFallback:
+      "¿La cerraste sin querer? Te enviaremos un enlace para volver.",
     countdown: "Tu círculo aparece en {seconds}",
     errorEyebrow: "Cuestionario de Weft",
     unavailableTitle: "No pudimos cargar tu grupo ahora.",
