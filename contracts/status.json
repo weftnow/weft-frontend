@@ -1,0 +1,445 @@
+{
+  "contract": "status",
+  "description": "One matching run, as GET /v1/events/{event_id}/matching-run returns it.",
+  "valid": [
+    {
+      "why": "queued by the first lock, never yet claimed by a worker",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "queued",
+        "attempt": 0,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "running, with a heartbeat and the attendee count it has loaded so far",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "running",
+        "attempt": 1,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": "2026-09-07T18:04:13Z",
+        "progress_at": "2026-09-07T18:04:29Z",
+        "finished_at": null,
+        "attendee_count": 48,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "re-queued after a retryable attempt: the same run, back to queued, keeping the first attempt's start time",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "queued",
+        "attempt": 1,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": "2026-09-07T18:04:13Z",
+        "progress_at": "2026-09-07T18:04:29Z",
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "succeeded on the second attempt, carrying counts and all three versions",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "succeeded",
+        "attempt": 2,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": "2026-09-07T18:05:02Z",
+        "progress_at": "2026-09-07T18:05:38Z",
+        "finished_at": "2026-09-07T18:05:41Z",
+        "attendee_count": 48,
+        "group_count": 10,
+        "params_version": "v1.1",
+        "encoder_version": "v1",
+        "algorithm_version": "v1",
+        "failure": null
+      }
+    },
+    {
+      "why": "a non-UTC offset is still an offset",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "queued",
+        "attempt": 0,
+        "created_at": "2026-09-07T20:04:11+02:00",
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "failed on eligibility: nothing to match, and no retry worth offering",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "failed",
+        "attempt": 1,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": "2026-09-07T18:04:13Z",
+        "progress_at": "2026-09-07T18:04:14Z",
+        "finished_at": "2026-09-07T18:04:15Z",
+        "attendee_count": 0,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": {
+          "code": "no_eligible_attendees",
+          "retryable": false,
+          "message": "Nobody has checked in with a completed questionnaire yet.",
+          "reference": "R7K2M4QX"
+        }
+      }
+    },
+    {
+      "why": "failed at queue submission: terminal at attempt 0, so it finished without ever starting",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "failed",
+        "attempt": 0,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": "2026-09-07T18:04:11Z",
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": {
+          "code": "queue_submission_failed",
+          "retryable": true,
+          "message": "We could not start matching. Try again in a moment.",
+          "reference": "T2W9P6HN"
+        }
+      }
+    },
+    {
+      "why": "stalled: the worker stopped reporting progress and reconciliation gave up on it",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "failed",
+        "attempt": 1,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": "2026-09-07T18:04:13Z",
+        "progress_at": "2026-09-07T18:04:29Z",
+        "finished_at": "2026-09-07T18:19:29Z",
+        "attendee_count": 48,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": {
+          "code": "stalled",
+          "retryable": true,
+          "message": "Matching stopped responding. You can safely run it again.",
+          "reference": "K4N8Q1BZ"
+        }
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "a fifth lifecycle state nobody defined",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "cancelled",
+        "attempt": 0,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "failed without saying why, which is the ambiguity this whole contract exists to remove",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "failed",
+        "attempt": 1,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": "2026-09-07T18:04:13Z",
+        "progress_at": null,
+        "finished_at": "2026-09-07T18:04:15Z",
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "succeeded and carrying a failure at the same time",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "succeeded",
+        "attempt": 1,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": "2026-09-07T18:05:02Z",
+        "progress_at": null,
+        "finished_at": "2026-09-07T18:05:41Z",
+        "attendee_count": 48,
+        "group_count": 10,
+        "params_version": "v1.1",
+        "encoder_version": "v1",
+        "algorithm_version": "v1",
+        "failure": {
+          "code": "internal_failure",
+          "retryable": true,
+          "message": "Something went wrong.",
+          "reference": "R7K2M4QX"
+        }
+      }
+    },
+    {
+      "why": "succeeded without a group count, which would render as a published empty room",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "succeeded",
+        "attempt": 1,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": "2026-09-07T18:05:02Z",
+        "progress_at": null,
+        "finished_at": "2026-09-07T18:05:41Z",
+        "attendee_count": 48,
+        "group_count": null,
+        "params_version": "v1.1",
+        "encoder_version": "v1",
+        "algorithm_version": "v1",
+        "failure": null
+      }
+    },
+    {
+      "why": "succeeded without recording how it was computed, so no later run can be compared to it",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "succeeded",
+        "attempt": 1,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": "2026-09-07T18:05:02Z",
+        "progress_at": null,
+        "finished_at": "2026-09-07T18:05:41Z",
+        "attendee_count": 48,
+        "group_count": 10,
+        "params_version": "v1.1",
+        "encoder_version": null,
+        "algorithm_version": "v1",
+        "failure": null
+      }
+    },
+    {
+      "why": "queued and already finished",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "queued",
+        "attempt": 0,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": "2026-09-07T18:04:15Z",
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "running without ever having been claimed",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "running",
+        "attempt": 0,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "a start time on a run no worker has claimed",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "queued",
+        "attempt": 0,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": "2026-09-07T18:04:13Z",
+        "progress_at": null,
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "an attempt was made and no start time recorded for it",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "running",
+        "attempt": 1,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "a heartbeat belonging to an attempt that never started",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "queued",
+        "attempt": 0,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": null,
+        "progress_at": "2026-09-07T18:04:29Z",
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "a negative attempt count",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "queued",
+        "attempt": -1,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "a run id that is not a UUID",
+      "payload": {
+        "run_id": "run-42",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "queued",
+        "attempt": 0,
+        "created_at": "2026-09-07T18:04:11Z",
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "a timestamp with no offset, which is a different moment depending on who reads it",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "queued",
+        "attempt": 0,
+        "created_at": "2026-09-07T18:04:11",
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    },
+    {
+      "why": "created_at missing entirely",
+      "payload": {
+        "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+        "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+        "status": "queued",
+        "attempt": 0,
+        "started_at": null,
+        "progress_at": null,
+        "finished_at": null,
+        "attendee_count": null,
+        "group_count": null,
+        "params_version": null,
+        "encoder_version": null,
+        "algorithm_version": null,
+        "failure": null
+      }
+    }
+  ]
+}

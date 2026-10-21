@@ -1,0 +1,168 @@
+{
+  "contract": "failure",
+  "description": "The failure object a failed run carries. All nine codes, each with the retryability the backend assigns it.",
+  "valid": [
+    {
+      "why": "no_eligible_attendees: the room is what is wrong, so retrying it unchanged would fail identically",
+      "payload": {
+        "code": "no_eligible_attendees",
+        "retryable": false,
+        "message": "Nobody has checked in with a completed questionnaire yet.",
+        "reference": "R7K2M4QX"
+      }
+    },
+    {
+      "why": "invalid_matching_input: an answer reached the matcher in a shape it cannot score",
+      "payload": {
+        "code": "invalid_matching_input",
+        "retryable": false,
+        "message": "Some answers could not be read. Check the guest list and try again.",
+        "reference": "M3X8V2LC"
+      }
+    },
+    {
+      "why": "partition_unsatisfied: valid input, no valid seating",
+      "payload": {
+        "code": "partition_unsatisfied",
+        "retryable": false,
+        "message": "These guests cannot be split into tables under the current rules.",
+        "reference": "P9D4T7GW"
+      }
+    },
+    {
+      "why": "dependency_timeout: retryable, and the exception is kept in Sentry rather than here",
+      "payload": {
+        "code": "dependency_timeout",
+        "retryable": true,
+        "message": "Matching took too long to reach a service it needs.",
+        "reference": "H5J1R8YF"
+      }
+    },
+    {
+      "why": "dependency_unavailable",
+      "payload": {
+        "code": "dependency_unavailable",
+        "retryable": true,
+        "message": "A service matching needs is unavailable right now.",
+        "reference": "C2B6N9ZK"
+      }
+    },
+    {
+      "why": "persistence_failed: publication is atomic, so nothing partial was left behind",
+      "payload": {
+        "code": "persistence_failed",
+        "retryable": true,
+        "message": "We could not save the tables. No groups were published.",
+        "reference": "V8L3Q5DM"
+      }
+    },
+    {
+      "why": "queue_submission_failed",
+      "payload": {
+        "code": "queue_submission_failed",
+        "retryable": true,
+        "message": "We could not start matching. Try again in a moment.",
+        "reference": "T2W9P6HN"
+      }
+    },
+    {
+      "why": "stalled",
+      "payload": {
+        "code": "stalled",
+        "retryable": true,
+        "message": "Matching stopped responding. You can safely run it again.",
+        "reference": "K4N8Q1BZ"
+      }
+    },
+    {
+      "why": "internal_failure: retryable because publication is atomic, and the reference is the only thing support needs",
+      "payload": {
+        "code": "internal_failure",
+        "retryable": true,
+        "message": "Something went wrong on our side. Quote this reference to support.",
+        "reference": "Z6F2S4JT"
+      }
+    },
+    {
+      "why": "a reference at the eight-character floor",
+      "payload": {
+        "code": "stalled",
+        "retryable": true,
+        "message": "Matching stopped responding.",
+        "reference": "AB123456"
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "a code nobody defined",
+      "payload": {
+        "code": "everything_exploded",
+        "retryable": true,
+        "message": "Something went wrong.",
+        "reference": "Z6F2S4JT"
+      }
+    },
+    {
+      "why": "claims an eligibility failure is retryable, which would offer a button that cannot work",
+      "payload": {
+        "code": "no_eligible_attendees",
+        "retryable": true,
+        "message": "Nobody has checked in yet.",
+        "reference": "R7K2M4QX"
+      }
+    },
+    {
+      "why": "claims a timeout is not retryable, which would send the organizer to support for something a retry fixes",
+      "payload": {
+        "code": "dependency_timeout",
+        "retryable": false,
+        "message": "Matching took too long.",
+        "reference": "H5J1R8YF"
+      }
+    },
+    {
+      "why": "a raw exception smuggled into the reference, which is the exact leak this change exists to close",
+      "payload": {
+        "code": "internal_failure",
+        "retryable": true,
+        "message": "Something went wrong.",
+        "reference": "ValueError: cannot partition 3 people into groups of 5"
+      }
+    },
+    {
+      "why": "a reference shorter than eight characters, too ambiguous to quote in a support thread",
+      "payload": {
+        "code": "internal_failure",
+        "retryable": true,
+        "message": "Something went wrong.",
+        "reference": "Z6F2S4"
+      }
+    },
+    {
+      "why": "an empty message, which renders as a failure that says nothing",
+      "payload": {
+        "code": "internal_failure",
+        "retryable": true,
+        "message": "",
+        "reference": "Z6F2S4JT"
+      }
+    },
+    {
+      "why": "retryable missing, so the client has to guess whether to offer a retry",
+      "payload": {
+        "code": "stalled",
+        "message": "Matching stopped responding.",
+        "reference": "K4N8Q1BZ"
+      }
+    },
+    {
+      "why": "no reference at all, leaving a terminal failure with nothing to quote",
+      "payload": {
+        "code": "internal_failure",
+        "retryable": true,
+        "message": "Something went wrong."
+      }
+    }
+  ]
+}

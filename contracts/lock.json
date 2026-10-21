@@ -1,0 +1,109 @@
+{
+  "contract": "lock",
+  "description": "What POST /v1/events/{event_id}/lock answers. `status` is the compatibility field a deployed browser already reads; `run` is the addition.",
+  "valid": [
+    {
+      "why": "the first lock: a queued run comes back with the acknowledgement",
+      "payload": {
+        "status": "locked",
+        "run": {
+          "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+          "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+          "status": "queued",
+          "attempt": 0,
+          "created_at": "2026-09-07T18:04:11Z",
+          "started_at": null,
+          "progress_at": null,
+          "finished_at": null,
+          "attendee_count": null,
+          "group_count": null,
+          "params_version": null,
+          "encoder_version": null,
+          "algorithm_version": null,
+          "failure": null
+        }
+      }
+    },
+    {
+      "why": "a repeated lock while the run is already running returns that same run rather than enqueueing another",
+      "payload": {
+        "status": "locked",
+        "run": {
+          "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+          "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+          "status": "running",
+          "attempt": 1,
+          "created_at": "2026-09-07T18:04:11Z",
+          "started_at": "2026-09-07T18:04:13Z",
+          "progress_at": "2026-09-07T18:04:29Z",
+          "finished_at": null,
+          "attendee_count": 48,
+          "group_count": null,
+          "params_version": null,
+          "encoder_version": null,
+          "algorithm_version": null,
+          "failure": null
+        }
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "the reveal acknowledgement on the lock endpoint",
+      "payload": {
+        "status": "revealing",
+        "run": {
+          "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+          "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+          "status": "queued",
+          "attempt": 0,
+          "created_at": "2026-09-07T18:04:11Z",
+          "started_at": null,
+          "progress_at": null,
+          "finished_at": null,
+          "attendee_count": null,
+          "group_count": null,
+          "params_version": null,
+          "encoder_version": null,
+          "algorithm_version": null,
+          "failure": null
+        }
+      }
+    },
+    {
+      "why": "the old pre-run response: accepted today, and the whole point of task 2.9 is that it stops being enough",
+      "payload": {
+        "status": "locked"
+      }
+    },
+    {
+      "why": "a run that breaks its own rules is not rescued by being nested",
+      "payload": {
+        "status": "locked",
+        "run": {
+          "run_id": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43",
+          "event_id": "b7e2c419-8a3d-4e51-9f06-1c4a7d92e358",
+          "status": "failed",
+          "attempt": 1,
+          "created_at": "2026-09-07T18:04:11Z",
+          "started_at": "2026-09-07T18:04:13Z",
+          "progress_at": null,
+          "finished_at": "2026-09-07T18:04:15Z",
+          "attendee_count": null,
+          "group_count": null,
+          "params_version": null,
+          "encoder_version": null,
+          "algorithm_version": null,
+          "failure": null
+        }
+      }
+    },
+    {
+      "why": "a bare run id where the run belongs, which is the shape that cannot answer 'is it still going?'",
+      "payload": {
+        "status": "locked",
+        "run": "6f1d9c3a-4b2e-4f7a-9c81-2d5e8a0b7f43"
+      }
+    }
+  ]
+}
