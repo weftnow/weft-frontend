@@ -155,20 +155,20 @@ export const content = {
       {
         n: "01",
         icon: "call",
-        title: "Kami calls each attendee",
-        body: "We understand their goals, interests and what they hope to get out of the event.",
+        title: "We get to know your guests",
+        body: "Before the event, Kami talks to each guest about what they want and who they'd like to meet.",
       },
       {
         n: "02",
         icon: "match",
-        title: "Kami finds the right people",
-        body: "Using AI and event context, Kami matches each guest with high-relevance people in the room.",
+        title: "We find their matches and set up the meetings",
+        body: "Kami picks the people each guest should meet. We introduce them and arrange a time to meet, so the guests don't have to sort it out themselves.",
       },
       {
         n: "03",
         icon: "host",
-        title: "Real Weft hosts make the introductions",
-        body: "Our on-site hosts bring people together at the right moment, with context, so conversations start naturally.",
+        title: "They meet, and we help them keep in touch",
+        body: "Guests meet the people we matched them with. After the event, we help them follow up with anyone they want to see again.",
       },
     ],
     call: {
@@ -188,7 +188,7 @@ export const content = {
     id: "real",
     eyebrow: "The real picture",
     headline: ["Real people.", "Real introductions."],
-    body: "Kami handles the intelligence. Our Weft hosts make it real with warm, contextual introductions that turn good events into great outcomes.",
+    body: "A match on its own doesn't mean two people will meet. Whether the match comes from Kami or from a tool you already use, we make the introduction and set up the meeting.",
     marginalia: "More than events.\nReal opportunities.",
     scene: {
       src: "/images/weft-event-conversation.png",
