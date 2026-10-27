@@ -161,13 +161,13 @@ export const content = {
       {
         n: "02",
         icon: "match",
-        title: "We find their matches and set up the meetings",
+        title: "We match and set up meetings",
         body: "Kami picks the people each guest should meet. We introduce them and arrange a time to meet, so the guests don't have to sort it out themselves.",
       },
       {
         n: "03",
         icon: "host",
-        title: "They meet, and we help them keep in touch",
+        title: "They meet and stay in touch",
         body: "Guests meet the people we matched them with. After the event, we help them follow up with anyone they want to see again.",
       },
     ],
